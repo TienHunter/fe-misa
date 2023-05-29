@@ -1,84 +1,111 @@
 <template lang="">
-  <div>
-    <div class="combobox">
-      <label for="" class="combobox-wrapper block m-0 w-full">
-        {{ label }}
-        <span v-show="required" class="text-red">(*)</span>
+  <div class="combobox">
+    <label class="combobox-wrapper block m-0 w-full">
+      {{ labelTitle }}
+      <span v-show="isRequired" class="text-red">(*)</span>
 
+      <div
+        class="combobox-container flex items-center"
+        :class="{
+          'mt-2': labelTitle,
+          'border--focus': isShowCombobox,
+          'border--red': errMsg,
+        }">
+        <input
+          type="text"
+          class="input combobox-input flex-1 m-0"
+          :tabindex="tabIndex"
+          :placeholder="placeHolder"
+          :value="modelValue"
+          @input="(e) => handleChangeInput(e)" />
         <div
-          class="combobox-container flex items-center"
-          :class="{ 'mt-2': label, 'border--focus': isShowCombobox }">
-          <input
-            type="text"
-            class="combobox-input flex-1 m-0"
-            :placeholder="placeHolder" />
-          <div
-            class="icon-wrapper combobox-icon"
-            :class="{ active: isShowCombobox }"
-            @click="toggleCombobox">
-            <div class="icon icon--chevron-down"></div>
-          </div>
+          class="icon-wrapper combobox-icon"
+          :class="{ active: isShowCombobox }"
+          @click="toggleCombobox">
+          <div class="icon icon--chevron-down"></div>
         </div>
-      </label>
-      <ul v-if="isShowCombobox" class="combobox-list" style="z-index: 1">
-        <li
-          v-for="(iten, index) in dataList"
-          :key="index"
-          class="combobox-item"
-          @click="onClickComboboxItem(item)">
-          {{ item.value }}
-        </li>
-      </ul>
-    </div>
+      </div>
+    </label>
+    <ul v-if="isShowCombobox" class="combobox-list" style="z-index: 1">
+      <li
+        v-for="(item, index) in dataList"
+        :key="index"
+        class="combobox-item"
+        :class="{ 'combobox-item--selected': idSelected === item.id }"
+        @click="() => onClickComboboxItem(item)">
+        {{ item.value }}
+      </li>
+    </ul>
   </div>
 </template>
 <script>
 import { ref } from "vue";
 export default {
   props: {
-    dataList: {
-      type: Array,
-      default: () => [],
-    },
-    label: {
-      tyoe: String,
+    labelTitle: {
+      type: String,
       default: "",
     },
-    required: {
-      tyoe: Boolean,
-      default: false,
+    modelValue: {
+      type: String,
+      default: "",
+    },
+    tabIndex: {
+      type: Number,
+      default: -1,
     },
     placeHolder: {
       type: String,
       default: "",
     },
+    dataList: {
+      type: Array,
+      default: () => [],
+    },
     direct: {
       type: String,
       default: "show",
     },
+    isRequired: {
+      type: Boolean,
+      default: false,
+    },
+    idSelected: {
+      type: String,
+      default: "",
+    },
+    errMsg: {
+      type: String,
+      default: "",
+    },
   },
+  emits: ["update:modelValue", "onClickIdSelected", "emptyErrMsg"],
 
-  setup(props) {
-    const valueInput = ref("");
+  setup(props, { emit }) {
     const isShowCombobox = ref(false);
-
+    console.log(props.dataList);
     const toggleCombobox = () => {
       isShowCombobox.value = !isShowCombobox.value;
     };
     const onClickComboboxItem = (item) => {
-      // add text cho input
-      valueInput.value = item.text;
-      // add value cho biến toàn cục
+      // emit value input
+      emit("update:modelValue", item.value);
+      // emit idSelected ra cho component cha
+      emit("onClickIdSelected", item.id);
 
+      console.log(item);
       // đóng combox-list
       toggleCombobox();
     };
-
+    const handleChangeInput = (e) => {
+      emit("update:modelValue", e.target.value);
+      emit("emptyErrMsg");
+    };
     return {
-      valueInput,
       isShowCombobox,
       toggleCombobox,
       onClickComboboxItem,
+      handleChangeInput,
     };
   },
 };

@@ -1,6 +1,6 @@
 <template>
-  <div class="sidebar">
-    <div class="flex justify-start items-center logo-container">
+  <div class="sidebar" :class="{ 'sidebar--shrink': isSidebarShrink }">
+    <div v-if="!isSidebarShrink" class="logo-container">
       <a href="#" class="menu-container icon icon--option"> </a>
       <a href="#" class="logo">
         <img
@@ -8,6 +8,12 @@
           src="@/assets/images/Logo_Module_TiengViet_White.66947422.svg"
           alt="" />
       </a>
+    </div>
+    <div
+      v-else
+      class="logo-container justify-center"
+      @click="toggleSdibarShrink">
+      <div class="icon icon--three-stripes"></div>
     </div>
     <div class="menu-bar">
       <div class="menu-item-list flex flex-col">
@@ -114,7 +120,20 @@
   </div>
 </template>
 <script>
-export default {};
+import { computed } from "vue";
+import { useStore } from "vuex";
+
+export default {
+  setup(props) {
+    const store = useStore();
+    const isSidebarShrink = computed(() => store.state.global.isSidebarShrink);
+
+    return {
+      isSidebarShrink,
+      toggleSdibarShrink: () => store.dispatch("toggleSidebarShrink"),
+    };
+  },
+};
 </script>
 <style>
 @import url("./sidebar.css");

@@ -6,6 +6,7 @@ const global = {
       type: "",
       content: "",
     },
+    isSidebarShrink: false,
   },
   getters: {},
   mutations: {
@@ -14,6 +15,9 @@ const global = {
     },
     SET_TOAST(state, payload) {
       state.toast = { ...payload };
+    },
+    TOGGLE_SIDEBAR_SHRINK(state) {
+      state.isSidebarShrink = !state.isSidebarShrink;
     },
   },
   actions: {
@@ -26,6 +30,9 @@ const global = {
         commit("SET_TOAST", {
           isShow: false,
         });
+    },
+    toggleSidebarShrink({ commit }) {
+      commit("TOGGLE_SIDEBAR_SHRINK");
     },
   },
 };

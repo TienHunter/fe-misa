@@ -3,19 +3,21 @@
     {{ label }}
     <span v-show="required" class="text-red">(*)</span>
     <input
-      type="text"
+      class="input"
+      :type="inputType"
       :class="[
         `${errMsg ? 'border--red' : ''}`,
         `${classIcon ? 'pr-9' : ''}`,
         classInput,
       ]"
+      :tabindex="tabIndex"
       :placeholder="placeHolder"
       :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)" />
+      @input="(e) => handleChangeInput(e)" />
     <div v-if="classIcon" class="icon-wrapper">
       <div class="icon" :class="classIcon"></div>
     </div>
-    <div v-if="errMsg" class="errMsg">{{ errMsg }}</div>
+    <!-- <div v-if="errMsg" class="errMsg">{{ errMsg }}</div> -->
   </label>
 </template>
 <script>
@@ -41,9 +43,17 @@ export default {
       type: String,
       default: "",
     },
+    inputType: {
+      type: String,
+      default: "text",
+    },
     classInput: {
       type: String,
       default: "",
+    },
+    tabIndex: {
+      type: Number,
+      default: -1,
     },
     placeHolder: {
       type: String,
@@ -58,10 +68,16 @@ export default {
       default: "",
     },
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "emptyErrMsg"],
 
-  setup(props) {
-    return {};
+  setup(props, ctx) {
+    const handleChangeInput = (e) => {
+      ctx.emit("update:modelValue", e.target.value);
+      ctx.emit("emptyErrMsg");
+    };
+    return {
+      handleChangeInput,
+    };
   },
 };
 </script>

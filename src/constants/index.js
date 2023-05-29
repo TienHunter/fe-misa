@@ -1,3 +1,5 @@
+export const PUB_LAYOUT = "default";
+
 export const ButtonType = {
   pri: "PRIMARY",
   sub: "SUB",
@@ -7,10 +9,8 @@ export const ButtonType = {
   wIcon: "W_ICON",
 };
 export const PopupType = {
-  info: "INFO",
-  success: "SUCCESS",
-  warning: "WARNING",
-  error: "ERROR",
+  create: "CREATE",
+  update: "UPDATE",
 };
 export const ToastType = {
   info: "INFO",
@@ -18,8 +18,11 @@ export const ToastType = {
   warning: "WARNING",
   error: "ERROR",
 };
-export const PUB_LAYOUT = "default";
-
+export const DialogType = {
+  info: "INFO",
+  warning: "WARNING",
+  error: "ERROR",
+};
 // employee
 export const EmployeeCol = {
   checkbox: {
@@ -47,10 +50,10 @@ export const EmployeeCol = {
     text: "Số CMNN",
     title: "Số chứng minh nhân dân",
   },
-  indentityDate: {
+  identityDateRelease: {
     text: "Ngày cấp",
   },
-  identityPlace: {
+  identityPlaceRelease: {
     text: "Nơi cấp",
   },
   address: {
@@ -80,4 +83,13 @@ export const EmployeeCol = {
   action: {
     text: "Chức năng",
   },
+};
+
+export const ErrValidator = {
+  employeeCodeEmppty: "Mã không được để trống",
+  employeeNameEmpty: "Tên không được để trống",
+  departmentEmpty: "Đơn vị không được để trống",
+  dateOfBirth: "Ngày sinh không lớn hơn ngày hiện tại",
+  identityDateRelease: "Ngày cấp không lớn hơn ngày hiện tại",
+  email: "Email không đúng định dạng",
 };

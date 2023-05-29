@@ -1,6 +1,9 @@
 <template lang="">
   <div class="flex items-center header">
-    <div class="toggle-sidebar flex justify-center items-center mi-24">
+    <div
+      v-if="!isSidebarShrink"
+      class="toggle-sidebar flex justify-center items-center mi-24"
+      @click="toggleSdibarShrink">
       <div class="icon icon--three-stripes"></div>
     </div>
     <div class="header-branch pointer flex">
@@ -30,7 +33,19 @@
   </div>
 </template>
 <script>
-export default {};
+import { computed } from "vue";
+import { useStore } from "vuex";
+export default {
+  setup(props) {
+    const store = useStore();
+    const isSidebarShrink = computed(() => store.state.global.isSidebarShrink);
+
+    return {
+      isSidebarShrink,
+      toggleSdibarShrink: () => store.dispatch("toggleSidebarShrink"),
+    };
+  },
+};
 </script>
 <style>
 @import url("./header.css");

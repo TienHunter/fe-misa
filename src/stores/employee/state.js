@@ -1,7 +1,15 @@
 const state = {
   employeeList: () => [],
   employeeDetail: {},
-  isEmployeeDetail: false,
+  popupStatus: {
+    isShowPopup: false,
+    type: "",
+  },
+  employeeDialog: {
+    isShow: false,
+    type: "",
+    content: () => [],
+  },
 };
 
 export default state;

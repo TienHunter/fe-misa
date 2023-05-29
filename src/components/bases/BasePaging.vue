@@ -15,36 +15,6 @@
             :data="dataDropdown"
             title-dropdown-list="--Chọn số bản ghi trên một trang--"
             direct="up" />
-          <!-- <div class="dropdown-wrapper">
-            <label for="" class="w-auto m-0">
-              <div class="dropdown-container flex items-center">
-                <input
-                  type="text"
-                  class="m-0 flex-1 border-radius-0"
-                  readonly
-                  value="20 bản ghi trên một trang" />
-                <div
-                  class="icon-wrapper flex justify-center items-center pointer">
-                  <div class="icon icon--down-small-black"></div>
-                </div>
-              </div>
-            </label>
-            <div class="dropdown-list record-in-page-list w-full">
-              <div class="dropdown-item record-in-page-item">
-                10 bản ghi trên một trang
-              </div>
-              <div
-                class="dropdown-item dropdowm-item--selected record-in-page-item">
-                20 bản ghi trên một trang
-              </div>
-              <div class="dropdown-item record-in-page-item">
-                50 bản ghi trên một trang
-              </div>
-              <div class="dropdown-item record-in-page-item">
-                100 bản ghi trên một trang
-              </div>
-            </div>
-          </div> -->
         </div>
         <div class="list-number-page flex items-center">
           <div class="pointer pagination__prev no-click-page mr-3">Trước</div>

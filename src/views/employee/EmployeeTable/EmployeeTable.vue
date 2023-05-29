@@ -1,6 +1,6 @@
 <template>
   <div class="table-wrapper">
-    <table EmployeeId="tbEmployee">
+    <table employeeId="tbEmployee">
       <thead>
         <tr>
           <th
@@ -40,95 +40,86 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in employeeList" :key="index">
+        <tr
+          v-for="(item, index) in employeeList"
+          :key="index"
+          @dblclick="onOpenPopupUpdate">
           <template v-for="(col, key, indexCol) in EmployeeCol" :key="indexCol">
             <td
               :class="{
                 'td-anchor td-anchor--start': key === 'checkbox',
                 'td-anchor td-anchor--end td-action': key === 'action',
+              }"
+              :style="{
+                'z-index':
+                  rowSelected === item.employeeId && key === 'action' ? 1 : 0,
               }">
               <input
                 v-if="key === 'checkbox'"
                 type="checkbox"
-                style="width: 24px; height: 24px" />
+                style="width: 24px; height: 24px"
+                @dblclick.stop="" />
               <span v-else-if="key !== 'action'">{{ item[key] }}</span>
-              <div v-else class="flex items-center justify-center h-full">
+              <div
+                v-else
+                class="flex items-center justify-center h-full"
+                @dblclick.stop="">
                 <a
-                  href=""
+                  href="#"
                   class="text-blue font-semi-bold h-full flex items-center px-4"
+                  @click="() => onOpenPopupUpdate(item)"
                   >Sửa</a
                 >
 
-                <div class="td-action__icon">
-                  <div class="icon-wrapper w-8 h-8">
+                <div
+                  class="td-action__icon"
+                  :style="{
+                    'z-index':
+                      rowSelected === item.employeeId && key === 'action'
+                        ? 2
+                        : 0,
+                  }">
+                  <div
+                    class="icon-wrapper w-8 h-8"
+                    :class="{ 'border--blue': rowSelected === item.employeeId }"
+                    @click="() => toggleTableAction(item)">
                     <div class="icon icon--down-small-blue"></div>
                   </div>
-                  <div class="dropdown-list td-action-list">
+
+                  <div
+                    v-if="rowSelected === item.employeeId"
+                    class="dropdown-list td-action-list">
                     <div
-                      class="dropdown-item td-action-item td-action-item--remove">
+                      class="dropdown-item td-action-item td-action-item--remove"
+                      @click="() => onOpenEmployeeDialogWarning(item)">
                       Xóa
                     </div>
                     <div class="dropdown-item td-action-item">Nhân bản</div>
                   </div>
                 </div>
+                <div
+                  v-if="rowSelected"
+                  class="overlay"
+                  @click="toggleTableAction"></div>
               </div>
             </td>
           </template>
         </tr>
-        <!-- <tr>
-          <td class="td-anchor td-anchor--start">
-            <input type="checkbox" style="width: 24px; height: 24px" />
-          </td>
-          <td>MF1444</td>
-          <td>Vũ Đình Tiến</td>
-          <td>Nam</td>
-          <td>03/10/2001</td>
-          <td>123456789</td>
-          <td>Fresher</td>
-          <td>Customize</td>
-          <td>123456789</td>
-          <td>ViettinBank</td>
-          <td>Hai Bà Trưng</td>
-          <td
-            EmployeeId="employee1"
-            class="td-anchor td-anchor--end td-action td-action--selected">
-            <div class="flex items-center justify-center h-full">
-              <a
-                href=""
-                class="text-blue font-semi-bold h-full flex items-center px-4"
-                >Sửa</a
-              >
-
-              <div class="td-action__icon">
-                <div class="icon-wrapper w-8 h-8">
-                  <div class="icon icon--down-small-blue"></div>
-                </div>
-                <div class="dropdown-list td-action-list">
-                  <div
-                    class="dropdown-item td-action-item td-action-item--remove">
-                    Xóa
-                  </div>
-                  <div class="dropdown-item td-action-item">Nhân bản</div>
-                </div>
-              </div>
-            </div>
-          </td>
-        </tr> -->
       </tbody>
     </table>
   </div>
 </template>
 <script>
-import { EmployeeCol } from "@/constants";
+import { EmployeeCol, PopupType, DialogType } from "@/constants";
 import { useStore } from "vuex";
-import { computed, onMounted, reactive } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 export default {
   props: {},
   setup(props) {
     const store = useStore();
     const fakeEmployeeList = reactive([
       {
-        EmployeeId: 1,
+        employeeId: 1,
         employeeCode: "NV-001",
         employeeName: "Nguyễn Văn A",
         gender: "Nam",
@@ -136,6 +127,7 @@ export default {
         identityNumber: "026201001196",
         positionName: "Trưởng phòng",
         departmentName: "Phòng hành chính",
+        departmentId: "1",
         bankAccount: "215100298282",
         bankName: "MB Bank",
         bankBranchName: "Cầu Giấy",
@@ -149,11 +141,12 @@ export default {
         isProvider: true,
       },
       {
-        EmployeeId: 2,
+        employeeId: 2,
         employeeCode: "NV-002",
         employeeName: "Nguyễn Văn B",
         departmentName: "Phòng công nghệ",
-        gender: "Nam",
+        departmentId: "2",
+        gender: "Nữ",
         positionName: "Quản Lý",
         dateOfBirth: "2023-05-04",
         identityNumber: "026201001196",
@@ -170,11 +163,12 @@ export default {
         isProvider: true,
       },
       {
-        EmployeeId: 108732,
+        employeeId: 108732,
         employeeCode: "NV-003",
         employeeName: "Nguyễn Văn C",
         departmentName: "Phòng nhân sự",
-        gender: "Nam",
+        departmentId: "3",
+        gender: "Khác",
         positionName: "Nhân Viên",
         dateOfBirth: "2023-05-03",
         identityNumber: "026201001196",
@@ -191,10 +185,11 @@ export default {
         isProvider: true,
       },
       {
-        EmployeeId: 87945,
+        employeeId: 87945,
         employeeCode: "NV-004",
         employeeName: "Nguyễn Văn D",
         departmentName: "Phòng hành chính",
+        departmentId: "1",
         gender: "Nam",
         positionName: "Trường Phòng",
         dateOfBirth: "2023-05-16",
@@ -213,12 +208,63 @@ export default {
       },
     ]);
     const employeeList = computed(() => store.state.employee.employeeList);
+    const popupStatus = computed(() => store.state.employee.popupStatus);
+    const rowSelected = ref("");
+
     onMounted(() => {
       store.dispatch("fakeGetEmployeeList", fakeEmployeeList);
     });
+
+    /**
+     * toggle more action ở cột chức năng của table
+     * Author: vdtien (27/5/2023)
+     */
+    const toggleTableAction = (item) => {
+      // console.log(item);
+      if (rowSelected.value !== item.employeeId) {
+        rowSelected.value = item.employeeId;
+      } else {
+        rowSelected.value = "";
+      }
+      // console.log(rowSelected);
+    };
+    /**
+     * mở popup cập nhật nhân viên
+     * Author:vdtien (28/5/2023)
+     */
+    const onOpenPopupUpdate = (item) => {
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.update,
+      });
+      store.dispatch("getEmployeeDetail", item);
+    };
+
+    /**
+     *
+     * @param {*} item
+     * open employee dialog cảnh báo xóa
+     * Author: vdtien(28/5/2023)
+     */
+    const onOpenEmployeeDialogWarning = (item) => {
+      console.log(item);
+      toggleTableAction(item);
+      store.dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.warning,
+        content: [
+          `Bạn có chắc chắn muốn xóa nhân viên <${item?.employeeId}> không ?`,
+        ],
+      });
+      store.dispatch("getEmployeeDetail", item);
+    };
     return {
       EmployeeCol,
       employeeList,
+      toggleTableAction,
+      rowSelected,
+      onOpenPopupUpdate,
+      onOpenEmployeeDialogWarning,
     };
   },
 };

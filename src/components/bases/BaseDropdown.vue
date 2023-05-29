@@ -1,6 +1,6 @@
 <template lang="">
   <div class="dropdown-wrapper">
-    <label for="" class="w-auto">
+    <label class="w-auto">
       {{ label }}
       <span v-show="required && label" class="text-red">(*)</span>
       <div
@@ -8,7 +8,7 @@
         :class="{ 'mt-2': label, 'border--focus': isShowDropdown }">
         <input
           type="text"
-          class="m-0 flex-1 border-radius-none"
+          class="input m-0 flex-1 border-radius-none"
           readonly
           :value="valueInput" />
         <div

@@ -3,6 +3,10 @@
     background-color: var(--sidebar-background-color);
 }
 
+.sidebar--shrink {
+    width: var(--width-sidebar--shrink);
+}
+
 .sidebar-container {
     margin-right: 10px;
 }
@@ -11,6 +15,9 @@
     padding: 24px;
     height: var(--height-header);
     background-color: var(--sidebar-background-color);
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
 .menu-container.icon--option {

@@ -40,7 +40,7 @@
         <EmployeeTable />
       </div>
       <div class="content-body__paging">
-        <BasePaging />
+        <EmployeePaging />
       </div>
     </div>
   </div>
@@ -50,16 +50,17 @@
   <b-loading v-if="isLoading" />
 </template>
 <script>
-import BasePaging from "@/components/bases/BasePaging.vue";
-import EmployeeTable from "../EmployeeTable/EmployeeTable.vue";
-import EmployeeDetail from "../EmployeeDetail/EmployeeDetail.vue";
-import EmployeeDialog from "../EmployeeDialog/EmployeeDialog.vue";
-import { ButtonType, ToastType, PopupType } from "@/constants";
 import { computed, ref, onMounted, onUpdated } from "vue";
 import { useStore } from "vuex";
+import { ButtonType, ToastType, PopupType } from "@/constants";
+import EmployeeTable from "../EmployeeTable/EmployeeTable.vue";
+import EmployeePaging from "../EmployeePaging/EmployeePaging.vue";
+import EmployeeDetail from "../EmployeeDetail/EmployeeDetail.vue";
+import EmployeeDialog from "../EmployeeDialog/EmployeeDialog.vue";
+
 export default {
   components: {
-    BasePaging,
+    EmployeePaging,
     EmployeeTable,
     EmployeeDetail,
     EmployeeDialog,

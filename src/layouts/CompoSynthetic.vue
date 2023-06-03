@@ -56,7 +56,7 @@ export default {
       { text: "50 bản ghi trên một trang", value: 50 },
       { text: "100 bản ghi trên một trang", value: 100 },
     ]);
-    console.log(inputValue);
+    // console.log(inputValue);
     return {
       ButtonType,
       inputValue,

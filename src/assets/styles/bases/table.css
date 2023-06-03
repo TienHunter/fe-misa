@@ -1,4 +1,11 @@
 .table-wrapper {
+    overflow: hidden;
+    min-width: calc(100% + 0px);
+    position: relative;
+    height: 100%;
+}
+
+.table-container {
     overflow: auto;
     min-width: calc(100% + 0px);
     position: relative;
@@ -171,5 +178,14 @@ th>input {
     right: -6px;
     min-width: 120px;
     margin-right: 6px;
+    /* display: block; */
+}
+
+.td-action__icon .td-action-list--up {
+    top: unset;
+    bottom: 100%;
+    /* right: -6px;
+    min-width: 120px;
+    margin-right: 6px; */
     /* display: block; */
 }

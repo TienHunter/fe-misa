@@ -31,14 +31,14 @@
         :key="index"
         class="dropdown-item"
         :class="item?.text === valueInput ? 'dropdown-item--selected' : ''"
-        @click="onClickDropdownIten(item)">
+        @click="onClickSelectItem(item)">
         {{ item?.text }}
       </div>
     </div>
   </div>
 </template>
 <script>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 export default {
   props: {
     label: {
@@ -53,6 +53,7 @@ export default {
       type: Array,
       default: () => [],
     },
+    itemSelected: {},
     titleDropdownList: {
       type: String,
       default: "",
@@ -62,17 +63,28 @@ export default {
       default: "down",
     },
   },
-  emits: [],
-  setup(props) {
+  emits: ["onClickSelectItem"],
+  setup(props, ctx) {
     const valueInput = ref(props.titleDropdownList);
     const isShowDropdown = ref(false);
     const toggleDrodown = () => {
       isShowDropdown.value = !isShowDropdown.value;
     };
-    const onClickDropdownIten = (item) => {
+    onMounted(() => {
+      if (props.itemSelected) {
+        const foundItem = props.data.find(
+          (obj) => obj.value === props.itemSelected
+        );
+        if (foundItem) {
+          valueInput.value = foundItem.text;
+        }
+      }
+    });
+    const onClickSelectItem = (item) => {
       // add text cho input
       valueInput.value = item.text;
-      // add value cho biến toàn cục
+      // emit event
+      ctx.emit("onClickSelectItem", item);
 
       // đóng dropdown
       toggleDrodown();
@@ -80,7 +92,7 @@ export default {
     return {
       valueInput,
       isShowDropdown,
-      onClickDropdownIten,
+      onClickSelectItem,
       toggleDrodown,
     };
   },

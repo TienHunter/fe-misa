@@ -23,6 +23,11 @@ export const DialogType = {
   warning: "WARNING",
   error: "ERROR",
 };
+export const DialogAction = {
+  confirmDelete: "CONFIRM_DELETE",
+  confirmUpdate: "CONFIRM_UPDATE",
+  confirmCreate: "CONFIRM_CREATE",
+};
 // employee
 export const EmployeeCol = {
   checkbox: {
@@ -92,4 +97,9 @@ export const ErrValidator = {
   dateOfBirth: "Ngày sinh không lớn hơn ngày hiện tại",
   identityDateRelease: "Ngày cấp không lớn hơn ngày hiện tại",
   email: "Email không đúng định dạng",
+};
+export const StatusCode = {
+  success: 200,
+  notFound: 404,
+  badRequest: 400,
 };

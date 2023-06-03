@@ -1,6 +1,7 @@
 .dropdown-wrapper {
   position: relative;
   width: 300px;
+  background-color: #fff;
 }
 
 .dropdown-container {
@@ -14,11 +15,13 @@
 .dropdown-container input {
   font-size: 13px;
   border: none;
+  border-radius: none;
 
 }
 
 .dropdown-container input:focus {
   border: none;
+  background-color: transparent;
 }
 
 .dropdown-container>.icon-wrapper {
@@ -66,6 +69,7 @@
   /* display: none; */
 
 }
+
 
 .dropdown-list::-webkit-scrollbar {
   height: 6px;

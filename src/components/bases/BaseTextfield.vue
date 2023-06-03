@@ -1,10 +1,11 @@
 <template lang="">
-  <label :class="classLabel">
+  <label :class="classLabel" @keydown.tab.stop="">
     {{ label }}
     <span v-show="required" class="text-red">(*)</span>
     <input
       class="input"
       :type="inputType"
+      :title="errMsg"
       :class="[
         `${errMsg ? 'border--red' : ''}`,
         `${classIcon ? 'pr-9' : ''}`,

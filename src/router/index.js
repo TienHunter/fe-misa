@@ -14,10 +14,27 @@ const routes = [
       import(/* webpackChunkName: "home" */ "@/views/HomePage.vue"),
   },
   {
+    path: "/fake",
+    name: "Fake",
+    meta: {
+      layout: "default",
+    },
+    component: () =>
+      import(/* webpackChunkName: "fake" */ "@/views/FakePage.vue"),
+  },
+  {
     path: "/components",
     name: "Components",
     component: () =>
       import(/* webpackChunkName: "home" */ "@/views/ComponentPage.vue"),
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    meta: {
+      layout: "notfound",
+    },
+    component: () => <div>NotFound</div>,
   },
 ];
 

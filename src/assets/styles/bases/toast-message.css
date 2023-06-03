@@ -40,6 +40,11 @@
     flex: 1;
 }
 
+.toast__title {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
 .toast__title.toast__title--success {
     color: #50B83C;
     font-weight: 500;
@@ -57,6 +62,7 @@
 
 .toast__content .content {
     margin-left: 4px;
+    flex: 1;
 }
 
 .toast__close.icon.icon--close-small {

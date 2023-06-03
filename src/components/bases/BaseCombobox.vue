@@ -17,7 +17,8 @@
           :tabindex="tabIndex"
           :placeholder="placeHolder"
           :value="modelValue"
-          @input="(e) => handleChangeInput(e)" />
+          @input="handleChangeInput"
+          @keydown="handleKeyDown" />
         <div
           class="icon-wrapper combobox-icon"
           :class="{ active: isShowCombobox }"
@@ -31,15 +32,18 @@
         v-for="(item, index) in dataList"
         :key="index"
         class="combobox-item"
-        :class="{ 'combobox-item--selected': idSelected === item.id }"
-        @click="() => onClickComboboxItem(item)">
+        :class="{
+          'combobox-item--selected': idSelected === item.id,
+          'combobox-item--hover': selectedIndex === index,
+        }"
+        @click="() => onClickComboboxItem(item, index)">
         {{ item.value }}
       </li>
     </ul>
   </div>
 </template>
 <script>
-import { ref } from "vue";
+import { ref, watch, computed } from "vue";
 export default {
   props: {
     labelTitle: {
@@ -83,7 +87,12 @@ export default {
 
   setup(props, { emit }) {
     const isShowCombobox = ref(false);
-    console.log(props.dataList);
+    // console.log(props.idSelected);
+    const selectedIndex = ref(
+      computed(() =>
+        props.dataList.findIndex((item) => item.id === props.idSelected)
+      ).value
+    );
     const toggleCombobox = () => {
       isShowCombobox.value = !isShowCombobox.value;
     };
@@ -92,20 +101,78 @@ export default {
       emit("update:modelValue", item.value);
       // emit idSelected ra cho component cha
       emit("onClickIdSelected", item.id);
+      emit("emptyErrMsg");
 
-      console.log(item);
+      // console.log(item);
       // đóng combox-list
-      toggleCombobox();
+      isShowCombobox.value = false;
+      selectedIndex.value = -1; //
     };
     const handleChangeInput = (e) => {
+      // if(e.key === "ArrowUp" ||e.key === "ArrowDown" )
+      isShowCombobox.value = true;
       emit("update:modelValue", e.target.value);
-      emit("emptyErrMsg");
+      // emit("emptyErrMsg");
     };
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (selectedIndex.value > 0) {
+          selectedIndex.value--;
+        }
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (selectedIndex.value < props.dataList.length - 1) {
+          selectedIndex.value++;
+        }
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        if (isShowCombobox.value) {
+          // nếu đã di chuyển phím để chọn item
+          if (selectedIndex.value != -1) {
+            const itemSelected = props.dataList[selectedIndex.value];
+            if (itemSelected) {
+              onClickComboboxItem(itemSelected);
+            }
+          } else {
+            // tìm value input theo idSelected trước đó
+            if (props.idSelected) {
+              const itemSelected = props.dataList.find(
+                (obj) => obj.id === props.idSelected
+              );
+              if (itemSelected) {
+                // emit value input
+                emit("update:modelValue", itemSelected.value);
+              }
+            }
+
+            isShowCombobox.value = !isShowCombobox.value;
+          }
+        } else {
+          isShowCombobox.value = !isShowCombobox.value;
+        }
+      } else if (e.key === "Tab") {
+        // tìm value input theo idSelected trước đó
+        if (props.idSelected) {
+          const itemSelected = props.dataList.find(
+            (obj) => obj.id === props.idSelected
+          );
+          if (itemSelected) {
+            // emit value input
+            emit("update:modelValue", itemSelected.value);
+          }
+        }
+        isShowCombobox.value = false;
+      }
+    };
+
     return {
       isShowCombobox,
+      selectedIndex,
       toggleCombobox,
       onClickComboboxItem,
       handleChangeInput,
+      handleKeyDown,
     };
   },
 };

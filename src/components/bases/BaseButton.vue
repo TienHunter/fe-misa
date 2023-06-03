@@ -1,5 +1,5 @@
 <template>
-  <div class="btn" :tabindex="tabIndex">{{ title }}</div>
+  <div class="btn" :tabindex="tabIndex" @keydown.tab.stop="">{{ title }}</div>
 
   <!-- sử dụng ít nêu không cho tái sử dụng nữa -->
   <!-- <div

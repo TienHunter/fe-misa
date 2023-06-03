@@ -88,7 +88,12 @@ label .errMsg {
     border: 1px solid #50b83c;
 }
 
-.combobox-container input {
+.combobox-container .input {
+    border: none;
+    border-radius: 0;
+}
+
+.combobox-container .input:hover {
     border: none;
     border-radius: 0;
 }
@@ -155,6 +160,12 @@ label .errMsg {
     background-color: #50b83c;
     pointer-events: none;
     cursor: not-allowed;
+}
+
+.combobox-list .combobox-item--hover {
+    background-color: rgba(80, 184, 60, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 /* checkbox */

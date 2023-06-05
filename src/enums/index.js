@@ -26,3 +26,8 @@ export const DialogAction = {
   confirmUpdate: "CONFIRM_UPDATE",
   confirmCreate: "CONFIRM_CREATE",
 };
+export const Gender = {
+  male: 1,
+  female: 0,
+  other: 2,
+};

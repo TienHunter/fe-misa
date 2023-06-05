@@ -43,7 +43,7 @@
   </div>
 </template>
 <script>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted, watchEffect } from "vue";
 export default {
   props: {
     labelTitle: {
@@ -93,9 +93,23 @@ export default {
         props.dataList.findIndex((item) => item.id === props.idSelected)
       ).value
     );
+    watchEffect(() => {
+      // console.log("Counter changed:");
+      if (props.dataList.length > 0 && props.modelValue) {
+        selectedIndex.value = 0;
+      }
+      if (props.modelValue === "") {
+        selectedIndex.value = -1;
+      }
+    });
+
+    // ẩn hiện combolist khi click chuột
     const toggleCombobox = () => {
       isShowCombobox.value = !isShowCombobox.value;
+      selectedIndex.value = -1;
     };
+
+    // chọn item được selected
     const onClickComboboxItem = (item) => {
       // emit value input
       emit("update:modelValue", item.value);
@@ -108,22 +122,30 @@ export default {
       isShowCombobox.value = false;
       selectedIndex.value = -1; //
     };
+
+    // bắt sự kiện khi change input
     const handleChangeInput = (e) => {
       // if(e.key === "ArrowUp" ||e.key === "ArrowDown" )
       isShowCombobox.value = true;
       emit("update:modelValue", e.target.value);
       // emit("emptyErrMsg");
     };
+
+    // bắt sự kiện lên xuống enter tab
     const handleKeyDown = (e) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
         if (selectedIndex.value > 0) {
           selectedIndex.value--;
+        } else if (selectedIndex.value === 0) {
+          selectedIndex.value = props.dataList.length - 1;
         }
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
         if (selectedIndex.value < props.dataList.length - 1) {
           selectedIndex.value++;
+        } else if (selectedIndex.value === props.dataList.length - 1) {
+          selectedIndex.value = 0;
         }
       } else if (e.key === "Enter") {
         e.preventDefault();
@@ -163,6 +185,7 @@ export default {
           }
         }
         isShowCombobox.value = false;
+        selectedIndex.value = -1;
       }
     };
 

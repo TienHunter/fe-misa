@@ -39,7 +39,7 @@
 import BaseButton from "@/components/bases/BaseButton.vue";
 import BaseTextfield from "@/components/bases/BaseTextfield.vue";
 import BaseDropdown from "@/components/bases/BaseDropdown.vue";
-import { ButtonType } from "@/constants";
+import { ButtonType } from "@/enums";
 import { ref } from "vue";
 export default {
   components: {

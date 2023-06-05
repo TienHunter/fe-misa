@@ -12,11 +12,11 @@ const state = {
     action: "",
   },
   filterAndPaging: {
-    keySearch: "",
+    employeeFilter: "",
     pageSize: 10,
     pageNumber: 1,
-    totalRecords: 10000,
   },
+  totalRecords: 0,
 };
 
 export default state;

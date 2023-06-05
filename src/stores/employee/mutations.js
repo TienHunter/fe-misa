@@ -2,6 +2,9 @@ const mutations = {
   SET_EMPLOYEE_LIST(state, payload) {
     state.employeeList = [...payload];
   },
+  SET_NEW_EMPLOYEE_CODE(state, payload) {
+    state.employeeDetail = { ...state.employeeDetail, EmployeeCode: payload };
+  },
   SET_EMPLOYEE_DETAIL(state, payload) {
     state.employeeDetail = { ...payload };
   },
@@ -18,7 +21,7 @@ const mutations = {
   UPDATE_EMPLOYEE(state, payload) {
     let updatedEmployee = { ...payload };
     const index = state.employeeList.findIndex(
-      (emp) => emp.id === updatedEmployee.id
+      (emp) => emp.EmployeeId === updatedEmployee.EmployeeId
     );
     if (index !== -1) {
       let tmpEmployeeList = [...state.employeeList];
@@ -27,7 +30,9 @@ const mutations = {
     }
   },
   DELETE_EMPLOYEE(state, payload) {
-    const index = state.employeeList.findIndex((emp) => emp.id === payload);
+    const index = state.employeeList.findIndex(
+      (emp) => emp.EmployeeId === payload
+    );
     console.log(index);
     if (index !== -1) {
       let tmpEmployeeList = [...state.employeeList];
@@ -39,6 +44,9 @@ const mutations = {
 
   SET_FILTER_AND_PAGING(state, payload) {
     state.filterAndPaging = { ...payload };
+  },
+  SET_TOTAL_RECORDS(state, payload) {
+    state.totalRecords = payload;
   },
 };
 export default mutations;

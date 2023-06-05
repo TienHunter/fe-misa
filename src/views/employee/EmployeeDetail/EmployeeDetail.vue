@@ -8,12 +8,22 @@ import {
   toRefs,
   onBeforeUnmount,
   watch,
+  onBeforeMount,
 } from "vue";
 import { useStore } from "vuex";
 
 import { useDebounce } from "@/hooks";
-import { ButtonType, PopupType, ErrValidator, DialogType } from "@/constants";
-import { removeDiacritics } from "@/utils/helper";
+import {
+  ButtonType,
+  PopupType,
+  DialogType,
+  DialogAction,
+  Gender,
+} from "@/enums";
+import { ErrValidator } from "@/resources";
+import { removeDiacritics, removeEmptyFields } from "@/utils/helper";
+import DepartmentService from "@/api/services/departmentService";
+
 export default {
   setup(props) {
     const store = useStore();
@@ -23,30 +33,20 @@ export default {
     const employeeDialog = computed(() => store.state.employee.employeeDialog);
     const employeeInfo = ref({ ...employeeDetail.value });
     const departmentSearh = ref("");
-
-    const dataDeaprtment = reactive([
-      {
-        id: "1",
-        value: "Phòng hành chính",
-      },
-      {
-        id: "2",
-        value: "Phòng công nghệ",
-      },
-      {
-        id: "3",
-        value: "Phòng nhân sự",
-      },
-      {
-        id: "4",
-        value: "Phòng sản xuất",
-      },
-      {
-        id: "5",
-        value: "Phòng chill",
-      },
-    ]);
-    const dataDepartmentFilter = reactive([...dataDeaprtment]);
+    const debounceSearchDepartment = useDebounce(departmentSearh, 500);
+    const apiDepartment = ref(null);
+    const dataDeaprtment = computed(() => {
+      if (apiDepartment.value) {
+        let newData = apiDepartment.value.map((item, index) => ({
+          id: item.DepartmentId,
+          value: item.DepartmentName,
+        }));
+        return newData;
+      } else {
+        return [];
+      }
+    });
+    const dataDepartmentFilter = ref([]);
 
     const errRefs = toRefs(
       reactive({
@@ -65,55 +65,97 @@ export default {
     const tmpTablIndex = ref(null);
     const errValidator = reactive({});
     const employeeDetailRef = ref(null);
-    const debounceSearchDepartment = useDebounce(departmentSearh, 500);
+
     watch(debounceSearchDepartment, () => {
       // console.log(debounceSearchDepartment.value);
-
-      const filteredData = dataDeaprtment.filter((item) =>
+      const filteredData = dataDeaprtment.value.filter((item) =>
         removeDiacritics(item.value.toLowerCase()).includes(
           removeDiacritics(debounceSearchDepartment.value.toLowerCase())
         )
       );
       // console.log(filteredData);
       if (filteredData.length > 0) {
-        dataDepartmentFilter.splice(0, dataDeaprtment.length, ...filteredData);
-      } else {
-        dataDepartmentFilter.splice(
+        dataDepartmentFilter.value.splice(
           0,
-          dataDeaprtment.length,
-          ...dataDeaprtment
+          dataDepartmentFilter.value.length,
+          ...filteredData
+        );
+      } else {
+        dataDepartmentFilter.value.splice(
+          0,
+          dataDepartmentFilter.value.length,
+          ...dataDeaprtment.value
         );
       }
     });
+    // bắt sự thay đổi của dialog
     watch(employeeDialog, (newValue, oldValue) => {
-      const isEmpty = Object.keys(employeeDialog.value).length === 0;
-      if (isEmpty && oldValue.type === DialogType.error) {
+      // ???
+      // const isEmpty = Object.keys(employeeDialog.value).length === 0;
+      if (oldValue.type === DialogType.error) {
         // Lấy phần tử đầu tiên của danh sách
         const firstKey = Object.keys(errValidator)[0];
         const firstErr = accessRef(errValidator[firstKey].ref);
-        console.log(firstKey);
-        console.log(firstErr);
-        if (firstKey === "departmentId") {
+        // console.log(firstKey);
+        // console.log(firstErr);
+        if (firstKey === "DepartmentId") {
           firstErr.value.$el.querySelector("label").focus();
         } else {
           firstErr.value.$el.focus();
         }
+      } else if (
+        newValue.action === DialogAction.confirmCreate &&
+        oldValue.action === DialogAction.confirmCreate
+      ) {
+        storeEmployee();
+      } else if (
+        newValue.action === DialogAction.confirmUpdate &&
+        oldValue.action === DialogAction.confirmUpdate
+      ) {
+        storeEmployee();
       }
     });
+    // bắt sự thay đổi của department list
+    watch(dataDeaprtment, () => {
+      dataDepartmentFilter.value = [...dataDeaprtment.value];
+    });
 
-    onMounted(() => {
-      // employeeInfo.value.DepartmentId = "2";
-      errRefs.employeeCode.value.$el.focus();
-      console.log(errRefs);
-      // trường hợp sửa nhân viên thì bind departmentId và departmentSearch vào combobox
-      if (employeeInfo.value.departmentId) {
-        const foundElement = dataDeaprtment.find(
-          (item) => item.id === employeeInfo.value.departmentId
+    // cập nhật employeeInfo
+    watch(employeeDetail, () => {
+      employeeInfo.value = { ...employeeDetail.value };
+    });
+
+    onBeforeMount(async () => {
+      // call api lấy danh sách phòng ban
+      try {
+        let response = await DepartmentService.getAll();
+
+        // console.log(response);
+        if (response) {
+          apiDepartment.value = response;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      if (popupStatus.value.type === PopupType.create) {
+        store.dispatch("getNewEmployeecode");
+      }
+      // trường hợp sửa nhân viên thì bind DepartmentId và departmentSearch vào combobox
+      if (employeeInfo.value.DepartmentId) {
+        const foundElement = dataDeaprtment.value.find(
+          (item) => item.id === employeeInfo.value.DepartmentId
         );
+
         if (foundElement) {
           departmentSearh.value = foundElement.value;
         }
       }
+    });
+    onMounted(() => {
+      // employeeInfo.value.DepartmentId = "2";
+      errRefs.employeeCode.value.$el.focus();
+      // console.log(errRefs);
 
       // thêm sự kiện keydowns cho document
       employeeDetailRef.value.addEventListener(
@@ -141,10 +183,40 @@ export default {
      * Author: vdtien (28/5/2023)
      */
     const onClosePopup = () => {
-      store.dispatch("getPopupStatus", {
-        isShowPopup: false,
-        type: "",
-      });
+      // kiểm tra có sự thay đổi không
+      employeeInfo.value = removeEmptyFields(employeeInfo.value);
+      if (
+        JSON.stringify(employeeInfo.value) !==
+        JSON.stringify(employeeDetail.value)
+      ) {
+        if (popupStatus.value.type === PopupType.create) {
+          store.dispatch("getDialog", {
+            isShow: true,
+            type: DialogType.info,
+            content: ["Dữ liệu thay đổi ban có muốn lưu không"],
+            action: DialogAction.confirmCreate,
+          });
+        } else if (popupStatus.value.type === PopupType.update) {
+          store.dispatch("getDialog", {
+            isShow: true,
+            type: DialogType.info,
+            content: ["Dữ liệu thay đổi ban có muốn lưu không"],
+            action: DialogAction.confirmUpdate,
+          });
+        } else {
+          store.dispatch("getPopupStatus", {
+            isShowPopup: false,
+            type: "",
+          });
+          store.dispatch("getEmployeeDetail");
+        }
+      } else {
+        store.dispatch("getPopupStatus", {
+          isShowPopup: false,
+          type: "",
+        });
+        store.dispatch("getEmployeeDetail");
+      }
     };
 
     /**
@@ -206,9 +278,9 @@ export default {
 
       // Mã không được để trống
       let isEmployeeCodeEmpty =
-        !employeeInfo.value.employeeCode ||
-        (employeeInfo.value.employeeCode &&
-          !employeeInfo.value.employeeCode.trim());
+        !employeeInfo.value.EmployeeCode ||
+        (employeeInfo.value.EmployeeCode &&
+          !employeeInfo.value.EmployeeCode.trim());
       if (isEmployeeCodeEmpty) {
         errValidator.employeeCode = {
           errMsg: ErrValidator.employeeCodeEmppty,
@@ -218,9 +290,8 @@ export default {
 
       // Tên không được để trống
       let isEmployeeNameEmpty =
-        !employeeInfo.value.employeeName ||
-        (employeeInfo.value.employeeName &&
-          !employeeInfo.value.employeeName.trim());
+        !employeeInfo.value.FullName ||
+        (employeeInfo.value.FullName && !employeeInfo.value.FullName.trim());
 
       if (isEmployeeNameEmpty) {
         errValidator.employeeName = {
@@ -231,20 +302,20 @@ export default {
 
       // Đơn vị không được để trống
       let isDepartmentEmpty =
-        !employeeInfo.value.departmentId ||
-        (employeeInfo.value.departmentId &&
-          !employeeInfo.value.departmentId.trim());
+        !employeeInfo.value.DepartmentId ||
+        (employeeInfo.value.DepartmentId &&
+          !employeeInfo.value.DepartmentId.trim());
       if (isDepartmentEmpty) {
-        errValidator.departmentId = {
+        errValidator.DepartmentId = {
           errMsg: ErrValidator.departmentEmpty,
           ref: "employeeDepartment",
         };
       }
 
       // Ngày sinh không lớn hơn ngày hiện tại
-      if (employeeInfo.value.dateOfBirth) {
+      if (employeeInfo.value.DateOfBirth) {
         let currentDate = new Date().getTime();
-        let dof = Date.parse(employeeInfo.value.dateOfBirth);
+        let dof = Date.parse(employeeInfo.value.DateOfBirth);
         if (dof > currentDate) {
           errValidator.dateOfBirth = {
             errMsg: ErrValidator.dateOfBirth,
@@ -254,9 +325,9 @@ export default {
       }
 
       // Ngày cấp không lớn hơn ngày hiện tại
-      if (employeeInfo.value.identityDateRelease) {
+      if (employeeInfo.value.IdentityDateRelease) {
         let currentDate = new Date().getTime();
-        let dof = Date.parse(employeeInfo.value.identityDateRelease);
+        let dof = Date.parse(employeeInfo.value.IdentityDateRelease);
         if (dof > currentDate) {
           errValidator.identityDateRelease = {
             errMsg: ErrValidator.identityDateRelease,
@@ -266,10 +337,10 @@ export default {
       }
 
       // Email đúng định dạng
-      if (employeeInfo.value.email && employeeInfo.value.email.trim()) {
+      if (employeeInfo.value.Email && employeeInfo.value.Email.trim()) {
         let emailFormat =
           /^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+)@([a-zA-Z0-9-]+)((\.[a-zA-Z0-9-]{2,3})+)$/;
-        if (!employeeInfo.value.email.match(emailFormat)) {
+        if (!employeeInfo.value.Email.match(emailFormat)) {
           errValidator.email = {
             errMsg: ErrValidator.email,
             ref: "employeeEmail",
@@ -311,6 +382,7 @@ export default {
       PopupType,
       popupStatus,
       employeeInfo,
+      apiDepartment,
       dataDeaprtment,
       departmentSearh,
       debounceSearchDepartment,
@@ -326,6 +398,8 @@ export default {
       errValidator,
       storeEmployee,
       dataDepartmentFilter,
+      Gender,
+      employeeDetail,
     };
   },
 };
@@ -385,7 +459,7 @@ export default {
               <div class="flex gap-0-8">
                 <b-textfield
                   :ref="errRefs.employeeCode"
-                  v-model="employeeInfo.employeeCode"
+                  v-model="employeeInfo.EmployeeCode"
                   :tab-index="2"
                   required
                   label="Mã"
@@ -399,7 +473,7 @@ export default {
                   @keydown="hanldeFocusLast" />
                 <b-textfield
                   :ref="errRefs.employeeName"
-                  v-model="employeeInfo.employeeName"
+                  v-model="employeeInfo.FullName"
                   :tab-index="3"
                   required
                   label="Tên"
@@ -418,23 +492,23 @@ export default {
                   :tab-index="4"
                   is-required
                   label-title="Đơn vị"
-                  place-holder="Chọn đơn vị"
-                  :err-msg="errValidator?.departmentId?.errMsg ?? ''"
+                  place-holder="-- Chọn đơn vị --"
+                  :err-msg="errValidator?.DepartmentId?.errMsg ?? ''"
                   :data-list="dataDepartmentFilter"
-                  :id-selected="employeeInfo.departmentId"
+                  :id-selected="employeeInfo.DepartmentId"
                   @on-click-id-selected="
-                    (id) => (employeeInfo.departmentId = id)
+                    (id) => (employeeInfo.DepartmentId = id)
                   "
                   @empty-err-msg="
                     () => {
-                      delete errValidator.departmentId;
+                      delete errValidator.DepartmentId;
                     }
                   "
                   @keydown.tab.stop="" />
               </div>
               <div class="w-full">
                 <b-textfield
-                  v-model="employeeInfo.positionName"
+                  v-model="employeeInfo.PositionName"
                   :tab-index="5"
                   label="Chức danh"
                   class-label="w-full" />
@@ -444,7 +518,7 @@ export default {
               <div class="flex items-center gap-0-8">
                 <b-textfield
                   :ref="errRefs.dateOfBirth"
-                  v-model="employeeInfo.dateOfBirth"
+                  v-model="employeeInfo.DateOfBirth"
                   :tab-index="6"
                   input-type="date"
                   label="Ngày sinh"
@@ -461,37 +535,40 @@ export default {
                   <div
                     class="flex flex-row gap-0-24 mt-2 h-8"
                     style="position: relative">
-                    <label class="flex flex-row items-center m-0 w-auto">
+                    <label
+                      class="flex flex-row items-center m-0 w-auto font-regular">
                       <input
-                        v-model="employeeInfo.gender"
+                        v-model="employeeInfo.Gender"
                         tabindex="7"
                         type="radio"
                         class="m-0 mr-1"
-                        value="Nam"
+                        :value="Gender.male"
                         name="radio-gender"
                         @keydown.tab.stop="" />
                       Nam
                     </label>
 
-                    <label class="flex flex-row items-center m-0 w-auto">
+                    <label
+                      class="flex flex-row items-center m-0 w-auto font-regular">
                       <input
-                        v-model="employeeInfo.gender"
+                        v-model="employeeInfo.Gender"
                         tabindex="7"
                         type="radio"
                         class="m-0 mr-1"
-                        value="Nữ"
+                        :value="Gender.female"
                         name="radio-gender"
                         @keydown.tab.stop="" />
                       Nữ
                     </label>
 
-                    <label class="flex flex-row items-center m-0 w-auto">
+                    <label
+                      class="flex flex-row items-center m-0 w-auto font-regular">
                       <input
-                        v-model="employeeInfo.gender"
+                        v-model="employeeInfo.Gender"
                         tabindex="7"
                         type="radio"
                         class="m-0 mr-1"
-                        value="Khác"
+                        :value="Gender.other"
                         name="radio-gender"
                         @keydown.tab.stop="" />
                       Khác
@@ -501,14 +578,14 @@ export default {
               </div>
               <div class="flex w-full gap-0-8">
                 <b-textfield
-                  v-model="employeeInfo.identityNumber"
+                  v-model="employeeInfo.IdentityNumber"
                   :tab-index="8"
                   label="Số CMND"
                   title="Số căn cước công dân"
                   class-label="w-3_5" />
                 <b-textfield
                   :ref="errRefs.identityDateRelease"
-                  v-model="employeeInfo.identityDateRelease"
+                  v-model="employeeInfo.IdentityDateRelease"
                   :tab-index="9"
                   input-type="date"
                   label="Ngày cấp"
@@ -522,7 +599,7 @@ export default {
               </div>
               <div class="w-full">
                 <b-textfield
-                  v-model="employeeInfo.identityPlaceRelease"
+                  v-model="employeeInfo.IdentityPlaceRelease"
                   :tab-index="10"
                   label="Nơi cấp"
                   class-label="w-full" />
@@ -532,7 +609,7 @@ export default {
           <div class="form-content__bottom flex flex-col gap-16-0">
             <div class="w-full">
               <b-textfield
-                v-model="employeeInfo.address"
+                v-model="employeeInfo.Address"
                 :tab-index="11"
                 label="Địa chỉ"
                 class-label="w-full" />
@@ -540,13 +617,13 @@ export default {
 
             <div class="w-full flex gap-0-8 justify-start">
               <b-textfield
-                v-model="employeeInfo.phoneNumber"
+                v-model="employeeInfo.PhoneNumber"
                 :tab-index="12"
                 label="ĐT di động"
                 class-label="w-1_4"
                 title="Điện thoại di động" />
               <b-textfield
-                v-model="employeeInfo.mobilePhoneNumber"
+                v-model="employeeInfo.MobilePhoneNumber"
                 :tab-index="13"
                 label="ĐT cố định"
                 class-label="w-1_4"
@@ -554,7 +631,7 @@ export default {
 
               <b-textfield
                 :ref="errRefs.employeeEmail"
-                v-model="employeeInfo.email"
+                v-model="employeeInfo.Email"
                 :tab-index="14"
                 label="Email"
                 class-label="w-1_4"
@@ -567,17 +644,17 @@ export default {
             </div>
             <div class="w-full flex gap-0-8 justify-start">
               <b-textfield
-                v-model="employeeInfo.bankAccount"
+                v-model="employeeInfo.BankAccount"
                 :tab-index="15"
                 label="Tài khoản ngân hàng"
                 class-label="w-1_4" />
               <b-textfield
-                v-model="employeeInfo.bankName"
+                v-model="employeeInfo.BankName"
                 :tab-index="16"
                 label="Tên ngân hàng"
                 class-label="w-1_4" />
               <b-textfield
-                v-model="employeeInfo.bankBranchName"
+                v-model="employeeInfo.BankBranchName"
                 :tab-index="17"
                 label="Chi nhánh"
                 class-label="w-1_4" />

@@ -16,9 +16,7 @@
       <div class="content-body__tools flex justify-between items-center mb-4">
         <div class="content-body-tools__left">
           <div class="batch-actions flex items-center pointer">
-            <div class="batch-actions__title" @click="testToast">
-              Thực hiện hàng loạt
-            </div>
+            <div class="batch-actions__title">Thực hiện hàng loạt</div>
             <div class="batch-actions__icon">
               <div class="icon icon--down-small-black"></div>
             </div>
@@ -26,7 +24,7 @@
         </div>
         <div class="content-body-tools__right ml-auto flex items-center">
           <b-textfield
-            v-model="searchValue"
+            v-model="employeeSerch"
             class-input="m-0"
             place-holder="Tìm kiếm nhân viên ..."
             class-icon="icon icon--search" />
@@ -50,13 +48,14 @@
   <b-loading v-if="isLoading" />
 </template>
 <script>
-import { computed, ref, onMounted, onUpdated } from "vue";
+import { computed, ref, onMounted, onUpdated, watchEffect, watch } from "vue";
 import { useStore } from "vuex";
-import { ButtonType, ToastType, PopupType } from "@/constants";
+import { ButtonType, ToastType, PopupType } from "@/enums";
 import EmployeeTable from "../EmployeeTable/EmployeeTable.vue";
 import EmployeePaging from "../EmployeePaging/EmployeePaging.vue";
 import EmployeeDetail from "../EmployeeDetail/EmployeeDetail.vue";
 import EmployeeDialog from "../EmployeeDialog/EmployeeDialog.vue";
+import { useDebounce } from "@/hooks";
 
 export default {
   components: {
@@ -67,11 +66,26 @@ export default {
   },
   setup(props) {
     const store = useStore();
-    const searchValue = ref("");
     const popupStatus = computed(() => store.state.employee.popupStatus);
     const isLoading = computed(() => store.state.global.isLoading);
     const toast = computed(() => store.state.global.toast);
     const employeeDialog = computed(() => store.state.employee.employeeDialog);
+    const filterAndPaging = computed(
+      () => store.state.employee.filterAndPaging
+    );
+    const employeeSerch = ref("");
+    const debounceEmployeeSearch = useDebounce(employeeSerch, 600);
+
+    // watch
+    watch(debounceEmployeeSearch, () => {
+      console.log("watch effect");
+      store.dispatch("getFilterAndPaging", {
+        ...filterAndPaging.value,
+        employeeFilter: debounceEmployeeSearch,
+        pageNumber: 1,
+      });
+      store.dispatch("getEmployeeList");
+    });
 
     // onMounted(async () => {
     //   await store.dispatch("getEmployeeList");
@@ -79,13 +93,6 @@ export default {
     onUpdated(() => {
       // console.log(employeeDialog);
     });
-    const testToast = () => {
-      store.dispatch("getToast", {
-        isShow: true,
-        type: ToastType.success,
-        content: "Công việc đã xóa",
-      });
-    };
     const onOpenPopupCreate = () => {
       store.dispatch("getEmployeeDetail", {});
       store.dispatch("getPopupStatus", {
@@ -95,10 +102,9 @@ export default {
     };
     return {
       ButtonType,
-      searchValue,
+      employeeSerch,
       isLoading,
       toast,
-      testToast,
       onOpenPopupCreate,
       popupStatus,
       employeeDialog,

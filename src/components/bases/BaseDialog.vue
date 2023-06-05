@@ -37,10 +37,10 @@
         </template>
         <template v-if="type === DialogType.info">
           <div class="popup-botoom__left">
-            <b-button class="btn btn--sub" title="Hủy" @click="onCancel" />
+            <b-button class="btn btn--sub" title="Hủy" @click="onClose" />
           </div>
           <div class="popup-bottom__right flex items-center">
-            <b-button class="btn btn--sub" title="Không" @click="onClose" />
+            <b-button class="btn btn--sub" title="Không" @click="onCloseAll" />
             <b-button class="btn btn--pri" title="Có" @click="onAccept" />
           </div>
         </template>
@@ -49,7 +49,7 @@
   </div>
 </template>
 <script>
-import { DialogType } from "@/constants";
+import { DialogType } from "@/enums";
 
 export default {
   props: {
@@ -65,7 +65,7 @@ export default {
       type: Array,
       default: () => [],
     },
-    onCancel: {
+    onCloseAll: {
       type: Function,
       default: () => {},
     },

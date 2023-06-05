@@ -784,3 +784,7 @@ a {
 .outline-none {
   outline: none;
 }
+
+.font-regular {
+  font-weight: 400;
+}

@@ -33,56 +33,56 @@ export const EmployeeCol = {
   checkbox: {
     text: "",
   },
-  employeeCode: {
+  EmployeeCode: {
     text: "Mã nhân viên",
   },
-  employeeName: {
+  FullName: {
     text: "Tên nhân viên",
   },
-  gender: {
+  Gender: {
     text: "Giới tính",
   },
-  dateOfBirth: {
+  DateOfBirth: {
     text: "Ngày sinh",
   },
-  positionNam: {
+  PositionName: {
     text: "Chức danh",
   },
-  departmentName: {
+  DepartmentName: {
     text: "Bộ phận",
   },
-  identityNumber: {
+  IdentityNumber: {
     text: "Số CMNN",
     title: "Số chứng minh nhân dân",
   },
-  identityDateRelease: {
+  IdentityDateRelease: {
     text: "Ngày cấp",
   },
-  identityPlaceRelease: {
+  IdentityPlaceRelease: {
     text: "Nơi cấp",
   },
-  address: {
+  Address: {
     text: "Địa chỉ",
   },
-  phoneNumber: {
+  PhoneNumber: {
     text: "ĐT cố định",
     title: "Điện thoại cố định",
   },
-  mobilePhoneNumber: {
+  MobilePhoneNumber: {
     text: "ĐT di động",
     title: "Điện thoại di động",
   },
-  email: {
+  Email: {
     text: "Email",
   },
-  bankAccount: {
+  BankAccount: {
     text: "STK ngân hàng",
     title: "Số tài khoản ngân hàng",
   },
-  bankName: {
+  BankName: {
     text: "Tên ngân hàng",
   },
-  bankBranchName: {
+  BankBranchName: {
     text: "Tên chi nhánh",
   },
   action: {

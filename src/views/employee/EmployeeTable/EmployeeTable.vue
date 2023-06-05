@@ -1,7 +1,9 @@
 <script>
-import { EmployeeCol, PopupType, DialogType, DialogAction } from "@/constants";
+import { PopupType, DialogType, DialogAction } from "@/enums";
+import { EmployeeCol } from "@/resources";
 import { useStore } from "vuex";
-import { computed, onMounted, reactive, ref, toRefs } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref, toRefs } from "vue";
+import { converGender, removeEmptyFields } from "@/utils/helper";
 export default {
   props: {},
   setup(props) {
@@ -11,8 +13,10 @@ export default {
     const tableEmployeeRef = ref(null);
     const btnTableRefs = ref([]);
     const btnTableDirectUp = ref(false);
-    onMounted(() => {
+    onBeforeMount(() => {
       store.dispatch("getEmployeeList");
+    });
+    onMounted(() => {
       btnTableRefs.value = btnTableRefs.value.map((ref) => toRefs(ref));
     });
 
@@ -27,8 +31,8 @@ export default {
         btnTableDirectUp.value = false;
         return;
       }
-      if (rowSelected.value !== item.id) {
-        rowSelected.value = item.id;
+      if (rowSelected.value !== item.EmployeeId) {
+        rowSelected.value = item.EmployeeId;
         const tablePositionBottom =
           tableEmployeeRef.value.getBoundingClientRect().bottom;
         const btnTableActionPositionBottom =
@@ -55,7 +59,8 @@ export default {
         isShowPopup: true,
         type: PopupType.update,
       });
-      store.dispatch("getEmployeeDetail", item);
+      const itemRemoveNull = removeEmptyFields(item);
+      store.dispatch("getEmployeeDetail", itemRemoveNull);
     };
 
     /**
@@ -71,7 +76,9 @@ export default {
       store.dispatch("getDialog", {
         isShow: true,
         type: DialogType.warning,
-        content: [`Bạn có chắc chắn muốn xóa nhân viên <${item?.id}> không ?`],
+        content: [
+          `Bạn có chắc chắn muốn xóa nhân viên <${item?.EmployeeCode}> không ?`,
+        ],
         action: DialogAction.confirmDelete,
       });
     };
@@ -85,6 +92,7 @@ export default {
       tableEmployeeRef,
       btnTableRefs,
       btnTableDirectUp,
+      converGender,
     };
   },
 };
@@ -116,7 +124,7 @@ export default {
         <tbody>
           <tr
             v-for="(item, index) in employeeList"
-            :key="item.id"
+            :key="item.EmployeeId"
             @dblclick="() => onOpenPopupUpdate(item)">
             <td
               v-for="(col, key, indexCol) in EmployeeCol"
@@ -126,13 +134,17 @@ export default {
                 'td-anchor td-anchor--end td-action': key === 'action',
               }"
               :style="{
-                'z-index': rowSelected === item.id && key === 'action' ? 1 : 0,
+                'z-index':
+                  rowSelected === item.EmployeeId && key === 'action' ? 1 : 0,
               }">
               <input
                 v-if="key === 'checkbox'"
                 type="checkbox"
                 style="width: 24px; height: 24px"
                 @dblclick.stop="" />
+              <span v-else-if="key === 'Gender'">
+                {{ converGender(item[key]) }}
+              </span>
               <span v-else-if="key !== 'action'">{{ item[key] }}</span>
               <div
                 v-else
@@ -149,18 +161,20 @@ export default {
                   class="td-action__icon"
                   :style="{
                     'z-index':
-                      rowSelected === item.id && key === 'action' ? 2 : 0,
+                      rowSelected === item.EmployeeId && key === 'action'
+                        ? 2
+                        : 0,
                   }">
                   <div
                     ref="btnTableRefs"
                     class="icon-wrapper w-8 h-8"
-                    :class="{ 'border--blue': rowSelected === item.id }"
+                    :class="{ 'border--blue': rowSelected === item.EmployeeId }"
                     @click="() => toggleTableAction(item, index)">
                     <div class="icon icon--down-small-blue"></div>
                   </div>
 
                   <div
-                    v-if="rowSelected === item.id"
+                    v-if="rowSelected === item.EmployeeId"
                     class="dropdown-list td-action-list"
                     :class="{ 'td-action-list--up': btnTableDirectUp }">
                     <div

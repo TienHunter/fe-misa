@@ -3,7 +3,7 @@
     :data-dropdown="dataDropdown"
     :page-size="filterAndPaging.pageSize"
     :page-number="filterAndPaging.pageNumber"
-    :total-records="filterAndPaging.totalRecords"
+    :total-records="totalRecords"
     :total-pages="totalPages"
     :on-click-prev-page="onClickPrevPage"
     :on-click-next-page="onClickNextPage"
@@ -19,12 +19,11 @@ export default {
     const filterAndPaging = computed(
       () => store.state.employee.filterAndPaging
     );
-    console.log(filterAndPaging.value);
+    const totalRecords = computed(() => store.state.employee.totalRecords);
+    // console.log(filterAndPaging.value);
     const totalPages = computed(() => {
       if (filterAndPaging.value.pageSize) {
-        return Math.ceil(
-          filterAndPaging.value.totalRecords / filterAndPaging.value.pageSize
-        );
+        return Math.ceil(totalRecords.value / filterAndPaging.value.pageSize);
       } else {
         return 1;
       }
@@ -44,6 +43,7 @@ export default {
         ...filterAndPaging.value,
         pageNumber: filterAndPaging.value.pageNumber - 1,
       });
+      store.dispatch("getEmployeeList");
     };
 
     const onClickNextPage = () => {
@@ -55,12 +55,14 @@ export default {
         ...filterAndPaging.value,
         pageNumber: filterAndPaging.value.pageNumber + 1,
       });
+      store.dispatch("getEmployeeList");
     };
     const onClickPageNumber = (pageNumber) => {
       store.dispatch("getFilterAndPaging", {
         ...filterAndPaging.value,
         pageNumber: pageNumber,
       });
+      store.dispatch("getEmployeeList");
     };
     const onClickPageSize = (pageSize) => {
       store.dispatch("getFilterAndPaging", {
@@ -68,10 +70,13 @@ export default {
         pageSize: pageSize,
         pageNumber: 1,
       });
-      console.log(pageSize);
+      store.dispatch("getEmployeeList", filterAndPaging.value);
+
+      // console.log(pageSize);
     };
     return {
       filterAndPaging,
+      totalRecords,
       dataDropdown,
       totalPages,
       onClickPrevPage,

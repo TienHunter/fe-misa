@@ -32,7 +32,7 @@
 </template>
 <script>
 import { useStore } from "vuex";
-import { ToastType } from "@/constants";
+import { ToastType } from "@/enums";
 import { computed, onMounted } from "vue";
 export default {
   setup(props) {

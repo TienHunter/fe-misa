@@ -29,13 +29,21 @@ class BaseService {
    * created date: 02-06-2023
    */
   async getList(params) {
-    const res = await axios.get(`${this.getEndpoint()}`, {
+    const res = await axios.get(`${this.getEndpoint()}/filter`, {
       params: {
         ...params,
       },
     });
     return res.data;
   }
+
+  /**
+   * Mô tả: lấy bản ghi theo phân trang và filter
+   * created by : vdtien
+   * created date: 05-06-2023
+   * @param {type} param -
+   * @returns
+   */
   async getRecordById(id) {
     const res = await axios.get(`${this.getEndpoint()}/${id}`);
     return res.data;

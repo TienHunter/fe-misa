@@ -4,5 +4,6 @@ const gettters = {
   popupStatus: (state) => state.popupStatus,
   employeeDialog: (state) => state.employeeDialog,
   filterAndPaging: (state) => state.filterAndPaging,
+  totalRecords: (state) => state.totalRecords,
 };
 export default gettters;

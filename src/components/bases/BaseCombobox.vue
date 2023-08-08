@@ -1,56 +1,69 @@
 <template lang="">
-  <div class="combobox">
+  <div ref="comboboxRef" class="combobox">
     <label class="combobox-wrapper block m-0 w-full">
-      {{ labelTitle }}
+      {{ label }}
       <span v-show="isRequired" class="text-red">(*)</span>
 
       <div
         class="combobox-container flex items-center"
         :class="{
-          'mt-2': labelTitle,
+          'mt-2': label,
           'border--focus': isShowCombobox,
           'border--red': errMsg,
         }">
         <input
+          ref="inputRef"
           type="text"
           class="input combobox-input flex-1 m-0"
+          :title="errMsg"
           :tabindex="tabIndex"
           :placeholder="placeHolder"
-          :value="modelValue"
+          :value="searchValue"
           @input="handleChangeInput"
           @keydown="handleKeyDown" />
         <div
           class="icon-wrapper combobox-icon"
           :class="{ active: isShowCombobox }"
           @click="toggleCombobox">
-          <div class="icon icon--chevron-down"></div>
+          <div class="icon icon--down-small-black"></div>
         </div>
       </div>
     </label>
-    <ul v-if="isShowCombobox" class="combobox-list" style="z-index: 1">
-      <li
-        v-for="(item, index) in dataList"
-        :key="index"
-        class="combobox-item"
-        :class="{
-          'combobox-item--selected': idSelected === item.id,
-          'combobox-item--hover': selectedIndex === index,
-        }"
-        @click="() => onClickComboboxItem(item, index)">
-        {{ item.value }}
-      </li>
-    </ul>
+    <div
+      v-show="isShowCombobox"
+      class="combobox-list-wrapper"
+      style="z-index: 100; min-width: 100%">
+      <ul ref="listDataWrapperRef" class="combobox-list" :class="classList">
+        <li
+          v-for="(item, index) in dataListFilter"
+          :ref="itemRefs[index]"
+          :key="index"
+          class="combobox-item"
+          :class="{
+            'combobox-item--selected': idSelected === item[fieldSelect],
+            'combobox-item--hover': selectedIndex === index,
+          }"
+          @click="() => onClickComboboxItem(item, index)">
+          {{ item[fieldShow] }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script>
-import { ref, watch, computed, onMounted, watchEffect } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  onMounted,
+  watchEffect,
+  onBeforeMount,
+} from "vue";
+import { useClickOutside, useDebounce } from "@/hooks";
+import { removeDiacritics } from "@/utils/helper";
 export default {
   props: {
-    labelTitle: {
-      type: String,
-      default: "",
-    },
-    modelValue: {
+    label: {
       type: String,
       default: "",
     },
@@ -66,9 +79,21 @@ export default {
       type: Array,
       default: () => [],
     },
+    fieldSelect: {
+      type: String,
+      required: true,
+    },
+    fieldShow: {
+      type: String,
+      required: true,
+    },
     direct: {
       type: String,
       default: "show",
+    },
+    classList: {
+      type: String,
+      default: "",
     },
     isRequired: {
       type: Boolean,
@@ -82,43 +107,149 @@ export default {
       type: String,
       default: "",
     },
+    isReload: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["update:modelValue", "onClickIdSelected", "emptyErrMsg"],
+  emits: [
+    "update:modelValue",
+    "onClickIdSelected",
+    "emptyErrMsg",
+    "addValueSelected",
+  ],
 
   setup(props, { emit }) {
+    const inputRef = ref(null);
+    const comboboxRef = ref(null);
+    const listDataWrapperRef = ref(null);
     const isShowCombobox = ref(false);
-    // console.log(props.idSelected);
+    const positionCombobox = ref({});
+    const searchValue = ref("");
+    const debounceSearch = useDebounce(searchValue, 500);
+    const isOutsideCombobox = useClickOutside(comboboxRef);
+    // console.log(props.dataList);
+    const dataListFilter = ref([]);
+    const itemRefs = ref([]);
+    const itemSelected = ref({});
     const selectedIndex = ref(
       computed(() =>
-        props.dataList.findIndex((item) => item.id === props.idSelected)
-      ).value
+        props.dataList.findIndex(
+          (item) => item[props.fieldSelect] === props.idSelected
+        )
+      )?.value ?? -1
     );
-    watchEffect(() => {
-      // console.log("Counter changed:");
-      if (props.dataList.length > 0 && props.modelValue) {
-        selectedIndex.value = 0;
+    const isLoading = ref(true);
+
+    onMounted(() => {
+      itemRefs.value = dataListFilter.value.map(() => ref(null));
+      // positionCombobox.value.bottom =
+      //   comboboxRef.value.getBoundingClientRect().bottom + 8;
+      // positionCombobox.value.left =
+      //   comboboxRef.value.getBoundingClientRect().left;
+      // positionCombobox.value.width =
+      //   comboboxRef.value.getBoundingClientRect().width;
+      // console.log(listDataWrapperRef.value);
+    });
+    //kiểm tra sự thay đổi của debounceSearch
+    watch(debounceSearch, () => {
+      if (!isLoading.value === true) {
+        isLoading.value = false;
+        if (props.isReload) {
+          // emit ra cha để call api
+        } else {
+          // filter ở client
+
+          dataListFilter.value = props.dataList.filter((item) =>
+            removeDiacritics(
+              (item?.[props.fieldShow] ?? "").toLowerCase()
+            ).includes(
+              removeDiacritics(debounceSearch?.value ?? "").toLowerCase()
+            )
+          );
+        }
       }
-      if (props.modelValue === "") {
-        selectedIndex.value = -1;
+
+      selectedIndex.value = -1;
+    });
+    // cập nhật dataList
+    watchEffect(() => {
+      dataListFilter.value = [...props.dataList];
+    });
+
+    watchEffect(() => {
+      selectedIndex.value = -1;
+      itemRefs.value = dataListFilter.value.map(() => ref(null));
+    });
+    //kiểm tra sự thay đổi của idSelected
+    watchEffect(() => {
+      if (props.idSelected) {
+        const foundItem = props.dataList.find(
+          (obj) => obj?.[props.fieldSelect] === props?.idSelected
+        );
+        const index = props.dataList.findIndex(
+          (obj) => obj?.[props.fieldSelect] === props?.idSelected
+        );
+        if (index !== -1 && foundItem) {
+          itemSelected.value = { ...foundItem };
+          searchValue.value = foundItem[props.fieldShow];
+          selectedIndex.value = index;
+        }
       }
     });
 
+    watchEffect(() => {
+      if (isShowCombobox.value === true) {
+        if (props.idSelected) {
+          const index = dataListFilter.value.findIndex(
+            (el) => el[props.fieldSelect] === props.idSelected
+          );
+          if (index !== -1) {
+            selectedIndex.value = index;
+          }
+        }
+      }
+    });
+
+    watchEffect(() => {
+      if (selectedIndex.value != -1) {
+        if (itemRefs.value[selectedIndex.value].value) {
+          itemRefs.value[selectedIndex.value].value[0].scrollIntoView();
+        }
+      }
+    });
+
+    watchEffect(() => {
+      if (isOutsideCombobox.value === true) {
+        isShowCombobox.value = false;
+      }
+    });
+
+    // focus input
+    const focus = () => {
+      inputRef.value.focus();
+    };
+    const select = () => {
+      inputRef.value.select();
+    };
     // ẩn hiện combolist khi click chuột
     const toggleCombobox = () => {
       isShowCombobox.value = !isShowCombobox.value;
-      selectedIndex.value = -1;
+      if (isShowCombobox.value === false) {
+        selectedIndex.value = -1;
+      }
     };
 
     // chọn item được selected
     const onClickComboboxItem = (item) => {
-      // emit value input
-      emit("update:modelValue", item.value);
-      // emit idSelected ra cho component cha
-      emit("onClickIdSelected", item.id);
+      itemSelected.value = item;
+      searchValue.value = item[props.fieldShow];
+      isLoading.value = true;
+
+      emit("onClickIdSelected", item[props.fieldSelect]);
+      emit("addValueSelected", item[props.fieldShow]);
       emit("emptyErrMsg");
 
-      // console.log(item);
-      // đóng combox-list
       isShowCombobox.value = false;
       selectedIndex.value = -1; //
     };
@@ -126,25 +257,33 @@ export default {
     // bắt sự kiện khi change input
     const handleChangeInput = (e) => {
       // if(e.key === "ArrowUp" ||e.key === "ArrowDown" )
+      isLoading.value = false;
       isShowCombobox.value = true;
-      emit("update:modelValue", e.target.value);
-      // emit("emptyErrMsg");
+      searchValue.value = e.target.value;
+      itemSelected.value = {};
+      emit("onClickIdSelected", "");
+      // emit("update:modelValue", e.target.value);
+      emit("emptyErrMsg");
     };
 
     // bắt sự kiện lên xuống enter tab
     const handleKeyDown = (e) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
+        isShowCombobox.value = true;
+
         if (selectedIndex.value > 0) {
           selectedIndex.value--;
         } else if (selectedIndex.value === 0) {
-          selectedIndex.value = props.dataList.length - 1;
+          selectedIndex.value = dataListFilter.value.length - 1;
         }
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        if (selectedIndex.value < props.dataList.length - 1) {
+        isShowCombobox.value = true;
+
+        if (selectedIndex.value < dataListFilter.value.length - 1) {
           selectedIndex.value++;
-        } else if (selectedIndex.value === props.dataList.length - 1) {
+        } else if (selectedIndex.value === dataListFilter.value.length - 1) {
           selectedIndex.value = 0;
         }
       } else if (e.key === "Enter") {
@@ -152,20 +291,16 @@ export default {
         if (isShowCombobox.value) {
           // nếu đã di chuyển phím để chọn item
           if (selectedIndex.value != -1) {
-            const itemSelected = props.dataList[selectedIndex.value];
-            if (itemSelected) {
-              onClickComboboxItem(itemSelected);
+            const itemSelect = dataListFilter.value[selectedIndex.value];
+            if (itemSelect) {
+              onClickComboboxItem(itemSelect);
             }
           } else {
-            // tìm value input theo idSelected trước đó
-            if (props.idSelected) {
-              const itemSelected = props.dataList.find(
-                (obj) => obj.id === props.idSelected
-              );
-              if (itemSelected) {
-                // emit value input
-                emit("update:modelValue", itemSelected.value);
-              }
+            // nếu không chọn thì trả về item selected trước đó nếu có
+            if (itemSelected.value) {
+              searchValue.value = itemSelected.value.value;
+            } else {
+              searchValue.value = "";
             }
 
             isShowCombobox.value = !isShowCombobox.value;
@@ -175,14 +310,9 @@ export default {
         }
       } else if (e.key === "Tab") {
         // tìm value input theo idSelected trước đó
-        if (props.idSelected) {
-          const itemSelected = props.dataList.find(
-            (obj) => obj.id === props.idSelected
-          );
-          if (itemSelected) {
-            // emit value input
-            emit("update:modelValue", itemSelected.value);
-          }
+        // nếu không chọn thì trả về item selected trước đó
+        if (itemSelected.value.value) {
+          searchValue.value = itemSelected.value.value;
         }
         isShowCombobox.value = false;
         selectedIndex.value = -1;
@@ -190,12 +320,22 @@ export default {
     };
 
     return {
+      inputRef,
       isShowCombobox,
       selectedIndex,
       toggleCombobox,
       onClickComboboxItem,
       handleChangeInput,
       handleKeyDown,
+      dataListFilter,
+      searchValue,
+      debounceSearch,
+      itemSelected,
+      itemRefs,
+      comboboxRef,
+      focus,
+      select,
+      positionCombobox,
     };
   },
 };

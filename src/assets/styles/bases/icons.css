@@ -2,8 +2,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
     cursor: pointer;
 }
 
@@ -12,6 +12,56 @@
     /* width: 24px;
     height: 24px; */
     cursor: pointer;
+}
+
+.icon-v1 {
+    background: url("../../images/Sprites.svg");
+}
+
+.icon-v1+.icon-v1 {
+    margin-left: 8px;
+}
+
+.icon-v1--dowload-right {
+    background-position: -2014px -606px;
+    width: 20px;
+    height: 20px;
+}
+
+.icon-v1--funnel {
+    background-position: -1817px -208px;
+    width: 12px;
+    height: 12px;
+}
+
+.icon-v1--arrow-check-all {
+    background-position: -259px -147px;
+    width: 18px;
+    height: 18px;
+}
+
+.icon-v1--bin {
+    background-position: -464px -313px;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-v1--plus-green-small {
+    background-position: -34px -314px;
+    width: 12px;
+    height: 12px;
+}
+
+.icon-v1--close-mini {
+    background-position: -83px -316px;
+    width: 9px;
+    height: 8px;
+}
+
+.icno-v1--check-small {
+    background-position: -1225px -363px;
+    width: 14px;
+    height: 11px;
 }
 
 .icon+.icon {
@@ -46,6 +96,12 @@
     height: 8px;
 }
 
+.icon--chevron-left-blue {
+    background-position: -228px -362px;
+    width: 8px;
+    height: 12px;
+}
+
 .icon--chevron-down-small {
     background-position: -948px -366px;
     width: 8px;
@@ -53,19 +109,51 @@
 }
 
 .icon--notify {
-    background-position: -257px -32px;
+    background-position: -788px -30px;
+    width: 22px;
+    height: 25px;
+}
+
+.icon--notify-hover {
+    background-position: 257px -88px;
     width: 22px;
     height: 25px;
 }
 
 .icon--message {
-    background-position: -368px -32px;
+    background-position: -568px -30px;
+    width: 24px;
+    height: 24px;
+}
+
+.icon--message-hover {
+    background-position: --32px -88px;
+    width: 24px;
+    height: 24px;
 }
 
 .icon--question {
-    background-position: -89px -145px;
+    background-position: -732px -31px;
     width: 22px;
     height: 22px;
+}
+
+.icon--question-active {
+    background-position: -201px -89px;
+    width: 22px;
+    height: 22px;
+}
+
+.icon--setting {
+    background-position: -675px -30px;
+    width: 24px;
+    height: 24px;
+}
+
+.icon--setting-active {
+    background-position: -144px -88px;
+    width: 24px;
+    height: 24px;
 }
 
 .icon--no-avatar {
@@ -176,7 +264,9 @@
 }
 
 .icon--excel {
-    background-position: -1265px -88px;
+    background-position: -705px -258px;
+    width: 23px;
+    height: 20px;
 }
 
 
@@ -258,6 +348,12 @@
     height: 22px;
 }
 
+.icon--search-small {
+    background-position: -992px -360px;
+    width: 16px;
+    height: 16px;
+}
+
 .icon--chevron-left-medium-white {
     background-position: -1372px -361px;
     width: 8px;
@@ -289,8 +385,32 @@
     height: 36px;
 }
 
-.icon-success-big {
+.icon--success-big {
     background-position: -990px -462px;
     width: 36px;
     height: 36px;
+}
+
+.icon--down-small {
+    background-position: -852px -365px;
+    width: 8px;
+    height: 5px;
+}
+
+.icon-down-medium {
+    background-position: -371px -364px;
+    width: 10px;
+    height: 8px;
+}
+
+.icon--plus-square {
+    background-position: -608px -312px;
+    width: 15px;
+    height: 15px;
+}
+
+.icon--minus-square {
+    background-position: -560px -312px;
+    width: 15px;
+    height: 15px;
 }

@@ -1,14 +1,26 @@
 <template lang="">
-  <div class="dropdown-wrapper">
-    <label class="w-auto">
+  <div
+    ref="dropdowContainerRef"
+    class="dropdown-wrapper"
+    :class="{ 'disable-dropdown': disable }">
+    <label>
       {{ label }}
       <span v-show="required && label" class="text-red">(*)</span>
       <div
         class="dropdown-container flex items-center"
-        :class="{ 'mt-2': label, 'border--focus': isShowDropdown }">
+        :class="{
+          'mt-2': label,
+          'border--focus': isShowDropdown,
+          disabled: disable,
+        }"
+        @click="toggleDrodown">
         <input
           type="text"
           class="input m-0 flex-1 border-radius-none"
+          :class="{}"
+          :tabindex="tabindex"
+          :style="{ opacity: disable ? 0 : 1 }"
+          :disable="disable"
           readonly
           :value="valueInput" />
         <div
@@ -23,7 +35,7 @@
       v-if="isShowDropdown"
       class="dropdown-list w-full"
       :class="{ 'dropdown-list--up': direct === 'up' }">
-      <div class="dropdown-item dropdown-item-title">
+      <div v-show="titleDropdownList" class="dropdown-item dropdown-item-title">
         {{ titleDropdownList }}
       </div>
       <div
@@ -32,13 +44,16 @@
         class="dropdown-item"
         :class="item?.text === valueInput ? 'dropdown-item--selected' : ''"
         @click="onClickSelectItem(item)">
-        {{ item?.text }}
+        <span v-for="(field, indexField) in fields" :key="indexField">
+          {{ item?.[field.field] }}
+        </span>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watchEffect } from "vue";
+import { useClickOutside } from "@/hooks";
 export default {
   props: {
     label: {
@@ -49,11 +64,31 @@ export default {
       type: Boolean,
       defalut: false,
     },
+    tabindex: {
+      type: Number,
+      default: 0,
+    },
     data: {
       type: Array,
       default: () => [],
     },
-    itemSelected: {},
+    fields: {
+      type: Array,
+      required: true,
+    },
+    fieldSelect: {
+      type: String,
+      required: true,
+    },
+    fieldShow: {
+      type: String,
+      required: true,
+    },
+    // eslint-disable-next-line vue/require-default-prop
+    itemSelected: {
+      type: [String, Number],
+      defalut: null,
+    },
     titleDropdownList: {
       type: String,
       default: "",
@@ -61,6 +96,10 @@ export default {
     direct: {
       type: String,
       default: "down",
+    },
+    disable: {
+      type: Boolean,
+      default: false,
     },
   },
   emits: ["onClickSelectItem"],
@@ -70,19 +109,28 @@ export default {
     const toggleDrodown = () => {
       isShowDropdown.value = !isShowDropdown.value;
     };
-    onMounted(() => {
+    const dropdowContainerRef = ref(false);
+    const isOutsideDropdown = useClickOutside(dropdowContainerRef);
+
+    watchEffect(() => {
+      if (isOutsideDropdown.value === true) {
+        isShowDropdown.value = false;
+      }
+    });
+    watchEffect(() => {
       if (props.itemSelected) {
         const foundItem = props.data.find(
-          (obj) => obj.value === props.itemSelected
+          (obj) => obj[props.fieldSelect] === props.itemSelected
         );
         if (foundItem) {
-          valueInput.value = foundItem.text;
+          valueInput.value = foundItem[props.fieldShow];
         }
+        // console.log(props.itemSelected);
       }
     });
     const onClickSelectItem = (item) => {
       // add text cho input
-      valueInput.value = item.text;
+      // valueInput.value = item[props.fieldShow];
       // emit event
       ctx.emit("onClickSelectItem", item);
 
@@ -94,8 +142,13 @@ export default {
       isShowDropdown,
       onClickSelectItem,
       toggleDrodown,
+      dropdowContainerRef,
     };
   },
 };
 </script>
-<style lang=""></style>
+<style scoped>
+.disabled {
+  background-color: #eff0f2 !important;
+}
+</style>

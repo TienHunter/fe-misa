@@ -1,15 +1,16 @@
 .btn {
-    /* margin: 24px; */
-    min-width: 80px;
-    height: 36px;
-    padding: 0 16px;
     font-size: 14px;
-    line-height: 36px;
+    line-height: 1;
     font-weight: 500;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
+    padding: 12px 20px;
     text-align: center;
     display: inline-block;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    cursor: pointer;
 }
+
 
 .btn~.btn {
     margin-left: 8px;
@@ -19,41 +20,51 @@
     cursor: pointer;
 }
 
-.btn--pri {
-    color: #fff;
-    background: #50b83c;
+.btn:focus {
+    outline: 2px solid #dcdcdc;
 }
 
-.btn--pri:hover {
+.is-round {
+    border-radius: 30px;
+}
+
+.btn--primary {
+    color: #fff;
+    background: #50b83c;
+    border-color: #50b83c;
+}
+
+.btn--primary:hover {
     background-color: #57c841;
 
 }
 
-.btn--pri:active {
+
+
+.btn--primary:active {
     background-color: #409330;
 }
 
-.btn--sub {
-
-    border-radius: 3px;
+.btn--secondary {
     border: 1px solid #e6e6e6;
     color: #1f1f1f;
     background: #fff;
 }
 
-.btn--sub:hover {
+.btn--secondary:hover {
     background-color: #ccc;
     cursor: pointer;
 }
 
-.btn--sub:active {
+.btn--secondary:active {
     background-color: #757575;
     color: #fff;
 }
 
+
 .btn--link {
 
-    color: var(--primary-color);
+    color: var(--primarymary-color);
     background: transparent;
 }
 
@@ -77,47 +88,131 @@
     background-color: #a3e4961a;
 }
 
-.btn-combobox {
+.btn--combo {
     display: flex;
-    margin: 24px;
+    align-items: center;
+    padding: unset;
+    /* margin: 24px; */
 }
 
-.btn-combobox .btn-combobox__button {
-    margin: 0;
-    border-top-right-radius: 0px;
-    border-bottom-right-radius: 0px;
-}
 
-.btn-combobox .vertical-border {
-    border-color: #fff;
-}
 
-.btn-combobox .btn-combobox__icon.icon-wrapper {
-    background-color: var(--primary-color);
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    width: 36px;
-    height: 36px;
-}
 
-.btn-combobox .btn-combobox__icon.icon-wrapper:active {
-    background-color: #409330;
-}
-
-.btn-combobox .btn-combobox__icon.icon-wrapper:hover {
+.btn--combo .btn--combo__button {
+    padding-right: 10px;
+    color: #fff;
+    background: #50b83c;
+    border: 1px solid #50b83c;
+    border-right: 1px solid #fff;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
     cursor: pointer;
+    outline: #50b83c;
+}
+
+.btn--combo .btn--combo__button:hover,
+.btn--combo .btn--combo__icon:hover {
     background-color: #57c841;
 }
 
-.btn-combobox .btn-combobox__icon.icon-wrapper:active {
-    background-color: #409330;
+.btn--combo .btn--combo__button:focus,
+.btn--combo .btn--combo__icon:focus {
+    outline: 2px solid #dcdcdc;
+    border: 1px solid transparent;
 }
 
-.btn-combobox__icon .icon {
+.btn--combo .btn--combo__button:active,
+.btn--combo .btn--combo__icon:active {
+    background-color: #409330;
+    outline: 2px solid #dcdcdc;
+    border: 1px solid transparent;
+}
+
+.combo-button--text {
+    color: inherit;
+    white-space: nowrap;
+}
+
+
+
+.btn--combo .btn--combo__icon {
+    color: #fff;
+    background: #50b83c;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border: 1px solid #50b83c;
+    cursor: pointer;
+}
+
+.btn--combo .btn--combo__icon:hover {
+    background-color: #57c841;
+}
+
+.btn--combo__icon .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+}
+
+.btn--combo__icon .icon {
     transform: rotate(-90deg);
 }
 
-.btn-w-icon {
+.btn--combo .btn--default.btn--combo__button {
+    padding: 0 10px 0 20px;
+    height: 40px;
+}
+
+.btn--combo .btn--default.btn--combo__icon {
+    padding: 0 9px 0 5px;
+    height: 40px;
+}
+
+.btn--combo .btn--medium.btn--combo__button {
+    padding: 0 12px 0 23px;
+    height: 36px;
+}
+
+.btn--combo .btn--medium.btn--combo__icon {
+    padding: 0 9px 0 5px;
+    height: 36px;
+}
+
+.btn--combo .btn--medium.btn--combo__button {
+    padding: 0 10px 0 20px;
+    height: 36px;
+}
+
+.btn--combo .btn--medium.btn--combo__icon {
+    padding: 0 9px 0 5px;
+    height: 36px;
+}
+
+.btn--combo .btn--small.btn--combo__button {
+
+    padding: 0 10px 0 15px;
+    height: 32px;
+}
+
+.btn--combo .btn--small.btn--combo__icon {
+    padding: 0 9px 0 5px;
+    height: 32px;
+}
+
+.btn--combo .btn--mini.btn--combo__button {
+
+    padding: 0 10px 0 15px;
+    height: 28px;
+}
+
+.btn--combo .btn--mini.btn--combo__icon {
+    padding: 0 9px 0 5px;
+    height: 28px;
+}
+
+.btn--combo .btn-w-icon {
     display: flex;
     margin: 24px;
     width: 100px;
@@ -139,4 +234,24 @@
 
 .btn-w-icon:active {
     background-color: #409330;
+}
+
+.btn.btn--default {}
+
+.btn.btn--medium {
+    padding: 10px 20px;
+    height: 36px;
+
+}
+
+.btn.btn--small {
+    padding: 9px 15px;
+    height: 32px;
+
+}
+
+.btn.btn--mini {
+    padding: 7px 15px;
+    height: 28px;
+
 }

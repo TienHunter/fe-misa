@@ -1,0 +1,108 @@
+.tabs-li {
+  height: 24px;
+  margin: 0 1px;
+  border: 1px solid #c9ccd2;
+  border-bottom: none;
+  border-radius: 2px 2px 0 0;
+}
+
+.tabs-li.active-item {
+  background: #cce4f9;
+  height: 28px;
+}
+
+.tabs-btn {
+  position: relative;
+  width: 100%;
+  background: 0 0;
+  border: 0;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all .2s ease;
+  z-index: 0;
+  font-size: 13px;
+  border-radius: unset !important;
+  height: 100%;
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  place-items: center;
+}
+
+.tabs-btn:hover {
+  color: #2ca01c;
+}
+
+.content-bottom__body {
+  position: relative;
+  display: block;
+  overflow: visible;
+  border: 1px solid #c9ccd2;
+  margin: 0 1px 1px;
+  z-index: 1;
+  margin-top: -1px;
+  min-height: 216px;
+  max-height: 216px;
+}
+
+.tab-content {
+  margin: 11px 8px;
+}
+
+.grid-mode-control {
+  overflow: auto;
+  max-height: 158px;
+  min-width: 100%;
+}
+
+.td-editor {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 0 6px;
+  border-radius: 2px;
+  /* min-height: var(--input-height); */
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.td-textarea {
+  resize: none;
+  height: 27px;
+  line-height: 20px;
+  font-family: inherit;
+  width: 100%;
+  padding: 3px 10px;
+  border-radius: var(--border-radius);
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+  outline: unset;
+  overflow: hidden;
+}
+
+.td-textarea:focus {
+  border: 1px solid #50b83c;
+  outline: none;
+}
+
+.grid-control-item {
+  padding: 0;
+  width: 100%;
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+}
+
+.top-grid {
+  display: flex;
+  place-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d3d6db;
+  justify-content: flex-start;
+}
+
+.grid-address {
+  max-height: 125px;
+  overflow: auto;
+}

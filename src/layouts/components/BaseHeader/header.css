@@ -7,6 +7,39 @@
     margin: 0 10px;
 }
 
+.header-current-db {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ebedf0;
+    padding: 0 12px;
+    border-radius: 40px;
+    margin-left: 15px;
+    font-size: 13px;
+    cursor: pointer;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.icon-header-current-db {
+    width: 8px;
+    height: 8px;
+    background-color: #2ca01c;
+    border-radius: 50%;
+    border: 1px solid #fff;
+}
+
+
+.header-current-db-name {
+    padding-left: 7px;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all .2s ease;
+    color: #111;
+}
+
+
 .header-branch__name {
     max-width: 160px;
     padding-left: 10px;
@@ -20,19 +53,17 @@
     color: #111;
 }
 
-.notify {
-    position: relative;
-    margin-left: auto;
+.header__utils {
     position: relative;
     height: 48px;
     width: 44px;
 }
 
-.notify:hover {
+.header__utils:hover {
     background-color: #000;
 }
 
-.notify:hover::before {
+.header__utils:hover::before {
     content: "";
     width: 0;
     height: 0;

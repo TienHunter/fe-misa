@@ -1,14 +1,19 @@
 <template lang="">
-  <label :class="classLabel" @keydown.tab.stop="">
+  <label :class="classLabel" :title="titleLabel" @keydown.tab.stop="">
     {{ label }}
     <span v-show="required" class="text-red">(*)</span>
     <input
+      ref="inputRef"
       class="input"
+      :maxLength="maxLength"
       :type="inputType"
       :title="errMsg"
       :class="[
-        `${errMsg ? 'border--red' : ''}`,
-        `${classIcon ? 'pr-9' : ''}`,
+        {
+          'border--red': errMsg,
+          'pr-9': classIcon,
+          'm-0': !label,
+        },
         classInput,
       ]"
       :tabindex="tabIndex"
@@ -22,9 +27,18 @@
   </label>
 </template>
 <script>
+import { ref } from "vue";
 export default {
   props: {
     label: {
+      type: String,
+      default: "",
+    },
+    numberFormat: {
+      type: Boolean,
+      default: false,
+    },
+    titleLabel: {
       type: String,
       default: "",
     },
@@ -35,6 +49,10 @@ export default {
     required: {
       type: Boolean,
       default: false,
+    },
+    maxLength: {
+      type: Number,
+      default: 255,
     },
     errMsg: {
       type: String,
@@ -54,7 +72,7 @@ export default {
     },
     tabIndex: {
       type: Number,
-      default: -1,
+      default: 0,
     },
     placeHolder: {
       type: String,
@@ -72,12 +90,33 @@ export default {
   emits: ["update:modelValue", "emptyErrMsg"],
 
   setup(props, ctx) {
+    const inputRef = ref(null);
     const handleChangeInput = (e) => {
+      if (props.numberFormat === true) {
+        let value = e.target.value;
+        // Xóa tất cả các ký tự không phải là số từ giá trị input
+        value = value.replace(/[^\d]/g, "");
+        // Định dạng phần ngàn với dấu chấm để ngăn cách hàng nghìn
+        const formattedValue = Number(value).toLocaleString();
+
+        // Gán giá trị đã được định dạng lại vào input
+        e.target.value = formattedValue;
+      }
       ctx.emit("update:modelValue", e.target.value);
       ctx.emit("emptyErrMsg");
     };
+    const focus = () => {
+      // console.log("h1");
+      inputRef.value.focus();
+    };
+    const select = () => {
+      inputRef.value.select();
+    };
     return {
       handleChangeInput,
+      inputRef,
+      focus,
+      select,
     };
   },
 };

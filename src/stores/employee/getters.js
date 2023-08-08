@@ -1,9 +1,7 @@
-const gettters = {
+const getters = {
   employeeList: (state) => state.employeeList,
   employeeDetail: (state) => state.employeeDetail,
   popupStatus: (state) => state.popupStatus,
-  employeeDialog: (state) => state.employeeDialog,
-  filterAndPaging: (state) => state.filterAndPaging,
-  totalRecords: (state) => state.totalRecords,
+  employeeIdListChecked: (state) => state.employeeIdListChecked,
 };
-export default gettters;
+export default getters;

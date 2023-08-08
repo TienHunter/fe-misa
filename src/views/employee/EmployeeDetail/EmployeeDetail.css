@@ -15,6 +15,7 @@
 .popup-container {
   min-width: 900px;
   width: 900px;
+  max-height: 720px;
   padding: 32px;
   box-shadow: 0 4px 10px 0px #ccc;
   background-color: #fff;
@@ -40,6 +41,10 @@
 
 .form-content {
   /* background-color: orange; */
+}
+
+.popup__body {
+  overflow: auto;
 }
 
 .form-content__top {

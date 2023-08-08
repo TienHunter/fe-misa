@@ -7,7 +7,7 @@
 <script>
 import { useRoute } from "vue-router";
 import { computed } from "vue";
-import { PUB_LAYOUT } from "./constants";
+import { PUB_LAYOUT } from "./enums";
 export default {
   name: "App",
   components: {},

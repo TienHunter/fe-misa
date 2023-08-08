@@ -1,5 +1,14 @@
 import EmployeesService from "@/api/services/employeeService";
-import { DialogType, StatusCode, ToastType } from "@/enums";
+import {
+  DialogAction,
+  DialogType,
+  PopupType,
+  StatusCode,
+  ToastType,
+  TypeStore,
+} from "@/enums";
+import { DialogTitle, ToastContent } from "@/resources";
+import { convertToYYYYMMDD } from "@/utils/helper";
 const actions = {
   /**
    *
@@ -14,6 +23,7 @@ const actions = {
       commit("SET_EMPLOYEE_LIST", data);
     } catch (error) {
       console.log(error);
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -26,17 +36,59 @@ const actions = {
    * @param {type} param -
    * @returns
    */
-  async getEmployeeList({ state, commit, dispatch }) {
+  async getEmployeeList({ state, rootState, commit, dispatch }) {
     try {
       dispatch("toggleLoading");
 
-      let res = await EmployeesService.getList(state.filterAndPaging);
+      let res = await EmployeesService.getList(
+        rootState.global.filterAndPaging
+      );
       if (res && res.Data) {
         commit("SET_EMPLOYEE_LIST", res.Data);
-        commit("SET_TOTAL_RECORDS", res.TotalRecord);
+        dispatch("getTotalRecords", res.TotalRecord);
+        // commit("SET_TOTAL_RECORDS", res.TotalRecord);
       }
     } catch (error) {
       console.log(error);
+      hanldeException(dispatch, error);
+    } finally {
+      dispatch("toggleLoading");
+    }
+  },
+
+  /**
+   * Mô tả: export file excel danh sach nhan vien
+   * created by : vdtien
+   * created date: 30-06-2023
+   * @param {type} param -
+   * @returns
+   */
+  async exportExcelEmployeeList({ state, commit, dispatch }) {
+    try {
+      dispatch("toggleLoading");
+
+      let res = await EmployeesService.exportExcelEmployeeList(
+        state?.filterAndPaging?.keySearch ?? ""
+      );
+      if (res) {
+        //https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios
+        // create file link in browser's memory
+        const href = URL.createObjectURL(res);
+
+        // create "a" HTML element with href to file & click
+        const link = document.createElement("a");
+        link.href = href;
+        link.setAttribute("download", `Danh_sach_nhan_vien_${Date.now()}.xlsx`); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+      }
+    } catch (error) {
+      // console.log(error);
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -52,12 +104,13 @@ const actions = {
   async getEmployeeById({ state, commit, dispatch }, employeeId) {
     try {
       dispatch("toggleLoading");
-      const data = await EmployeesService.getRecordById(employeeId);
+      const data = await EmployeesService.getById(employeeId);
       if (data) {
         dispatch("getEmployeeDetail", { ...data });
       }
     } catch (error) {
       console.log(error);
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -82,6 +135,7 @@ const actions = {
       // }
     } catch (error) {
       console.log(error);
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -94,91 +148,103 @@ const actions = {
    * @param {object} employee - thông tin nhân viên thêm mới
    * @returns
    */
-  async createEmployee({ state, commit, dispatch }, employee) {
+  async createEmployee({ state, rootState, commit, dispatch }, payload) {
+    const { employee, typeStore } = payload;
     try {
       dispatch("toggleLoading");
-      // check trùng mã
-      // let idFound = await EmployeesService.findEmployeeByEmployeeCode(
-      //   employee.employeeCode
-      // );
-      // if (idFound) {
-      //   dispatch("getDialog", {
-      //     isShow: true,
-      //     type: DialogType.error,
-      //     content: `Mã nhân viên <${employee.employeeCode}> đã tồn tại !`,
-      //   });
-      //   return;
-      // }
 
       // thêm mới nếu không trùng mã
       let res = await EmployeesService.createRecord(employee);
       // thêm thành công
       if (res) {
-        console.log(res);
+        // console.log(res);
         // add nhân viên mới vào đầu danh sách
         // res đang trả về chỉ là 1 nếu thành công thì không ổn, cần trả về bản ghi mới để lấy id bản ghi
-        commit("CREATE_EMPLOYEE", employee);
+        commit("CREATE_EMPLOYEE", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
-          content: "Thêm nhân viên mới thành công",
+          content: ToastContent.createEmployeeSuccess,
         });
-        dispatch("getPopupStatus");
         dispatch("getEmployeeDetail");
-        commit("SET_TOTAL_RECORDS", state.totalRecords + 1);
+        dispatch("getTotalRecords", rootState.global.totalRecords + 1);
+        // commit("SET_TOTAL_RECORDS", state.totalRecords + 1);
+        dispatch("getPopupStatus");
+        if (typeStore === TypeStore.store) {
+        } else if (typeStore === TypeStore.storeAndAdd) {
+          const data = await EmployeesService.getNewEmployeecode();
+          if (data) commit("SET_NEW_EMPLOYEE_CODE", data);
+          dispatch("getPopupStatus", {
+            isShowPopup: true,
+            type: PopupType.create,
+          });
+        }
       }
 
       // thêm thất bại
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       // add error vào dialog
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
   },
 
-  async updateEmployee({ state, commit, dispatch }, employee) {
+  /**
+   * Mô tả: Cap nhat nhan vien
+   * created by : vdtien
+   * created date: 23-06-2023
+   * @param {type} param -
+   * @returns
+   */
+  async updateEmployee({ state, commit, dispatch }, payload) {
+    const { employee, typeStore } = payload;
     try {
       dispatch("toggleLoading");
-      // check trùng mã
-      // let idFound = await EmployeesService.findEmployeeByEmployeeCode(
-      //   employee.employeeCode
-      // );
-      // if (idFound && idFound === employee.id) {
-      //   dispatch("getDialog", {
-      //     isShow: true,
-      //     type: DialogType.error,
-      //     content: `Mã nhân viên <${employee.employeeCode}> đã tồn tại !`,
-      //   });
-      //   return;
-      // }
-
       // call api cập nhật lại nhân viên
       let employeeId = employee.EmployeeId;
-      delete employee.EmployeeId;
+      // delete employee.EmployeeId;
       let res = await EmployeesService.updateRecord(employee, employeeId);
 
       //cập nhật thành công
       if (res) {
-        commit("UPDATE_EMPLOYEE", employee);
+        commit("UPDATE_EMPLOYEE", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
-          content: `Cập nhật nhân viên <${employee.employeeCode}> thành công`,
+          content: ToastContent.updateEmployeeSuccess(employee.EmployeeCode),
         });
-        dispatch("getPopupStatus");
         dispatch("getEmployeeDetail");
+        dispatch("getPopupStatus");
+        if (typeStore === TypeStore.store) {
+        } else if (typeStore === TypeStore.storeAndAdd) {
+          const data = await EmployeesService.getNewEmployeecode();
+          if (data) commit("SET_NEW_EMPLOYEE_CODE", data);
+          dispatch("getPopupStatus", {
+            isShowPopup: true,
+            type: PopupType.create,
+          });
+        }
       }
       // lỗi
     } catch (error) {
       console.log(error);
       // add error vào dialog
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
   },
 
-  async deleteEmployee({ state, commit, dispatch }, employee) {
+  /**
+   * Mô tả: Xoa nhan vien theo id
+   * created by : vdtien
+   * created date: 23-06-2023
+   * @param {type} param -
+   * @returns
+   */
+  async deleteEmployee({ state, rootState, commit, dispatch }, employee) {
     try {
       dispatch("toggleLoading");
       // console.log(employee);
@@ -191,30 +257,50 @@ const actions = {
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
-          content: `Xóa nhân viên <${employee.EmployeeCode}> thành công`,
+          content: ToastContent.deleteEmployeeSuccess(employee.EmployeeCode),
         });
       }
       dispatch("getEmployeeDetail");
-      commit("SET_TOTAL_RECORDS", state.totalRecords + 1);
+      dispatch("getTotalRecords", rootState.global.totalRecords - 1);
+      // commit("SET_TOTAL_RECORDS", state.totalRecords - 1);
 
       // lỗi
     } catch (error) {
       console.log(error);
       // add error vào dialog
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
   },
 
-  /**
-   *
-   * @param {*} param0
-   * @param {*} payload
-   * lấy trạng thái cho popup
-   * Author:vdtien(25/5/2023)
-   */
-  getPopupStatus({ commit }, payload) {
-    commit("SET_POPUP_STATUS", payload);
+  async deleteMultiEmployee({ state, rootState, commit, dispatch }) {
+    try {
+      // console.log(state.employeeIdListChecked);
+      dispatch("toggleLoading");
+      let res = await EmployeesService.deleleRecordMulti(
+        state.employeeIdListChecked
+      );
+      if (res) {
+        dispatch("toggleLoading");
+        dispatch("getToast", {
+          isShow: true,
+          type: ToastType.success,
+          content: ToastContent.deleteMultiEmployeeSuccess,
+        });
+        dispatch("getFilterAndPaging", {
+          ...rootState.global.filterAndPaging,
+          pageNumber: 1,
+        });
+        dispatch("getEmployeeIdListCkecked");
+        dispatch("getEmployeeList");
+      }
+    } catch (error) {
+      dispatch("toggleLoading");
+      console.log(error);
+      // add error vào dialog
+      hanldeException(dispatch, error);
+    }
   },
 
   /**
@@ -225,17 +311,15 @@ const actions = {
    * Author:vdtien(25/5/2023)
    */
   getEmployeeDetail({ commit }, payload) {
+    if (payload?.DateOfBirth) {
+      payload.DateOfBirth = convertToYYYYMMDD(payload.DateOfBirth);
+    }
+    if (payload?.IdentityDateRelease) {
+      payload.IdentityDateRelease = convertToYYYYMMDD(
+        payload.IdentityDateRelease
+      );
+    }
     commit("SET_EMPLOYEE_DETAIL", payload);
-  },
-
-  /**
-   *
-   * @param {*} param0
-   * @param {*} payload
-   * lấy dữ liệu cho dialog
-   */
-  getDialog({ commit }, payload) {
-    commit("SET_DIALOG", payload);
   },
 
   /**
@@ -248,6 +332,34 @@ const actions = {
 
     // call api employeeList
   },
-};
 
+  getEmployeeIdListCkecked({ state, commit, dispatch }, payload) {
+    commit("SET_LIST_EMPLOYEE_LIST_CHECKED", payload);
+  },
+};
+function hanldeException(dispatch, ex) {
+  console.log(ex);
+  let errsMsg = ex?.response?.data?.UserMsg ?? [];
+  if (!Array.isArray(errsMsg)) {
+    errsMsg = ["Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ"];
+  }
+  // check loi validate hoac dupCode
+  if (ex?.response?.data?.ErrCode === 2 || ex?.response?.data?.ErrCode === 3) {
+    dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
+    dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.inValidInput,
+      content: [...errsMsg],
+      action: DialogAction.confirmValidate,
+    });
+  } else {
+    dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.errorServer,
+      content: [...errsMsg],
+    });
+  }
+}
 export default actions;

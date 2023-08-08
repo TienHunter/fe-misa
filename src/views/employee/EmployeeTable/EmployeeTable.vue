@@ -1,23 +1,69 @@
 <script>
 import { PopupType, DialogType, DialogAction } from "@/enums";
-import { EmployeeCol } from "@/resources";
+import {
+  DialogTitle,
+  EmployeeCol,
+  ButtonTitle,
+  FreeText,
+  DialogContent,
+} from "@/resources";
 import { useStore } from "vuex";
-import { computed, onBeforeMount, onMounted, reactive, ref, toRefs } from "vue";
-import { converGender, removeEmptyFields } from "@/utils/helper";
+import {
+  computed,
+  nextTick,
+  onBeforeMount,
+  onMounted,
+  onUpdated,
+  reactive,
+  ref,
+  toRefs,
+  watch,
+  watchEffect,
+} from "vue";
+import {
+  areAllElementsInArray,
+  converGender,
+  removeEmptyFields,
+  convertToDDMMYYYY,
+} from "@/utils/helper";
 export default {
   props: {},
   setup(props) {
     const store = useStore();
     const employeeList = computed(() => store.state.employee.employeeList);
+    const employeeIdListChecked = computed(
+      () => store.state.employee.employeeIdListChecked
+    );
+    const checkAll = ref(false);
+
     const rowSelected = ref("");
     const tableEmployeeRef = ref(null);
     const btnTableRefs = ref([]);
     const btnTableDirectUp = ref(false);
+    watchEffect(() => {
+      let employeIdList = ref(
+        employeeList.value.map((item) => item.EmployeeId)
+      );
+      if (
+        areAllElementsInArray(
+          employeIdList.value,
+          employeeIdListChecked.value
+        ) &&
+        employeeIdListChecked.value?.length > 0
+      ) {
+        checkAll.value = true;
+      } else {
+        checkAll.value = false;
+      }
+      // Đánh lại ref khi danh sách items thay đổi
+      btnTableRefs.value = employeeList.value.map(() => ref(null));
+      // console.log(employeeIdListChecked.value);
+    });
     onBeforeMount(() => {
       store.dispatch("getEmployeeList");
     });
     onMounted(() => {
-      btnTableRefs.value = btnTableRefs.value.map((ref) => toRefs(ref));
+      btnTableRefs.value = employeeList.value.map(() => ref(null));
     });
 
     /**
@@ -36,11 +82,7 @@ export default {
         const tablePositionBottom =
           tableEmployeeRef.value.getBoundingClientRect().bottom;
         const btnTableActionPositionBottom =
-          btnTableRefs.value[index].getBoundingClientRect().bottom;
-        console.log(
-          tableEmployeeRef.value.getBoundingClientRect(),
-          btnTableRefs.value[index].getBoundingClientRect()
-        );
+          btnTableRefs.value[index].value[0].getBoundingClientRect().bottom;
         if (tablePositionBottom - btnTableActionPositionBottom <= 100) {
           btnTableDirectUp.value = true;
         }
@@ -55,12 +97,12 @@ export default {
      * Author:vdtien (28/5/2023)
      */
     const onOpenPopupUpdate = (item) => {
+      const itemRemoveNull = removeEmptyFields(item);
+      store.dispatch("getEmployeeDetail", itemRemoveNull);
       store.dispatch("getPopupStatus", {
         isShowPopup: true,
         type: PopupType.update,
       });
-      const itemRemoveNull = removeEmptyFields(item);
-      store.dispatch("getEmployeeDetail", itemRemoveNull);
     };
 
     /**
@@ -70,29 +112,80 @@ export default {
      * Author: vdtien(28/5/2023)
      */
     const onClickDeleteEmployee = (item) => {
+      if (employeeIdListChecked.value.includes(item.EmployeeId)) {
+        onClickCheckRecord([item.EmployeeId]);
+      }
       // console.log(item);
       toggleTableAction(item);
       store.dispatch("getEmployeeDetail", item);
       store.dispatch("getDialog", {
         isShow: true,
         type: DialogType.warning,
-        content: [
-          `Bạn có chắc chắn muốn xóa nhân viên <${item?.EmployeeCode}> không ?`,
-        ],
+        title: DialogTitle.delete,
+        content: [`${DialogContent.confirmDeleteEmployee(item?.EmployeeCode)}`],
         action: DialogAction.confirmDelete,
+      });
+    };
+
+    /**
+     *
+     * @param {*} item
+     * check or uncheck list employee
+     * Author: vdtien(28/5/2023)
+     */
+    const onClickCheckAllRecord = () => {
+      let employeIdList = employeeList.value.map((item) => item.EmployeeId);
+
+      store.dispatch("getEmployeeIdListCkecked", employeIdList);
+    };
+
+    /**
+     *
+     * @param {*} item
+     * check or uncheck 1 employee
+     * Author: vdtien(28/5/2023)
+     */
+    const onClickCheckRecord = (itemId) => {
+      store.dispatch("getEmployeeIdListCkecked", itemId);
+    };
+
+    /**
+     *
+     * @param {*} item
+     * nhan ban nhan vien theo nhan vien duoc click
+     * Author: vdtien(28/5/2023)
+     */
+    const onClickCloneRecord = async (item) => {
+      // console.log(item);
+      toggleTableAction(item);
+      const itemRemoveNull = removeEmptyFields({ ...item });
+      delete itemRemoveNull.EmployeeId;
+      store.dispatch("getEmployeeDetail", itemRemoveNull);
+      await store.dispatch("getNewEmployeecode");
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.create,
       });
     };
     return {
       EmployeeCol,
+      ButtonTitle,
+      FreeText,
       employeeList,
       toggleTableAction,
       rowSelected,
+      checkAll,
       onOpenPopupUpdate,
       onClickDeleteEmployee,
       tableEmployeeRef,
       btnTableRefs,
       btnTableDirectUp,
       converGender,
+      employeeIdListChecked,
+      onClickCheckAllRecord,
+      onClickCheckRecord,
+      convertToDDMMYYYY,
+      onClickCloneRecord,
     };
   },
 };
@@ -110,88 +203,135 @@ export default {
               :class="{
                 'th-anchor': key === 'checkbox',
                 'th-anchor th-anchor--end': key === 'action',
+                'text-center': key === 'DateOfBirth',
               }"
               :style="{ minWidth: key === 'checkbox' ? '40px' : '160px' }"
               :title="col?.title">
-              <input
+              <div
                 v-if="key === 'checkbox'"
-                type="checkbox"
-                style="width: 24px; height: 24px" />
+                class="flex items-center justify-center">
+                <input
+                  v-if="key === 'checkbox'"
+                  type="checkbox"
+                  :checked="checkAll"
+                  @click="onClickCheckAllRecord" />
+              </div>
+
               <span v-else>{{ col?.text }}</span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(item, index) in employeeList"
-            :key="item.EmployeeId"
-            @dblclick="() => onOpenPopupUpdate(item)">
-            <td
-              v-for="(col, key, indexCol) in EmployeeCol"
-              :key="indexCol"
+          <template v-if="employeeList?.length > 0">
+            <tr
+              v-for="(item, index) in employeeList"
+              :key="item.EmployeeId"
+              class="pointer"
               :class="{
-                'td-anchor td-anchor--start': key === 'checkbox',
-                'td-anchor td-anchor--end td-action': key === 'action',
+                'tr--checked': employeeIdListChecked.includes(item.EmployeeId),
               }"
-              :style="{
-                'z-index':
-                  rowSelected === item.EmployeeId && key === 'action' ? 1 : 0,
-              }">
-              <input
-                v-if="key === 'checkbox'"
-                type="checkbox"
-                style="width: 24px; height: 24px"
-                @dblclick.stop="" />
-              <span v-else-if="key === 'Gender'">
-                {{ converGender(item[key]) }}
-              </span>
-              <span v-else-if="key !== 'action'">{{ item[key] }}</span>
-              <div
-                v-else
-                class="flex items-center justify-center h-full"
-                @dblclick.stop="">
-                <a
-                  href="#"
-                  class="text-blue font-semi-bold h-full flex items-center px-4"
-                  @click="() => onOpenPopupUpdate(item)"
-                  >Sửa</a
-                >
-
+              @dblclick="() => onOpenPopupUpdate(item)">
+              <td
+                v-for="(col, key, indexCol) in EmployeeCol"
+                :key="indexCol"
+                :class="{
+                  'td-anchor td-anchor--start': key === 'checkbox',
+                  'td-anchor td-anchor--end td-action': key === 'action',
+                  'text-center':
+                    key === 'DateOfBirth' || key === 'IdentityDateRelease',
+                  'before-last':
+                    indexCol === Object.keys(EmployeeCol).length - 2,
+                }"
+                :style="{
+                  'z-index':
+                    rowSelected === item.EmployeeId && key === 'action' ? 1 : 0,
+                }"
+                @click="() => onClickCheckRecord([item.EmployeeId])">
                 <div
-                  class="td-action__icon"
-                  :style="{
-                    'z-index':
-                      rowSelected === item.EmployeeId && key === 'action'
-                        ? 2
-                        : 0,
-                  }">
-                  <div
-                    ref="btnTableRefs"
-                    class="icon-wrapper w-8 h-8"
-                    :class="{ 'border--blue': rowSelected === item.EmployeeId }"
-                    @click="() => toggleTableAction(item, index)">
-                    <div class="icon icon--down-small-blue"></div>
-                  </div>
-
-                  <div
-                    v-if="rowSelected === item.EmployeeId"
-                    class="dropdown-list td-action-list"
-                    :class="{ 'td-action-list--up': btnTableDirectUp }">
-                    <div
-                      class="dropdown-item td-action-item td-action-item--remove"
-                      @click="() => onClickDeleteEmployee(item)">
-                      Xóa
-                    </div>
-                    <div class="dropdown-item td-action-item">Nhân bản</div>
-                  </div>
+                  v-if="key === 'checkbox'"
+                  class="flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    :checked="employeeIdListChecked.includes(item.EmployeeId)"
+                    @dblclick.stop=""
+                    @click.stop=""
+                    @click="() => onClickCheckRecord([item.EmployeeId])" />
                 </div>
+                <span v-else-if="key === 'Gender'">
+                  {{ converGender(item[key]) }}
+                </span>
+                <span v-else-if="key == 'DateOfBirth'">
+                  {{ convertToDDMMYYYY(item[key]) }}
+                </span>
+                <span v-else-if="key == 'IdentityDateRelease'">
+                  {{ convertToDDMMYYYY(item[key]) }}
+                </span>
+                <span v-else-if="key !== 'action'">{{ item[key] }}</span>
                 <div
-                  v-if="rowSelected"
-                  class="overlay"
-                  @click="() => toggleTableAction()"></div>
-              </div>
-            </td>
-          </tr>
+                  v-else
+                  class="flex items-center justify-center h-full"
+                  @dblclick.stop=""
+                  @click.stop="">
+                  <a
+                    href="#"
+                    class="text-blue font-semi-bold h-full flex items-center px-4"
+                    @click="() => onOpenPopupUpdate(item)"
+                    >{{ ButtonTitle.edit }}</a
+                  >
+
+                  <div
+                    class="td-action__icon h-full flex items-center"
+                    :style="{
+                      'z-index':
+                        rowSelected === item.EmployeeId && key === 'action'
+                          ? 2
+                          : 0,
+                    }"
+                    @click="() => toggleTableAction(item, index)">
+                    <div
+                      :ref="btnTableRefs[index]"
+                      class="icon-wrapper w-4 h-4"
+                      :class="{
+                        'border--blue': rowSelected === item.EmployeeId,
+                      }">
+                      <div
+                        class="icon icon--down-small-blue"
+                        style="paddingtop: 1px"></div>
+                    </div>
+
+                    <div
+                      v-if="rowSelected === item.EmployeeId"
+                      class="dropdown-list td-action-list"
+                      :class="{ 'td-action-list--up': btnTableDirectUp }">
+                      <div
+                        class="dropdown-item td-action-item td-action-item--remove"
+                        @click="() => onClickDeleteEmployee(item)">
+                        {{ ButtonTitle.delete }}
+                      </div>
+                      <div
+                        class="dropdown-item td-action-item"
+                        @click="() => onClickCloneRecord(item)">
+                        {{ ButtonTitle.duplicate }}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="rowSelected"
+                    class="overlay"
+                    @click="() => toggleTableAction()" />
+                </div>
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td
+                :colspan="Object.keys(EmployeeCol).length"
+                class="font-italic">
+                {{ FreeText.notFoundRecord }}
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>

@@ -18,7 +18,25 @@
     <div class="menu-bar">
       <div class="menu-item-list flex flex-col">
         <router-link
-          v-for="(value, key) in SidebarList"
+          v-for="(value, key) in SidebarList.top"
+          :key="key"
+          :to="{ name: value.name, params: {} }"
+          class="menu-item"
+          :class="{
+            'menu-item--active': route.name === value.name,
+            'justify-center': isSidebarShrink,
+          }"
+          :title="value.title">
+          <div class="menu-item__icon">
+            <div class="icon" :class="value.icon"></div>
+          </div>
+          <div v-show="!isSidebarShrink" class="menu-item__title">
+            {{ value.text }}
+          </div>
+        </router-link>
+        <div class="horizontal-border--white mb-2"></div>
+        <router-link
+          v-for="(value, key) in SidebarList.bottom"
           :key="key"
           :to="{ name: value.name, params: {} }"
           class="menu-item"

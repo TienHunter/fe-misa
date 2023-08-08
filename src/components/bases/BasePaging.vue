@@ -12,8 +12,11 @@
       <div class="pagination__right flex items-center justify-center">
         <div class="record-in-page">
           <b-dropdown
-            class="record-in-page-dropdown"
+            class="w-input"
             :data="dataDropdown"
+            :fields="fields"
+            :field-select="fieldSelect"
+            :field-show="fieldShow"
             :item-selected="pageSize"
             title-dropdown-list="--Chọn số bản ghi / trang--"
             direct="up"
@@ -43,7 +46,7 @@
               @click="() => onClickPageNumber(1)">
               1
             </div>
-            <div v-show="pageNumber > 4" class="page-item">...</div>
+            <div v-show="pageNumber > 4" class="page-item no-pointer">...</div>
 
             <div v-if="pageNumber <= 4" class="flex items-center">
               <div
@@ -111,7 +114,9 @@
               </div>
             </div>
 
-            <div v-show="pageNumber < totalPages - 3" class="page-item">
+            <div
+              v-show="pageNumber < totalPages - 3"
+              class="page-item no-pointer">
               ...
             </div>
             <div
@@ -124,7 +129,7 @@
 
           <div
             class="pointer pagination__prev ml-3"
-            :class="{ 'no-click-page': pageNumber === totalPages }"
+            :class="{ 'no-click-page': pageNumber >= totalPages }"
             @click="onClickNextPage">
             Sau
           </div>
@@ -134,12 +139,24 @@
   </div>
 </template>
 <script>
-import { computed, ref } from "vue";
+import { computed, onBeforeMount, ref } from "vue";
 export default {
   props: {
     dataDropdown: {
       type: Array,
       default: () => [],
+    },
+    fields: {
+      type: Array,
+      required: true,
+    },
+    fieldSelect: {
+      type: String,
+      required: true,
+    },
+    fieldShow: {
+      type: String,
+      required: true,
     },
     pageSize: {
       type: Number,
@@ -168,6 +185,12 @@ export default {
   },
   emits: ["onClickPageSize", "onClickPageNumber"],
   setup(props, ctx) {
+    const itemSelect = ref(null);
+    onBeforeMount(() => {
+      itemSelect.value = props.dataDropdown.find(
+        (item) => item[props.fieldSelect] === props.pageSize
+      );
+    });
     const onClickPageNumber = (item) => {
       ctx.emit("onClickPageNumber", item);
     };

@@ -44,7 +44,7 @@ class BaseService {
    * @param {type} param -
    * @returns
    */
-  async getRecordById(id) {
+  async getById(id) {
     const res = await axios.get(`${this.getEndpoint()}/${id}`);
     return res.data;
   }
@@ -87,6 +87,29 @@ class BaseService {
    */
   async deleteRecord(id) {
     const res = await axios.delete(`${this.getEndpoint()}/${id}`);
+    return res.data;
+  }
+  /**
+   * Mô tả: xoa nhieu ban ghi
+   * created by : vdtien
+   * created date: 28-07-2023
+   * @param {type} param -
+   * @returns
+   */
+  async deleleRecordMulti(listId) {
+    const res = await axios.post(`${this.getEndpoint()}/delete-multi`, listId);
+    return res.data;
+  }
+
+  /**
+   * Mô tả: lay ma moi
+   * created by : vdtien
+   * created date: 28-07-2023
+   * @param {type} param -
+   * @returns
+   */
+  async getNewCode() {
+    const res = await axios.get(`${this.getEndpoint()}/new-code`);
     return res.data;
   }
 }

@@ -1,7 +1,8 @@
 <template>
   <b-dialog
-    :type="employeeDialog.type"
-    :content="employeeDialog.content"
+    :type="dialog.type"
+    :title="dialog.title"
+    :content="dialog.content"
     :on-close-all="onCloseAll"
     :on-close="onClose"
     :on-accept="onAccept" />
@@ -9,12 +10,12 @@
 <script>
 import { useStore } from "vuex";
 import { computed } from "vue";
-import { DialogAction } from "../../../constants";
+import { DialogAction } from "@/enums";
 
 export default {
   setup(props) {
     const store = useStore();
-    const employeeDialog = computed(() => store.state.employee.employeeDialog);
+    const dialog = computed(() => store.state.global.dialog);
     const employeeDetail = computed(() => store.state.employee.employeeDetail);
     // console.log(employeeDetail.value);
 
@@ -37,7 +38,7 @@ export default {
      * @returns
      */
     const onAccept = () => {
-      switch (employeeDialog.value.action) {
+      switch (dialog.value.action) {
         case DialogAction.confirmCreate:
           store.dispatch("getDialog", {
             action: DialogAction.confirmCreate,
@@ -52,6 +53,9 @@ export default {
           store.dispatch("getDialog", {});
           store.dispatch("deleteEmployee", employeeDetail.value);
           break;
+        case DialogAction.confirmDeleteMulti:
+          store.dispatch("getDialog", {});
+          store.dispatch("deleteMultiEmployee");
         default:
           store.dispatch("getDialog", {});
           break;
@@ -70,7 +74,7 @@ export default {
       store.dispatch("getPopupStatus");
       store.dispatch("getEmployeeDetail");
     };
-    return { employeeDialog, onClose, onAccept, onCloseAll, employeeDetail };
+    return { dialog, onClose, onAccept, onCloseAll, employeeDetail };
   },
 };
 </script>

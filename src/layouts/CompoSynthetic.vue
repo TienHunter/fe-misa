@@ -3,12 +3,12 @@
     <div class="button">
       <h1>1.Button</h1>
       <div class="flex items-center justify-center">
-        <BaseButton :button-type="ButtonType.pri" :title="`Button`" />
-        <BaseButton :button-type="ButtonType.sub" :title="`Button`" />
-        <BaseButton :button-type="ButtonType.link" :title="`Button`" />
-        <BaseButton :button-type="ButtonType.icon" :title="`Button`" />
-        <BaseButton :button-type="ButtonType.combo" :title="`Button`" />
-        <BaseButton :button-type="ButtonType.wIcon" :title="`Button`" />
+        <BaseButton :type="ButtonType.pri" :title="`Button`" />
+        <BaseButton :type="ButtonType.sub" :title="`Button`" />
+        <BaseButton :type="ButtonType.link" :title="`Button`" />
+        <BaseButton :type="ButtonType.icon" :title="`Button`" />
+        <BaseButton :type="ButtonType.combo" :title="`Button`" />
+        <BaseButton :type="ButtonType.wIcon" :title="`Button`" />
       </div>
     </div>
     <div class="textfield">

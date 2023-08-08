@@ -5,13 +5,46 @@ import { createRouter, createWebHistory } from "vue-router";
 // We'll talk about nested routes later.
 const routes = [
   {
-    path: "/",
-    name: "Home",
+    path: "/DI/employee",
+    name: "Employee",
     meta: {
       layout: "default",
     },
     component: () =>
-      import(/* webpackChunkName: "home" */ "@/views/HomePage.vue"),
+      import(
+        /* webpackChunkName: "home" */ "@/views/employee/EmployeeList/EmployeeList.vue"
+      ),
+  },
+  {
+    path: "/DI",
+    name: "Directory",
+    meta: {
+      layout: "default",
+    },
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/views/DirectoryPage.vue"),
+  },
+  {
+    path: "/DI/account-system",
+    name: "DIAccountSystem",
+    meta: {
+      layout: "default",
+    },
+    component: () =>
+      import(
+        /* webpackChunkName: "home" */ "@/views/account/AccountList/AccountList.vue"
+      ),
+  },
+  {
+    path: "/DI/supplier",
+    name: "DISupplier",
+    meta: {
+      layout: "default",
+    },
+    component: () =>
+      import(
+        /* webpackChunkName: "home" */ "@/views/supplier/SupplierList/SupplierList.vue"
+      ),
   },
   {
     path: "/fake",
@@ -19,8 +52,7 @@ const routes = [
     meta: {
       layout: "default",
     },
-    component: () =>
-      import(/* webpackChunkName: "fake" */ "@/views/FakePage.vue"),
+    component: () => import("@/views/FakePage.vue"),
   },
   {
     path: "/components",
@@ -34,7 +66,8 @@ const routes = [
     meta: {
       layout: "notfound",
     },
-    component: () => <div>NotFound</div>,
+    redirect: "/DI",
+    // component: () => <div>NotFound</div>,
   },
 ];
 

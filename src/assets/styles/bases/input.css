@@ -1,34 +1,42 @@
 /* textfiled */
+.w-input {
+    width: 200px;
+}
 
 label {
     display: block;
     font-weight: 500;
-    font-size: 14px;
-    width: 300px;
+    /* font-size: 14px; */
+    width: 100%;
     cursor: pointer;
     position: relative;
 }
 
 .input {
-    height: 36px;
-    line-height: 36px;
+    height: 26px;
+    /* line-height: 24px; */
+    /* height: 28px; */
+    /* line-height: 28px; */
     width: 100%;
     padding: 0px 12px;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     border: 1px solid #e6e6e6;
     margin-top: 8px;
-    font-size: 14px;
+    background-color: #fff;
+    /* font-size: 14px; */
+    /* background-color: transparent; */
 }
 
 .input::placeholder {
     color: #999999;
     font-size: 14px;
+    font-style: italic;
 }
 
-.input:hover {
+/* .input:hover {
     background-color: #e6e6e6;
     cursor: pointer;
-}
+} */
 
 .input:focus {
     border: 1px solid #50b83c;
@@ -43,8 +51,6 @@ label>.icon-wrapper {
     position: absolute;
     top: 0;
     right: 0;
-    width: 36px;
-    height: 36px;
 }
 
 .input:hover+.errMsg {
@@ -81,7 +87,9 @@ label .errMsg {
     border: 1px solid #e6e6e6;
     border-radius: var(--border-radius);
     overflow: hidden;
-    height: 36px;
+    /* height: 2.25rem; */
+    /* height: 26px; */
+    min-height: 26px;
 }
 
 .combobox-container:focus-within {
@@ -91,6 +99,7 @@ label .errMsg {
 .combobox-container .input {
     border: none;
     border-radius: 0;
+    height: 24px;
 }
 
 .combobox-container .input:hover {
@@ -100,20 +109,20 @@ label .errMsg {
 
 .combobox-container .icon-wrapper {
     border: 1px solid transparent;
-    border-left-color: #e6e6e6;
+    /* border-left-color: #e6e6e6; */
 }
 
 .combobox-container .icon-wrapper:hover {
     background-color: #e6e6e6;
-    border-left-color: #fff;
+    /* border-left-color: #fff; */
 }
 
 .combobox-container .icon-wrapper:active {
-    background-color: #ccc;
+    /* background-color: #ccc; */
 }
 
 .combobox-container .icon-wrapper.active {
-    background-color: #b8bcc3;
+    /* background-color: #b8bcc3; */
 }
 
 .combobox-container .icon-wrapper .icon {
@@ -126,46 +135,70 @@ label .errMsg {
     transition: transform linear 0.3s;
 }
 
-.combobox-list {
+.combobox-list-wrapper {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 2px);
     left: 0;
-    width: 100%;
-    max-height: 308px;
-    overflow-y: auto;
+    min-width: 100%;
+    /* max-height: 200px; */
+    /* overflow-y: auto; */
     background-color: #fff;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-    padding: 8px;
-    list-style: none;
+    border: 1px solid #babec5;
+    border-radius: var(--border-radius);
+    /* padding: 8px; */
+    /* list-style: none; */
 }
 
-.combobox-list .combobox-item {
-    height: 36px;
-    font-size: 14px;
-    line-height: 36px;
+.combobox-list {
+    width: 100%;
+    /* max-height: 308px; */
+    max-height: 108px;
+    overflow-y: auto;
+    background-color: #fff;
+    padding: 2px 0;
+    /* padding: 0 8px; */
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.combobox-item {
+
+    height: 28px;
+    line-height: 28px;
     color: #1F1F1F;
     background-color: #fff;
     font-weight: 400;
-    padding: 0 8px;
-}
-
-.combobox-list .combobox-item:hover {
-    background-color: rgba(80, 184, 60, 0.1);
-    border-radius: 4px;
+    padding: 0 14px 0 10px;
     cursor: pointer;
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 
-.combobox-list .combobox-item.combobox-item--selected {
-    color: #fff;
-    background-color: #50b83c;
-    pointer-events: none;
-    cursor: not-allowed;
+.combobox-item:hover {
+    background-color: #e8e9ec;
+    color: #2ca01c;
 }
 
-.combobox-list .combobox-item--hover {
-    background-color: rgba(80, 184, 60, 0.1);
-    border-radius: 4px;
-    cursor: pointer;
+.combobox-item--selected {
+    color: #fff !important;
+    background-color: #50b83c !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+.combobox-item--hover {
+    background-color: #e8e9ec;
+    color: #2ca01c;
+}
+
+.combobox-item--selected.combobox-item--hover {
+    color: #fff !important;
+    background-color: #50b83c !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
 }
 
 /* checkbox */
@@ -180,19 +213,39 @@ input[type="checkbox"] {
     --webkit-appearance: none;
     position: relative;
     cursor: pointer;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+}
+
+
+input[type="checkbox"]:checked {
+    border: 1px solid #50b83c;
+    animation: checkbox 0.2s linear;
+    outline: 2px solid #dcdcdc;
+
 }
 
 /* checkbox */
-input[type="checkbox"]:checked {
-    background: url(../../images/Sprites.64af8f61.svg) no-repeat -1220px -358px;
-    border: 1px solid #50b83c;
-    animation: checkbox 0.2s linear;
-    background-color: #fff;
+input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: url(../../images/Sprites.64af8f61.svg) no-repeat -1225px -363px;
+    width: 14px;
+    height: 11px;
+    /* border: 1px solid #50b83c; */
+    /* background-color: #fff; */
+    /* animation: checkbox 0.2s linear; */
+    background-color: transparent;
 }
 
 input[type="checkbox"]:not(:checked) {
@@ -217,20 +270,26 @@ input[type="radio"] {
     --webkit-appearance: none;
     position: relative;
     cursor: pointer;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     border: 1px solid #ccc;
     display: flex;
     align-items: center;
     justify-content: center;
+    outline-color: #50b83c;
 }
+
+
 
 input[type="radio"]::after {
     content: "";
     position: absolute;
-    width: 16px;
-    height: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 10px;
+    width: 10px;
     border-radius: 50%;
     background-color: transparent;
     transition: all 0.1s linear;
@@ -252,3 +311,23 @@ input[type="radio"]:not(:checked) {
 input[type="date"] {
     font-family: var(--font-family);
 }
+
+.textarea {
+    resize: none;
+    border-radius: 3px;
+    border: 1px solid #e6e6e6;
+    font-family: inherit;
+    display: block;
+    padding: 9px;
+    color: #000;
+    width: 100%;
+    outline: unset;
+    margin-top: 8px;
+}
+
+.textarea:focus {
+    border: 1px solid #50b83c;
+    outline: none;
+}
+
+/* flex items-center justify-start flex-1 pl-3 flex-wrap */

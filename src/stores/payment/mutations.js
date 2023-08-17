@@ -39,5 +39,21 @@ const mutations = {
   SET_NEW_PAYMENT_CODE(state, payload) {
     state.paymentDetail = { ...state.paymentDetail, PaymentCode: payload };
   },
+  CREATE_PAYMENT(state, payload) {
+    let newPayment = { ...payload };
+    state.paymentList.unshift(newPayment);
+  },
+
+  UPDATE_PAYMENT(state, payload) {
+    let updatePayment = { ...payload };
+    const index = state.paymentList.findIndex(
+      (emp) => emp.PaymentId === updatePayment.PaymentId
+    );
+    if (index !== -1) {
+      let tmpPaymentList = [...state.paymentList];
+      tmpPaymentList.splice(index, 1, updatePayment);
+      state.paymentList = [...tmpPaymentList];
+    }
+  },
 };
 export default mutations;

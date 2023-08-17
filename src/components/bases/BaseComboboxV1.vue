@@ -1,6 +1,8 @@
 <template>
   <div ref="comboboxRef" class="combobox position-relative">
-    <label class="combobox-wrapper block m-0 w-full">
+    <label
+      class="combobox-wrapper block m-0 w-full"
+      :class="{ disabled: disabled }">
       {{ label }}
       <span v-show="isRequired" class="text-red">(*)</span>
 
@@ -18,6 +20,7 @@
           :title="errMsg || searchValue"
           :tabindex="tabIndex"
           :placeholder="placeHolder"
+          :disabled="disabled"
           :value="searchValue"
           @input="handleChangeInput"
           @keydown="handleKeyDown"
@@ -138,6 +141,10 @@ import { removeDiacritics } from "@/utils/helper";
 import { FreeText } from "@/resources";
 //---start props-----
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
   add: {
     type: Boolean,
     default: false,

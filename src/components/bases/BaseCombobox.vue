@@ -20,7 +20,8 @@
           :placeholder="placeHolder"
           :value="searchValue"
           @input="handleChangeInput"
-          @keydown="handleKeyDown" />
+          @keydown="handleKeyDown"
+          @focus="focus" />
         <div
           class="icon-wrapper combobox-icon"
           :class="{ active: isShowCombobox }"
@@ -252,6 +253,7 @@ export default {
     // focus input
     const focus = () => {
       inputRef.value.focus();
+      select();
     };
     const select = () => {
       inputRef.value.select();

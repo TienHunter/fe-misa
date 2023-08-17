@@ -1,5 +1,8 @@
 <template lang="">
-  <label :class="classLabel" :title="titleLabel" @keydown.tab.stop="">
+  <label
+    :class="[{ disabled: disabled }, classLabel]"
+    :title="titleLabel"
+    @keydown.tab.stop="">
     {{ label }}
     <span v-show="required" class="text-red">(*)</span>
     <input
@@ -18,6 +21,7 @@
       ]"
       :tabindex="tabIndex"
       :placeholder="placeHolder"
+      :disabled="disabled"
       :value="inputValue"
       @input="(e) => handleChangeInput(e)"
       @focus="focus" />
@@ -31,6 +35,10 @@
 import { computed, nextTick, ref } from "vue";
 export default {
   props: {
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     label: {
       type: String,
       default: "",

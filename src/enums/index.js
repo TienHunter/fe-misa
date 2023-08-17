@@ -7,6 +7,7 @@ export const ButtonType = {
 export const PopupType = {
   create: "CREATE",
   update: "UPDATE",
+  view: "VIEW",
 };
 export const ToastType = {
   info: "INFO",
@@ -31,10 +32,28 @@ export const TypeStore = {
   store: "STORE",
   storeAndAdd: "STORE_AND_ADD",
 };
+
+export const TypeClickButton = {
+  create: "CREATE",
+  createAndAdd: "CREATE_AND_ADD",
+  createAndPrint: "CREATE_AND_PRINT",
+  update: "UPDATE",
+  updateAndAdd: "UPDATE_AND_ADD",
+  updateAndPrint: "UPDATE_AND_PRINT",
+  edit: "EDIT",
+  quickEdit: "QUICK_EDIT",
+
+  write: "WRITE",
+  unWrite: "UN_WRITE",
+};
 export const Gender = {
   male: 1,
   female: 0,
   other: 2,
+};
+export const PaymentStatus = {
+  unWritten: 0,
+  written: 1,
 };
 export const MaxLength = {
   code: 20,

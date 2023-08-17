@@ -1,9 +1,6 @@
 <template lang="">
-  <div
-    ref="dropdowContainerRef"
-    class="dropdown-wrapper"
-    :class="{ 'disable-dropdown': disable }">
-    <label>
+  <div ref="dropdowContainerRef" class="dropdown-wrapper">
+    <label :class="{ 'disable-dropdown': disabled || readonly }">
       {{ label }}
       <span v-show="required && label" class="text-red">(*)</span>
       <div
@@ -11,7 +8,8 @@
         :class="{
           'mt-2': label,
           'border--focus': isShowDropdown,
-          disabled: disable,
+          disabled: disabled,
+          readonly: readonly,
         }"
         @click="toggleDrodown">
         <input
@@ -19,8 +17,8 @@
           class="input m-0 flex-1 border-radius-none"
           :class="{}"
           :tabindex="tabindex"
-          :style="{ opacity: disable ? 0 : 1 }"
-          :disable="disable"
+          :style="{ opacity: disabled ? 0 : 1 }"
+          :disabled="disabled || readonly"
           readonly
           :value="valueInput" />
         <div
@@ -98,7 +96,11 @@ export default {
       type: String,
       default: "down",
     },
-    disable: {
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    readonly: {
       type: Boolean,
       default: false,
     },
@@ -163,5 +165,9 @@ export default {
 <style scoped>
 .disabled {
   background-color: #eff0f2 !important;
+}
+.readonly {
+  pointer-events: none;
+  background-color: #eff0f2;
 }
 </style>

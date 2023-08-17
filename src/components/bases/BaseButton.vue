@@ -3,7 +3,11 @@
     v-if="type === ButtonType.primary"
     ref="btn"
     class="btn btn--primary"
-    :class="{ 'is-round': round, [`btn--${size}`]: size !== 'default' }"
+    :class="{
+      'is-round': round,
+      [`btn--${size}`]: size !== 'default',
+      disabled: disabled,
+    }"
     :tabindex="tabIndex"
     @keydown.tab.stop=""
     @click="onClick">
@@ -14,6 +18,7 @@
     v-else-if="type === ButtonType.combo"
     ref="btn"
     class="btn--combo"
+    :class="{ disabled: disabled }"
     @keydown.tab.stop="">
     <div
       class="btn--combo__button flex items-center"
@@ -37,7 +42,7 @@
     v-else
     ref="btn"
     class="btn btn--secondary"
-    :class="{ 'is-round': round, [`btn--${size}`]: size }"
+    :class="{ 'is-round': round, [`btn--${size}`]: size, disabled: disabled }"
     :tabindex="tabIndex"
     @keydown.tab.stop=""
     @click="onClick">
@@ -70,6 +75,10 @@ import { ref } from "vue";
 import { ButtonType } from "@/enums";
 export default {
   props: {
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     title: {
       type: String,
       default: "",
@@ -117,4 +126,9 @@ export default {
   },
 };
 </script>
-<style></style>
+<style>
+.disabled {
+  pointer-events: none;
+  opacity: 0.8;
+}
+</style>

@@ -28,6 +28,14 @@ label {
     /* background-color: transparent; */
 }
 
+label.disabled {
+    pointer-events: none;
+}
+
+.input:disabled {
+    background-color: #eff0f2;
+}
+
 .input::placeholder {
     color: #999999;
     font-size: 14px;
@@ -91,7 +99,7 @@ label .errMsg {
     /* height: 2.25rem; */
     /* height: 26px; */
     min-height: 26px;
-    background-color: #fff;
+    /* background-color: #fff; */
 }
 
 .combobox-container:focus-within {
@@ -111,7 +119,12 @@ label .errMsg {
 
 .combobox-container .icon-wrapper {
     border: 1px solid transparent;
+    background-color: #fff;
     /* border-left-color: #e6e6e6; */
+}
+
+label.disabled .icon-wrapper {
+    background-color: #eff0f2;
 }
 
 .combobox-container .icon-wrapper:hover {

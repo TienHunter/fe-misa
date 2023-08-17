@@ -1,5 +1,8 @@
 import paymentService from "@/api/services/paymentService";
 import { hanldeException } from "../global/actions";
+import { DialogTitle, ToastContent } from "@/resources";
+import { DialogType, PopupType, ToastType } from "@/enums";
+import { convertToYYYYMMDD } from "@/utils/helper";
 const actions = {
   /**
    * Mô tả: lấy danh sách phiếu chi theo từ khóa và phân trang
@@ -48,6 +51,12 @@ const actions = {
    * @returns
    */
   getPaymentDetail({ state, commit, dispatch }, payload) {
+    if (payload?.AccountingDate) {
+      payload.AccountingDate = convertToYYYYMMDD(payload.AccountingDate);
+    }
+    if (payload?.PaymentDate) {
+      payload.PaymentDate = convertToYYYYMMDD(payload.PaymentDate);
+    }
     commit("SET_PAYMENT_DETAIL", payload);
   },
 
@@ -72,5 +81,97 @@ const actions = {
       dispatch("toggleLoading");
     }
   },
+
+  /**
+   * Mô tả: thêm mới 1 phiếu chi
+   * created by : vdtien
+   * created date: 17-08-2023
+   * @param {type} param -
+   * @returns
+   */
+  async createPayment({ state, rootState, commit, dispatch }, payload) {
+    const { payment, typeStore } = payload;
+    try {
+      dispatch("toggleLoading");
+      let res = await paymentService.createRecord(payment);
+      if (res) {
+        commit("CREATE_PAYMENT", res);
+        dispatch("getPaymentDetail", {
+          ...res,
+        });
+        dispatch("getTotalRecords", rootState.global.totalRecords + 1);
+        // ghi sổ không thành công
+        if (res?.ListUesrMsg?.length > 0) {
+          // show dialog
+          dispatch("getDialog", {
+            isShow: true,
+            type: DialogType.error,
+            title: DialogTitle.failWrite,
+            content: [...res.ListUesrMsg],
+          });
+        } else {
+          // show toast
+          dispatch("getToast", {
+            isShow: true,
+            type: ToastType.success,
+            content: ToastContent.createPaymentSuccess,
+          });
+        }
+        // chuyển trạng thái form sang xem
+        dispatch("getPopupStatus", {
+          isShowPopup: true,
+          type: PopupType.view,
+        });
+      }
+    } catch (error) {
+      hanldeException(dispatch, error);
+    } finally {
+      dispatch("toggleLoading");
+    }
+  },
+
+  async updateStatusPayment({ state, commit, dispatch }, payload) {
+    const { paymentId, status } = payload;
+    try {
+      dispatch("toggleLoading");
+      let res = await paymentService.updateStatusPayment(paymentId, status);
+      if (res) {
+        commit("UPDATE_PAYMENT", { ...res });
+        dispatch("getPaymentDetail", {
+          ...res,
+        });
+        // ghi sổ không thành công
+        if (res?.ListUesrMsg?.length > 0) {
+          // show dialog
+          dispatch("getDialog", {
+            isShow: true,
+            type: DialogType.error,
+            title: DialogTitle.failWrite,
+            content: [...res.ListUesrMsg],
+          });
+        } else {
+          // show toast
+          dispatch("getToast", {
+            isShow: true,
+            type: ToastType.success,
+            content: ToastContent.createPaymentSuccess,
+          });
+        }
+        // chuyển trạng thái form sang xem
+        dispatch("getPopupStatus", {
+          isShowPopup: true,
+          type: PopupType.view,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      hanldeException(dispatch, error);
+    } finally {
+      dispatch("toggleLoading");
+    }
+  },
 };
+
+// xử lý exception
+
 export default actions;

@@ -152,6 +152,7 @@
     </div>
   </div>
   <DepositWithdrawDetail v-if="popupStatus?.isShowPopup" />
+  <DepositWithdrawDialog v-if="dialog.isShow" />
   <b-toast-message v-if="toast?.isShow" />
   <b-loading v-if="isLoading" />
 </template>
@@ -164,12 +165,14 @@ import { useClickOutside, useDebounce } from "@/hooks";
 import DepositWidthdrawTable from "../DepositWithdrawTable/DepositWithdrawTable.vue";
 import DepositWithdrawPaging from "../DepositWithdrawPaging/DepositWithdrawPaging.vue";
 import DepositWithdrawDetail from "../DepositWithdrawDetail/DepositWithdrawDetail.vue";
+import DepositWithdrawDialog from "../DepositWithdrawDialog/DepositWithdrawDialog.vue";
 import { convertToYYYYMMDD } from "@/utils/helper";
 //---- start state ----------
 
 const store = useStore();
 const isLoading = computed(() => store.state.global.isLoading);
 const popupStatus = computed(() => store.state.global.popupStatus);
+const dialog = computed(() => store.state.global.dialog);
 const toast = computed(() => store.state.global.toast);
 
 const paymentIdListChecked = computed(

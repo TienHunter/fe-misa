@@ -38,6 +38,13 @@ export const ErrValidator = {
   nameEmpty: (recordName) => {
     return `Tên ${recordName} không được để trống.`;
   },
+
+  fieldNotEmpty: (fieldName) => {
+    return `${fieldName} không được để trống.`;
+  },
+  accountingDateMoreEqualPaymentDate: (paymentDate) =>
+    `Ngày hạch toán phải lớn hơn hoặc bằng Ngày chứng từ <${paymentDate}>. Xin vui lòng kiểm tra lại.`,
+  accountingsNotEmpty: "Bạn phải nhập chứng từ chi tiết.",
 };
 
 export const DialogTitle = {
@@ -46,6 +53,7 @@ export const DialogTitle = {
   delete: "Xóa bản ghi?",
   errorServer: "Lỗi máy chủ.",
   notify: "Thông báo.",
+  failWrite: "Ghi số không thành công .",
 };
 
 export const DialogContent = {
@@ -103,6 +111,9 @@ export const ToastContent = {
   deleteMultiRecordSuccess: (recordName) => {
     return `Xóa ${recordName} thành công.`;
   },
+
+  // payment
+  createPaymentSuccess: "Ghi sổ thành công.",
 };
 export const AccountCol = {
   AccountCode: {

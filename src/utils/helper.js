@@ -77,13 +77,32 @@ function convertToYYYYMMDD(dateString) {
   return formattedDate;
 }
 
+// function removeEmptyFields(obj) {
+//   for (let key in obj) {
+//     if (obj[key] === "" || obj[key] === null) {
+//       delete obj[key];
+//     }
+//   }
+//   return obj;
+// }
 function removeEmptyFields(obj) {
-  for (let key in obj) {
-    if (obj[key] === "" || obj[key] === null) {
-      delete obj[key];
+  if (typeof obj === "object")
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (
+          obj[key] === null ||
+          obj[key] === undefined ||
+          (typeof obj[key] === "object" &&
+            Object.keys(obj[key]).length === 0) ||
+          (Array.isArray(obj[key]) && obj[key].length === 0) ||
+          (typeof obj[key] === "string" && obj[key].trim() === "")
+        ) {
+          delete obj[key];
+        } else if (typeof obj[key] === "object") {
+          removeEmptyFields(obj[key]);
+        }
+      }
     }
-  }
-  return obj;
 }
 
 /**

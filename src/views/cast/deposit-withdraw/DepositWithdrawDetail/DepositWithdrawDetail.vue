@@ -1,3 +1,4 @@
+div
 <template lang="">
   <div
     ref="depositWithdrawDetail"
@@ -21,6 +22,7 @@
         <div class="header-detail-input">
           <div class="mr-3" style="min-width: 100px; width: 350px">
             <b-dropdown
+              :readonly="disableWritten || disableView"
               class="w-input"
               :data="dataReasonList"
               field-select="id"
@@ -66,9 +68,9 @@
                     <div class="w-3/7 pr-3">
                       <BaseComboboxV1
                         :ref="errRefs.SupplierId"
-                        v-auto-focus
                         is-reload-scroll
                         is-reload
+                        :disabled="disableWritten || disableView"
                         label="Mã nhà cung cấp"
                         :max-length="MaxLength.default"
                         :fields="fieldsSupplier"
@@ -109,8 +111,15 @@
                       <b-textfield
                         :ref="errRefs.SupplierName"
                         v-model="paymentInfo.SupplierName"
+                        :disabled="disableView"
                         label="Tên nhà cung cấp"
-                        :max-length="MaxLength.default" />
+                        :max-length="MaxLength.default"
+                        :err-msg="errsValidator?.SupplierName?.join('') ?? ''"
+                        @empty-err-msg="
+                          () => {
+                            delete errsValidator?.SupplierName;
+                          }
+                        " />
                     </div>
                   </div>
                   <div class="w-full flex pb-2">
@@ -118,22 +127,43 @@
                       <b-textfield
                         :ref="errRefs.Receiver"
                         v-model="paymentInfo.Receiver"
+                        :disabled="disableView"
                         :max-length="MaxLength.default"
-                        label="Người nhận" />
+                        label="Người nhận"
+                        :err-msg="errsValidator?.Receiver?.join('') ?? ''"
+                        @empty-err-msg="
+                          () => {
+                            delete errsValidator?.Receiver;
+                          }
+                        " />
                     </div>
                     <div class="w-4/7">
                       <b-textfield
                         v-model="paymentInfo.Address"
                         :max-length="MaxLength.default"
-                        label="Địa chỉ" />
+                        :disabled="disableView"
+                        label="Địa chỉ"
+                        :err-msg="errsValidator?.Address?.join('') ?? ''"
+                        @empty-err-msg="
+                          () => {
+                            delete errsValidator?.Address;
+                          }
+                        " />
                     </div>
                   </div>
                   <div class="w-full flex pb-2">
                     <b-textfield
                       :ref="errRefs.ReasonSpending"
                       v-model="paymentInfo.ReasonSpending"
+                      :disabled="disableView"
                       :max-length="MaxLength.default"
-                      label="Lý do chi" />
+                      label="Lý do chi"
+                      :err-msg="errsValidator?.ReasonSpending?.join('') ?? ''"
+                      @empty-err-msg="
+                        () => {
+                          delete errsValidator?.ReasonSpending;
+                        }
+                      " />
                   </div>
                   <div class="w-full flex pb-2">
                     <div class="w-3/7 pr-3">
@@ -141,6 +171,7 @@
                         :ref="errRefs.EmployeeId"
                         is-reload-scroll
                         is-reload
+                        :disabled="disableView"
                         label="Nhân viên"
                         :max-length="MaxLength.default"
                         :fields="fieldsEmployee"
@@ -182,9 +213,19 @@
                         <NumberInput
                           :ref="errRefs.AttachOriginalDocuments"
                           v-model="paymentInfo.AttachOriginalDocuments"
+                          :disabled="disableView"
                           label="Kèm theo"
                           place-holder="Số lượng"
-                          class-input="text-right" />
+                          class-input="text-right"
+                          :err-msg="
+                            errsValidator?.AttachOriginalDocuments?.join('') ??
+                            ''
+                          "
+                          @empty-err-msg="
+                            () => {
+                              delete errsValidator?.AttachOriginalDocuments;
+                            }
+                          " />
                       </div>
                       <span class="pl-3">chứng từ gốc</span>
                     </div>
@@ -199,21 +240,42 @@
                     <b-textfield
                       :ref="errRefs.AccountingDate"
                       v-model="paymentInfo.AccountingDate"
+                      :disabled="disableWritten || disableView"
                       label="Ngày hạch toán"
-                      input-type="date" />
+                      input-type="date"
+                      :err-msg="errsValidator?.AccountingDate?.join('') ?? ''"
+                      @empty-err-msg="
+                        () => {
+                          delete errsValidator?.AccountingDate;
+                        }
+                      " />
                   </div>
                   <div class="w-full pb-2">
                     <b-textfield
                       :ref="errRefs.PaymentDate"
                       v-model="paymentInfo.PaymentDate"
+                      :disabled="disableWritten || disableView"
                       label="Ngày phiếu toán"
-                      input-type="date" />
+                      input-type="date"
+                      :err-msg="errsValidator?.PaymentDate?.join('') ?? ''"
+                      @empty-err-msg="
+                        () => {
+                          delete errsValidator?.PaymentDate;
+                        }
+                      " />
                   </div>
                   <div class="w-full">
                     <b-textfield
                       :ref="errRefs.PaymentCode"
                       v-model="paymentInfo.PaymentCode"
-                      label="Số phiếu chi" />
+                      :disabled="disableWritten || disableView"
+                      label="Số phiếu chi"
+                      :err-msg="errsValidator?.PaymentCode?.join('') ?? ''"
+                      @empty-err-msg="
+                        () => {
+                          delete errsValidator?.PaymentCode;
+                        }
+                      " />
                   </div>
                 </div>
               </div>
@@ -253,167 +315,200 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr
+                      <template
                         v-for="(accounting, index) in paymentInfo.Accountings"
-                        :key="index"
-                        :class="{
-                          'tr--checked': indexFocusAccouting === index,
-                        }"
-                        @click="() => onClickAccountingRow(index)">
-                        <td
-                          v-for="(col, indexCol) in accoutingCols"
-                          :key="indexCol"
-                          class="px-3"
-                          :title="accounting?.[col.name] ?? ''">
-                          <span v-if="col.name === '#'">{{ index + 1 }}</span>
-                          <div
-                            v-else-if="col.name === 'AccountingExplain'"
-                            class="flex items-center">
-                            <textarea
-                              v-if="indexFocusAccouting === index"
-                              v-model="accounting[col.name]"
-                              rows="1"
-                              class="td-textarea" />
-                            <div v-else class="flex items-center">
-                              {{ accounting[col.name] }}
-                            </div>
-                          </div>
-                          <div
-                            v-else-if="col.name === 'AccountDebtCode'"
-                            class="flex items-center">
-                            <BaseComboboxV1
-                              v-if="indexFocusAccouting === index"
-                              :ref="AccountsDebtId[index]"
-                              :max-length="MaxLength.default"
-                              :fields="fieldsAccount"
-                              :field-select="fieldSelectAccount"
-                              :field-show="fieldShowAccount"
-                              :data-list="dataAccountsDebt"
-                              :id-selected="accounting.AccountDebtId"
-                              :value-selected="accountsDebtSelected[index]"
-                              :err-msg="
-                                errsValidator?.AccountsDebtId?.length > 0 &&
-                                errsValidator?.AccountsDebtId?.[index]?.length >
-                                  0
-                                  ? errsValidator?.AccountsDebtId?.[index].join(
-                                      ''
-                                    )
-                                  : ''
-                              "
-                              @on-click-id-selected="
-                                (id) => (accounting.AccountDebtId = id)
-                              "
-                              @add-value-selected="
-                                (item) => hanldeAddValueAccountDebt(item, index)
-                              "
-                              @not-selected-yet="
-                                (state) =>
-                                  hanldeAddErrorMsgNotSelectedYet(
-                                    state,
-                                    'AccountsDebtId',
-                                    'Tài khoản nợ',
-                                    index
-                                  )
-                              "
-                              @empty-err-msg="
-                                () => {
-                                  if (
-                                    errsValidator?.AccountsDebtId?.length >= 0
-                                  )
-                                    errsValidator.AccountsDebtId[index] = '';
-                                }
-                              "
-                              @keydown.tab.stop="" />
-
-                            <div v-else class="flex items-center">
-                              {{ accounting?.[col.name] }}
-                            </div>
-                          </div>
-                          <div
-                            v-else-if="col.name === 'AccountBalanceCode'"
-                            class="flex items-center">
-                            <BaseComboboxV1
-                              v-if="indexFocusAccouting === index"
-                              :ref="errDetailRefs.AccountsBalanceId[index]"
-                              :max-length="MaxLength.default"
-                              :fields="fieldsAccount"
-                              :field-select="fieldSelectAccount"
-                              :field-show="fieldShowAccount"
-                              :data-list="dataAccountsBalance"
-                              :id-selected="accounting.AccountBalanceId"
-                              :value-selected="accountsBalanceSelected[index]"
-                              :err-msg="
-                                errsValidator?.AccountsBalanceId?.length > 0 &&
-                                errsValidator?.AccountsBalanceId?.[index]
-                                  ?.length > 0
-                                  ? errsValidator?.AccountsBalanceId?.[
-                                      index
-                                    ].join('')
-                                  : ''
-                              "
-                              @on-click-id-selected="
-                                (id) => (accounting.AccountBalanceId = id)
-                              "
-                              @add-value-selected="
-                                (item) =>
-                                  hanldeAddValueAccountBalance(item, index)
-                              "
-                              @not-selected-yet="
-                                (state) =>
-                                  hanldeAddErrorMsgNotSelectedYet(
-                                    state,
-                                    'AccountsBalanceId',
-                                    'Tài khoản nợ',
-                                    index
-                                  )
-                              "
-                              @empty-err-msg="
-                                () => {
-                                  if (
-                                    errsValidator?.AccountsBalanceId?.length >=
-                                    0
-                                  )
-                                    errsValidator.AccountsBalanceId[index] = '';
-                                }
-                              "
-                              @keydown.tab.stop="" />
-
-                            <div v-else class="flex items-center">
-                              {{ accounting?.[col.name] }}
-                            </div>
-                          </div>
-                          <div v-else-if="col.name === 'Money'">
-                            <!-- xu ly nhap tien -->
+                        :key="index">
+                        <tr
+                          v-if="
+                            indexFocusAccouting === index &&
+                            !disableView &&
+                            !disableWritten
+                          "
+                          :class="{
+                            'tr--checked': indexFocusAccouting === index,
+                          }"
+                          @click="() => onClickAccountingRow(index)">
+                          <td class="px-3 text-center">
+                            <span>{{ index + 1 }}</span>
+                          </td>
+                          <td class="px-3">
                             <div class="flex items-center">
-                              <CurrencyInput
-                                v-if="indexFocusAccouting === index"
-                                v-model.lazy="accounting.Money"
-                                :options="options" />
-                              <div
-                                v-else
-                                class="flex items-center justify-end w-full">
-                                {{ formatDecimal(accounting?.Money ?? 0) }}
+                              <textarea
+                                v-model="accounting.AccountingExplain"
+                                rows="1"
+                                class="td-textarea" />
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div class="flex items-center">
+                              <BaseComboboxV1
+                                :max-length="MaxLength.default"
+                                :fields="fieldsAccount"
+                                :field-select="fieldSelectAccount"
+                                :field-show="fieldShowAccount"
+                                :data-list="dataAccountsDebt"
+                                :id-selected="accounting.AccountDebtId"
+                                :value-selected="accountsDebtSelected[index]"
+                                :err-msg="
+                                  errsValidator?.AccountsDebtId?.length > 0 &&
+                                  errsValidator?.AccountsDebtId?.[index]
+                                    ?.length > 0
+                                    ? errsValidator?.AccountsDebtId?.[
+                                        index
+                                      ].join('')
+                                    : ''
+                                "
+                                @on-click-id-selected="
+                                  (id) => (accounting.AccountDebtId = id)
+                                "
+                                @add-value-selected="
+                                  (item) =>
+                                    hanldeAddValueAccountDebt(item, index)
+                                "
+                                @not-selected-yet="
+                                  (state) =>
+                                    hanldeAddErrorMsgNotSelectedYet(
+                                      state,
+                                      'AccountsDebtId',
+                                      'Tài khoản nợ',
+                                      index
+                                    )
+                                "
+                                @empty-err-msg="
+                                  () => {
+                                    if (
+                                      errsValidator?.AccountsDebtId?.length >= 0
+                                    )
+                                      errsValidator.AccountsDebtId[index] = '';
+                                  }
+                                "
+                                @keydown.tab.stop="" />
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div class="flex items-center">
+                              <BaseComboboxV1
+                                :max-length="MaxLength.default"
+                                :fields="fieldsAccount"
+                                :field-select="fieldSelectAccount"
+                                :field-show="fieldShowAccount"
+                                :data-list="dataAccountsBalance"
+                                :id-selected="accounting.AccountBalanceId"
+                                :value-selected="accountsBalanceSelected[index]"
+                                :err-msg="
+                                  errsValidator?.AccountsBalanceId?.length >
+                                    0 &&
+                                  errsValidator?.AccountsBalanceId?.[index]
+                                    ?.length > 0
+                                    ? errsValidator?.AccountsBalanceId?.[
+                                        index
+                                      ].join('')
+                                    : ''
+                                "
+                                @on-click-id-selected="
+                                  (id) => (accounting.AccountBalanceId = id)
+                                "
+                                @add-value-selected="
+                                  (item) =>
+                                    hanldeAddValueAccountBalance(item, index)
+                                "
+                                @not-selected-yet="
+                                  (state) =>
+                                    hanldeAddErrorMsgNotSelectedYet(
+                                      state,
+                                      'AccountsBalanceId',
+                                      'Tài khoản nợ',
+                                      index
+                                    )
+                                "
+                                @empty-err-msg="
+                                  () => {
+                                    if (
+                                      errsValidator?.AccountsBalanceId
+                                        ?.length >= 0
+                                    )
+                                      errsValidator.AccountsBalanceId[index] =
+                                        '';
+                                  }
+                                "
+                                @keydown.tab.stop="" />
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div>
+                              <!-- xu ly nhap tien -->
+                              <div class="flex items-center">
+                                <CurrencyInput
+                                  v-model.lazy="accounting.Money"
+                                  :options="options" />
                               </div>
                             </div>
-                          </div>
-                          <div
-                            v-else-if="col.name === 'action'"
-                            class="flex items-center justify-center pointer"
-                            tabindex="0"
-                            @click.stop="
-                              () => onClickDeleteAccountingRow(index)
-                            ">
-                            <div class="icon-v1 icon-v1--bin"></div>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                          <td class="px-3">
+                            <div
+                              class="flex items-center justify-center pointer"
+                              tabindex="0"
+                              @click.stop="
+                                () => onClickDeleteAccountingRow(index)
+                              ">
+                              <div class="icon-v1 icon-v1--bin"></div>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr v-else @click="() => onClickAccountingRow(index)">
+                          <td class="px-3 text-center">
+                            <span>{{ index + 1 }}</span>
+                          </td>
+                          <td class="px-3">
+                            <div class="flex items-center">
+                              <div class="flex items-center">
+                                {{ accounting?.AccountingExplain ?? "" }}
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div class="flex items-center">
+                              <div class="flex items-center">
+                                {{ accounting?.AccountDebtCode ?? "" }}
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div class="flex items-center">
+                              <div class="flex items-center">
+                                {{ accounting?.AccountBalanceCode ?? "" }}
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div>
+                              <!-- xu ly nhap tien -->
+                              <div class="flex items-center">
+                                <div
+                                  class="flex items-center justify-end w-full"
+                                  :class="{
+                                    'text-red': accounting?.Money < 0,
+                                  }">
+                                  {{ formatDecimal(accounting?.Money ?? 0) }}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td class="px-3">
+                            <div
+                              class="flex items-center justify-center pointer">
+                              <div class="icon-v1 icon-v1--bin"></div>
+                            </div>
+                          </td>
+                        </tr>
+                      </template>
                     </tbody>
                     <tfoot>
                       <tr>
                         <th
                           v-for="(col, index) in accoutingCols"
                           :key="index"
-                          class="th-foot">
+                          class="th-foot text-right">
                           <span
                             v-if="col.type === TypeCol.money"
                             class="text-right"
@@ -430,11 +525,13 @@
             <div class="detail-information-footer px-5">
               <div class="pt-3">
                 <b-button
+                  :disabled="disableWritten || disableView"
                   size="mini"
                   type="secondary"
                   title="Thêm dòng"
                   @click.stop="onClickAddAccountingRow" />
                 <b-button
+                  :disabled="disableWritten || disableView"
                   size="mini"
                   type="secondary"
                   title="Xóa hết dòng"
@@ -448,16 +545,69 @@
         class="popup__footer flex items-center flex-row-reverse justify-between">
         <div class="right-group-button flex items-center">
           <!-- <b-button class="btn--sub" title="Cất" type="secondary" size="mini" /> -->
-          <button
-            class="btn btn--mini button-footer"
-            @click="() => onClickButon()">
-            Cất
-          </button>
-          <b-button
-            class="btn--pri"
-            title="Cất và thêm"
-            type="primary"
-            size="mini" />
+          <template v-if="popupStatus.type === PopupType.create">
+            <button
+              class="btn btn--mini button-footer"
+              @click="() => onClickButton(TypeClickButton.create)">
+              Cất
+            </button>
+            <b-button
+              class="btn--pri"
+              title="Cất và in"
+              type="primary"
+              size="mini" />
+          </template>
+          <template
+            v-if="
+              popupStatus.type === PopupType.view &&
+              paymentInfo.PaymentStatus === PaymentStatus.unWritten
+            ">
+            <button
+              class="btn btn--mini button-footer"
+              @click="() => onClickButton(TypeClickButton.edit)">
+              Sửa
+            </button>
+            <b-button
+              class="btn--pri"
+              title="Ghi sổ"
+              type="primary"
+              size="mini"
+              @click="() => onClickButton(TypeClickButton.unWrite)" />
+          </template>
+          <template
+            v-if="
+              popupStatus.type === PopupType.view &&
+              paymentInfo.PaymentStatus === PaymentStatus.written
+            ">
+            <button
+              class="btn btn--mini button-footer"
+              @click="() => onClickButton(TypeClickButton.quickEdit)">
+              Sửa nhanh
+            </button>
+            <b-button
+              class="btn--pri"
+              title="Bỏ ghi"
+              type="primary"
+              size="mini"
+              @click="() => onClickButton(TypeClickButton.unWrite)" />
+          </template>
+          <template
+            v-if="
+              popupStatus.type === PopupType.update &&
+              paymentInfo.PaymentStatus === PaymentStatus.unWritten
+            ">
+            <button
+              class="btn btn--mini button-footer"
+              @click="() => onClickButton(TypeClickButton.update)">
+              Cất
+            </button>
+            <b-button
+              class="btn--pri"
+              title="Cất và in"
+              type="primary"
+              size="mini"
+              @click="() => onClickButton(TypeClickButton.update)" />
+          </template>
         </div>
         <div class="left-group-button">
           <button class="btn btn--mini button-footer">Hủy</button>
@@ -471,9 +621,11 @@ import {
   computed,
   nextTick,
   onBeforeMount,
+  onMounted,
   reactive,
   ref,
   toRefs,
+  watch,
   watchEffect,
 } from "vue";
 import { useStore } from "vuex";
@@ -486,11 +638,22 @@ import {
   SupplierType,
   AccountFeature,
   UserObject,
+  DialogType,
+  DialogAction,
+  TypeClickButton,
+  TypeStore,
+  PaymentStatus,
+  PopupType,
 } from "@/enums";
-import { formatDecimal } from "@/utils/helper";
+import {
+  convertToDDMMYYYY,
+  formatDecimal,
+  removeEmptyFields,
+} from "@/utils/helper";
 import supplierService from "@/api/services/supplierService";
 import employeeService from "@/api/services/employeeService";
 import accountService from "@/api/services/accountService";
+import { DialogTitle, ErrValidator } from "@/resources";
 
 //========= start state =========
 
@@ -508,6 +671,8 @@ const options = {
 const store = useStore();
 const paymentDetail = computed(() => store.state.payment.paymentDetail);
 const paymentInfo = ref({});
+const dialog = computed(() => store.state.global.dialog);
+const popupStatus = computed(() => store.state.global.popupStatus);
 const isChangeReasonSpending = ref(false);
 const isChangeEmployee = ref(false);
 const errRefs = toRefs(
@@ -523,12 +688,19 @@ const errRefs = toRefs(
     PaymentCode: null,
   })
 );
-const errDetailRefs = reactive({
-  AccountsDebtId: ref([]),
-  AccountsBalanceId: ref([]),
+const errsValidator = ref({
+  SupplierId: [],
+  SupplierName: [],
+  Receiver: [],
+  ReasonSpending: [],
+  EmployeeId: [],
+  AttachOriginalDocuments: [],
+  AccountingDate: [],
+  PaymentDate: [],
+  PaymentCode: [],
+  AccountsDebtId: [],
+  AccountsBalanceId: [],
 });
-const AccountsDebtId = ref([]);
-const errsValidator = ref({});
 const errsValidate = computed(() => store.state.global.errsValidate);
 const accoutingCols = [
   {
@@ -688,6 +860,10 @@ const accountsDebtSelected = ref([]);
 const accountsBalanceSelected = ref([]);
 
 const moneyValue = ref(0);
+
+const disableWritten = ref(false);
+const disableView = ref(false);
+const sup = ref(null);
 //========= end state =========
 
 //========= start lifecycle =========
@@ -748,40 +924,99 @@ onBeforeMount(async () => {
     });
   });
 });
+
+onMounted(() => {
+  nextTick(() => {
+    console.log(sup.value);
+  });
+});
+
 watchEffect(() => {
   paymentInfo.value = { ...paymentDetail.value };
 });
+/**
+ * Mô tả: tính lại tổng tiền khi accountings thay dổi
+ * created by : vdtien
+ * created date: 17-08-2023
+ * @param {type} param -
+ * @returns
+ */
 watchEffect(() => {
   if (paymentInfo.value?.Accountings?.length >= 0) {
     totalMoney.value = 0;
     paymentInfo.value.Accountings.forEach(
       (el) => (totalMoney.value += el?.Money ?? 0)
     );
-    console.log("change");
   }
 });
-watchEffect(() => {
-  //   AccountsDebtId
-  // AccountsBalanceId
-  nextTick(() => {
-    // console.log(errRefs);
-    console.log(errDetailRefs);
-  });
-});
-watchEffect(() => {
-  if (Array.isArray(paymentInfo.value.Accountings)) {
-    errDetailRefs.AccountsBalanceId.value = paymentInfo.value.Accountings.map(
-      () => ref(null)
-    );
-    errDetailRefs.AccountsDebtId.value = paymentInfo.value.Accountings.map(() =>
-      ref(null)
-    );
-    AccountsDebtId.value = paymentInfo.value.Accountings.map(() => ref(null));
+
+watch(dialog, (newDialog, oldDialog) => {
+  if (
+    oldDialog.type === DialogType.error &&
+    oldDialog.action === DialogAction.confirmValidate
+  ) {
+    // Lấy phần tử đầu tiên của danh sách
+    // console.log(errsValidate.value);
+    const firstKey = Object.keys(errsValidator.value)[0];
+    // console.log(firstKey);
+    // console.log("firstKey:", firstKey);
+    if (firstKey) {
+      nextTick(() => {
+        const firstErr = accessRef(firstKey);
+        console.log(firstErr?.value);
+        if (firstErr?.value) firstErr.value.focus();
+      });
+    }
   }
+});
+
+/**
+ * Mô tả: bắt sự thay đổi của reason spending
+ * created by : vdtien
+ * created date: 17-08-2023
+ * @param {type} param -
+ * @returns
+ */
+watch(
+  () => paymentInfo.value.ReasonSpending,
+  (newValue, oldValue) => {
+    // bind diễn giải trong hạch toán
+    if (paymentInfo?.value?.Accountings?.length > 0) {
+      for (
+        let index = 0;
+        index < paymentInfo.value.Accountings.length;
+        index++
+      ) {
+        if (
+          paymentInfo.value.Accountings[index]?.AccountingExplain === oldValue
+        ) {
+          paymentInfo.value.Accountings[index].AccountingExplain = newValue;
+        }
+      }
+    }
+  }
+);
+watchEffect(() => {
+  if (
+    popupStatus.value.type === PopupType.update &&
+    paymentInfo.value.PaymentStatus === PaymentStatus.written
+  ) {
+    disableWritten.value = true;
+  }
+  disableWritten.value = false;
+});
+
+watchEffect(() => {
+  if (popupStatus.value.type === PopupType.view) disableView.value = true;
+  else disableView.value = false;
 });
 //========= end lifecycle =========
 
 //========= start methods =========
+// Truy cập vào ref dựa trên tên chuỗi
+const accessRef = (refName) => {
+  return errRefs[refName] ? errRefs[refName] : null;
+};
 
 /**
  * Mô tả: chọn loại phiếu bhi
@@ -900,19 +1135,6 @@ const hanldeSelectedSupplier = (item) => {
     };
     // cap nhat employeeSelected
   }
-
-  // bind diễn giải trong hạch toán
-  if (paymentInfo?.value?.Accountings?.length > 0) {
-    for (let index = 0; index < paymentInfo.value.Accountings.length; index++) {
-      if (
-        paymentInfo.value.Accountings[index]?.AccountingExplain ===
-        reasonSpendingPrev
-      ) {
-        paymentInfo.value.Accountings[index].AccountingExplain =
-          paymentInfo?.value?.ReasonSpending ?? "";
-      }
-    }
-  }
 };
 
 /**
@@ -985,6 +1207,9 @@ const hanldeAddValueAccountDebt = (item, index) => {
   accountsDebtSelected.value[index].AccountId = item?.AccountId;
 };
 
+const onClickAccountingRow = (index) => {
+  indexFocusAccouting.value = index;
+};
 /**
  * Mô tả: thêm 1 dòng hạch toán vào danh sách hạch toán
  * created by : vdtien
@@ -1066,10 +1291,6 @@ const onClickDeleteAllAccountingRow = () => {
   accountsBalanceSelected.value = [];
 };
 
-const onClickButon = () => {
-  console.log("click button");
-};
-
 /**
  * Mô tả: xử lý sự kiên có nhập ô search ở combobox nhưng không chọn
  * created by : vdtien
@@ -1094,16 +1315,204 @@ const hanldeAddErrorMsgNotSelectedYet = (state, field, label, index) => {
 
 const isValidateData = () => {
   // xóa các lỗi không có trong errRefs
-  Object.keys(errsValidator).forEach((key) => {
-    if (!errRefs[key]) delete errsValidator[key];
+  Object.keys(errsValidator.value).forEach((key) => {
+    if (!errRefs[key]) delete errsValidator.value[key];
+    if (errsValidator.value[key]?.length === 0) delete errsValidator.value[key];
   });
-  if (Object.keys(errsValidator).length !== 0) {
+  if (Object.keys(errsValidator.value).length !== 0) {
     // errsValidator không rỗng -> còn các lỗi chưa chọn trong combobox
-    store.dispatch("getErrsValidate", { ...errsValidator });
-    const errMsgArray = Object.values(errsValidator).flat();
+    store.dispatch("getErrsValidate", { ...errsValidator.value });
+    let tmpErrs = {
+      ...errsValidator.value,
+      AccountsDebtId: findFirstTruthyElement(
+        errsValidator.value.AccountsDebtId
+      ),
+      AccountsBalanceId: findFirstTruthyElement(
+        errsValidator.value.AccountsBalanceId
+      ),
+    };
+    removeEmptyFields(tmpErrs);
+    // xóa phần tử trống
+
+    const errMsgArray = Object.values(tmpErrs).flat();
+    store.dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.inValidInput,
+      content: errMsgArray,
+      action: DialogAction.confirmValidate,
+    });
+    return false;
+  }
+
+  // check số phiếu chi không để trống
+  let isPaymentCodeEmpty = !String(paymentInfo.value?.PaymentCode ?? "").trim();
+  console.log("payment coe", isPaymentCodeEmpty);
+  if (isPaymentCodeEmpty) {
+    errsValidator.value.PaymentCode = [
+      ...(errsValidator.value?.PaymentCode ?? []),
+      ErrValidator.fieldNotEmpty("Số phiếu chi"),
+    ];
+  }
+
+  // check thời gian hạch toán và thời gian phiếu chi
+  // check null or empty
+  let isAccountingDateEmpty = isNaN(
+    Date.parse(paymentInfo.value?.AccountingDate)
+  );
+  if (isAccountingDateEmpty) {
+    errsValidator.value.AccountingDate = [
+      ...(errsValidator.value?.AccountingDate ?? []),
+      ErrValidator.fieldNotEmpty("Ngày hạch toán"),
+    ];
+  }
+  let isPayemntDateEmpty = isNaN(Date.parse(paymentInfo.value?.PaymentDate));
+  if (isPayemntDateEmpty) {
+    errsValidator.value.PaymentDate = [
+      ...(errsValidator.value?.PaymentDate ?? []),
+      ErrValidator.fieldNotEmpty("Ngày phiếu chi"),
+    ];
+  }
+  // thời gian phiếu chi <= thời gian hạch toán
+  if (!isAccountingDateEmpty && !isPayemntDateEmpty) {
+    let accountingDate = new Date(paymentInfo.value?.AccountingDate);
+    let paymentDate = new Date(paymentInfo.value?.PaymentDate);
+    // Đặt thông tin giờ, phút và giây về 0 để bỏ qua chúng trong việc so sánh
+    accountingDate.setHours(0, 0, 0, 0);
+    paymentDate.setHours(0, 0, 0, 0);
+
+    if (accountingDate < paymentDate) {
+      errsValidator.value.AccountingDate = [
+        ...(errsValidator.value?.AccountingDate ?? []),
+        ErrValidator.accountingDateMoreEqualPaymentDate(
+          convertToDDMMYYYY(paymentDate)
+        ),
+      ];
+    }
+  }
+
+  // check accountings không để trống
+  let isAccountingsEmpty =
+    !Array.isArray(paymentInfo.value?.Accountings) ||
+    paymentInfo.value?.Accountings.length === 0;
+  if (isAccountingsEmpty) {
+    errsValidator.value.Accountings = [
+      ...(errsValidator.value?.Accountings ?? []),
+      ErrValidator.accountingsNotEmpty,
+    ];
+  }
+
+  // check tài khoản nợ và tài khoản có không để trống
+  else {
+    let length = paymentInfo.value.Accountings.length;
+    for (let index = 0; index < length; index++) {
+      const element = paymentInfo.value.Accountings[index];
+      if (!element?.AccountDebtId) {
+        if (!Array.isArray(errsValidator.value.AccountsDebtId))
+          errsValidator.value.AccountsDebtId = [];
+        errsValidator.value.AccountsDebtId[index] = [
+          ...(errsValidator.value?.AccountsDebtId[index] ?? []),
+          ErrValidator.fieldNotEmpty("Tài khoản nợ"),
+        ];
+      }
+      if (!element?.AccountBalanceId) {
+        if (!Array.isArray(errsValidator.value.AccountsBalanceId))
+          errsValidator.value.AccountsBalanceId = [];
+        errsValidator.value.AccountsBalanceId[index] = [
+          ...(errsValidator.value?.AccountsBalanceId[index] ?? []),
+          ErrValidator.fieldNotEmpty("Tài khoản có"),
+        ];
+      }
+    }
+  }
+
+  // Kiểm tra xem object có rỗng hay không
+  const isEmpty = Object.keys(errsValidator.value).length === 0;
+  if (isEmpty) {
+    // console.log("isEmpty", isEmpty);
+    return true;
+  } else {
+    let tmpErrs = {
+      ...errsValidator.value,
+      AccountsDebtId: findFirstTruthyElement(
+        errsValidator.value.AccountsDebtId
+      ),
+      AccountsBalanceId: findFirstTruthyElement(
+        errsValidator.value.AccountsBalanceId
+      ),
+    };
+    removeEmptyFields(tmpErrs);
+    const errMsgArray = Object.values(tmpErrs).flat();
+    store.dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.inValidInput,
+      content: errMsgArray,
+      action: DialogAction.confirmValidate,
+    });
+    return false;
   }
 };
+function findFirstTruthyElement(arr) {
+  if (Array.isArray(arr)) {
+    return arr.find((item) => !!item);
+  }
+  return "";
+}
 
+/**
+ * Mô tả: xử lý sự kiện click button
+ * created by : vdtien
+ * created date: 17-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const onClickButton = (type) => {
+  let isValid = isValidateData();
+  switch (type) {
+    case TypeClickButton.create:
+      // validate fe
+
+      if (isValid) {
+        store.dispatch("createPayment", {
+          payment: paymentInfo.value,
+          typeStore: TypeStore.store,
+        });
+      }
+      break;
+    case TypeClickButton.createAndAdd:
+      // validate fe
+      if (isValid) {
+        console.log("create and add");
+      }
+      break;
+    case TypeClickButton.update:
+      // validate fe
+      if (isValid) {
+        console.log("update");
+      }
+      break;
+    case TypeClickButton.edit:
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.update,
+      });
+
+      break;
+    case TypeClickButton.quickEdit:
+      // validate fe
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.update,
+      });
+      break;
+    case TypeClickButton.unWrite:
+      store.dispatch("unWrittenPayment", paymentInfo.value?.PaymentId);
+      break;
+    default:
+      break;
+  }
+};
 //========= end methods =========
 </script>
 <style scoped>

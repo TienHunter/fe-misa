@@ -64,6 +64,51 @@
     height: 11px;
 }
 
+.icon-v1--process-customer {
+    background-position: -876px -202px;
+    width: 16px;
+    height: 20px;
+}
+
+.icon-v1--process-provider {
+    background-position: -930px -202px;
+    width: 20px;
+    height: 20px;
+
+}
+
+.icon-v1--process-employee {
+    background-position: -986px -202px;
+    width: 20px;
+    height: 20px;
+
+}
+
+.icon-v1--setting-active {
+    background-position: -650px -201px;
+    width: 20px;
+    height: 22px;
+
+}
+
+.icon-v1--recent-log {
+    background-position: -648px -145px;
+    width: 24px;
+    height: 23px;
+}
+
+.icon-v1--tour {
+    background-position: -983px -145px;
+    width: 24px;
+    height: 22px;
+}
+
+.icon-v1--lookup {
+    background-position: -202px -146px;
+    width: 20px;
+    height: 20px;
+}
+
 .icon+.icon {
     margin-left: 8px;
 }

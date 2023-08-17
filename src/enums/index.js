@@ -51,6 +51,12 @@ export const AccountFeature = {
   combine: 3,
   noBalance: 4,
 };
+export const UserObject = {
+  all: 0,
+  supplier: 1,
+  customer: 2,
+  employee: 3,
+};
 export const Status = {
   stopUsing: 0,
   using: 1,
@@ -93,3 +99,8 @@ export const Vocative = [
     value: "Ms",
   },
 ];
+export const TypeCol = {
+  date: "DATE",
+  money: "MONEY",
+  number: "NUMBER",
+};

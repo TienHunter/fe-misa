@@ -71,13 +71,13 @@ const dataAccountPaging = ref([]);
 const fields = ref([
   {
     name: "AccountCode",
-    text: "Mã tài khoản",
+    label: "Mã tài khoản",
     minWidth: 120,
     maxWidth: 160,
   },
   {
     name: "AccountName",
-    text: "Tên tài khoản",
+    label: "Tên tài khoản",
     minWidth: 200,
     maxWidth: 240,
   },
@@ -562,6 +562,8 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   :max-length="MaxLength.default"
                   place-holder="-- Chọn tính chất --"
                   :data-list="dataAccountFeature"
+                  field-select="id"
+                  field-show="value"
                   :id-selected="accountInfo.AccountFeature"
                   :err-msg="errsValidate?.AccountFeature?.join('') ?? ''"
                   @on-click-id-selected="

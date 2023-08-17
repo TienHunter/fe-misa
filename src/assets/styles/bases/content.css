@@ -7,6 +7,16 @@
     width: 100%;
 }
 
+.ckeck-all-arrow {
+    display: inline-block;
+    padding: 4px 12px 0 0;
+}
+
+/* .ckeck-all-arrow .icon-wrapper {
+    width: 24px;
+    height: 24px;
+} */
+
 .batch-actions {
     position: relative;
     /* border: 2px solid #3b3c3f; */

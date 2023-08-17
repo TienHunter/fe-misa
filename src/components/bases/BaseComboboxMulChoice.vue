@@ -7,7 +7,7 @@
       <div
         class="combobox-container flex items-stretch"
         :class="{
-          'mt-2': label,
+          'mt-1': label,
           'border--focus': isShowCombobox,
           'border--red': errMsg,
         }">
@@ -66,7 +66,7 @@
                   maxWidth: `${field?.maxWidth}px`,
                 }"
                 :title="field?.title">
-                <span>{{ field?.text }}</span>
+                <span>{{ field?.label }}</span>
               </th>
               <th
                 :style="{
@@ -159,7 +159,7 @@ const props = defineProps({
   },
   tabIndex: {
     type: Number,
-    default: -1,
+    default: 0,
   },
   placeHolder: {
     type: String,

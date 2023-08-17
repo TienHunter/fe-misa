@@ -105,10 +105,10 @@ const onClickPageNumber = (pageNumber) => {
  * @param {type} param -
  * @returns
  */
-const onClickPageSize = (pageSize) => {
+const onClickPageSize = (item) => {
   store.dispatch("getFilterAndPaging", {
     ...filterAndPaging.value,
-    pageSize: pageSize,
+    pageSize: item?.[fieldSelect] ?? 10,
     pageNumber: 1,
   });
   store.dispatch("getAccountsListTree");

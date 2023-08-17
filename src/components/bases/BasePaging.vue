@@ -11,13 +11,13 @@
       </div>
       <div class="pagination__right flex items-center justify-center">
         <div class="record-in-page">
-          <b-dropdown
+          <BDropdown
             class="w-input"
             :data="dataDropdown"
             :fields="fields"
             :field-select="fieldSelect"
             :field-show="fieldShow"
-            :item-selected="pageSize"
+            :item-selected="itemSelect"
             title-dropdown-list="--Chọn số bản ghi / trang--"
             direct="up"
             @on-click-select-item="onClickPageSize" />
@@ -139,7 +139,7 @@
   </div>
 </template>
 <script>
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, onBeforeMount, ref, watchEffect } from "vue";
 export default {
   props: {
     dataDropdown: {
@@ -186,20 +186,23 @@ export default {
   emits: ["onClickPageSize", "onClickPageNumber"],
   setup(props, ctx) {
     const itemSelect = ref(null);
-    onBeforeMount(() => {
+    watchEffect(() => {
       itemSelect.value = props.dataDropdown.find(
         (item) => item[props.fieldSelect] === props.pageSize
       );
     });
+    // watchEffect(() => console.log(props.pageSize));
+    // watchEffect(() => console.log(itemSelect.value));
     const onClickPageNumber = (item) => {
       ctx.emit("onClickPageNumber", item);
     };
     const onClickPageSize = (item) => {
-      ctx.emit("onClickPageSize", item.value);
+      ctx.emit("onClickPageSize", item);
     };
     return {
       onClickPageNumber,
       onClickPageSize,
+      itemSelect,
     };
   },
 };

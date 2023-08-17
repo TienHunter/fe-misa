@@ -2,7 +2,7 @@
   <div class="flex flex-row layout-default">
     <BaseSidebar />
     <div
-      class="flex-1 content-area-default"
+      class="content-area-default"
       :class="{ 'content-area-default--sidebar-shrink': isSidebarShrink }">
       <div class="content-wrapper">
         <div class="content-wrapper__header">

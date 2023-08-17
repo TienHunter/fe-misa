@@ -1,3 +1,6 @@
+import { DialogAction, DialogType } from "@/enums";
+import { DialogTitle } from "@/resources";
+
 const actions = {
   toggleLoading({ commit }) {
     commit("TOGGLE_LOADING");
@@ -50,4 +53,30 @@ const actions = {
     commit("SET_POPUP_STATUS", payload);
   },
 };
+function hanldeException(dispatch, ex) {
+  console.log(ex);
+  let errsMsg = ex?.response?.data?.UserMsg ?? [];
+  if (!Array.isArray(errsMsg)) {
+    errsMsg = ["Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ"];
+  }
+  // check loi validate hoac dupCode
+  if (ex?.response?.data?.ErrCode === 2 || ex?.response?.data?.ErrCode === 3) {
+    dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
+    dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.inValidInput,
+      content: [...errsMsg],
+      action: DialogAction.confirmValidate,
+    });
+  } else {
+    dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.errorServer,
+      content: [...errsMsg],
+    });
+  }
+}
 export default actions;
+export { hanldeException };

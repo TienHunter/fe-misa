@@ -1,5 +1,7 @@
 <template lang="">
-  <div class="flex flex-col main-wrapper w-full h-full">
+  <div
+    v-if="route.name === 'Directory'"
+    class="flex flex-col main-wrapper w-full h-full">
     <div class="content__header flex justify-between items-center pt-6 pb-6">
       <div class="content-header__title">
         <h3 class="font-24">{{ FreeText.directory }}</h3>
@@ -23,10 +25,13 @@
       </div>
     </div>
   </div>
+  <router-view />
 </template>
 <script setup>
+import { ref, watch, watchEffect } from "vue";
+import { useRoute } from "vue-router";
 import { FreeText } from "@/resources";
-import { ref } from "vue";
+const route = useRoute();
 const directoryList = ref([
   {
     title: "Đối tượng",

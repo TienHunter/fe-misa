@@ -33,11 +33,11 @@
   position: relative;
 }
 
-.record-in-page .dropdown-list--up {
+/* .record-in-page .dropdown-list--up {
   top: unset;
   bottom: 100%;
   left: 0;
-}
+} */
 
 .pagination-item {
   font-size: 14px;

@@ -40,16 +40,12 @@ class AccountService extends BaseService {
    * @param {type} param -
    * @returns
    */
-  async getListTreeAccount(params, paramsBody) {
-    const res = await axios.post(
-      `${this.getEndpoint()}/filter-tree`,
-      paramsBody,
-      {
-        params: {
-          ...params,
-        },
-      }
-    );
+  async getListTreeAccount(params) {
+    const res = await axios.get(`${this.getEndpoint()}/filter-tree`, {
+      params: {
+        ...params,
+      },
+    });
     return res.data;
   }
 
@@ -77,15 +73,21 @@ class AccountService extends BaseService {
     return res.data;
   }
 
-  async getAllAccountQuery(listAccountFeature) {
+  async getAllAccountQuery(listAccountFeature, listUserObject) {
     let query = "";
     if (listAccountFeature?.length >= 0) {
       // Chuyển các giá trị trong danh sách thành chuỗi và URL encode
       const encodedAccountFeatures = listAccountFeature.map((feature) =>
         encodeURIComponent(feature)
       );
+      const encodeUserObject = listUserObject.map((userObj) =>
+        encodeURIComponent(userObj)
+      );
       encodedAccountFeatures.forEach((element) => {
         query += `accountFeatures=${element}&`;
+      });
+      encodeUserObject.forEach((element) => {
+        query += `userObjects=${element}&`;
       });
     }
 

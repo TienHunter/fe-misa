@@ -42,17 +42,19 @@
         v-for="(item, index) in data"
         :key="index"
         class="dropdown-item"
-        :class="item?.text === valueInput ? 'dropdown-item--selected' : ''"
-        @click="onClickSelectItem(item)">
-        <span v-for="(field, indexField) in fields" :key="indexField">
-          {{ item?.[field.field] }}
+        :class="{
+          'dropdown-item--selected': item?.[fieldShow] === valueInput,
+        }"
+        @click="() => onClickSelectItem(item)">
+        <span>
+          {{ item?.[fieldShow] }}
         </span>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { ref, onMounted, watchEffect } from "vue";
+import { ref, onMounted, watchEffect, watch } from "vue";
 import { useClickOutside } from "@/hooks";
 export default {
   props: {
@@ -84,10 +86,9 @@ export default {
       type: String,
       required: true,
     },
-    // eslint-disable-next-line vue/require-default-prop
     itemSelected: {
-      type: [String, Number],
-      defalut: null,
+      type: Object,
+      default: () => ({}),
     },
     titleDropdownList: {
       type: String,
@@ -104,26 +105,38 @@ export default {
   },
   emits: ["onClickSelectItem"],
   setup(props, ctx) {
-    const valueInput = ref(props.titleDropdownList);
+    const valueInput = ref("");
     const isShowDropdown = ref(false);
     const toggleDrodown = () => {
       isShowDropdown.value = !isShowDropdown.value;
     };
     const dropdowContainerRef = ref(false);
     const isOutsideDropdown = useClickOutside(dropdowContainerRef);
-
+    onMounted(() => {
+      if (valueInput.value === "") {
+        valueInput.value = props.titleDropdownList;
+      }
+    });
+    // watchEffect(() => {
+    //   console.log(valueInput.value);
+    // });
     watchEffect(() => {
       if (isOutsideDropdown.value === true) {
         isShowDropdown.value = false;
       }
     });
+
     watchEffect(() => {
       if (props.itemSelected) {
+        // console.log("field show", props.fieldShow, props.itemSelected);
         const foundItem = props.data.find(
-          (obj) => obj[props.fieldSelect] === props.itemSelected
+          (obj) =>
+            obj[props?.fieldSelect] ===
+            props?.itemSelected?.[props?.fieldSelect]
         );
         if (foundItem) {
-          valueInput.value = foundItem[props.fieldShow];
+          // console.log(foundItem[props?.fieldShow]);
+          valueInput.value = foundItem[props?.fieldShow];
         }
         // console.log(props.itemSelected);
       }

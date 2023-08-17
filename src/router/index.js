@@ -23,36 +23,59 @@ const routes = [
     },
     component: () =>
       import(/* webpackChunkName: "home" */ "@/views/DirectoryPage.vue"),
+    children: [
+      {
+        path: "/DI/account-system",
+        name: "DIAccountSystem",
+        meta: {
+          layout: "default",
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/views/account/AccountList/AccountList.vue"
+          ),
+      },
+      {
+        path: "/DI/supplier",
+        name: "DISupplier",
+        meta: {
+          layout: "default",
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/views/supplier/SupplierList/SupplierList.vue"
+          ),
+      },
+    ],
   },
+
   {
-    path: "/DI/account-system",
-    name: "DIAccountSystem",
+    path: "/CA",
+    name: "Cast",
     meta: {
       layout: "default",
     },
-    component: () =>
-      import(
-        /* webpackChunkName: "home" */ "@/views/account/AccountList/AccountList.vue"
-      ),
+    redirect: "/CA/CAProcess",
+    component: () => import("@/views/cast/CastContainer.vue"),
+    children: [
+      {
+        path: "CAProcess",
+        name: "CastProcess",
+        component: () => import("@/views/cast/procedure/CastProcedure.vue"),
+      },
+      {
+        path: "CAReceipt/DepositWidthdrawList",
+        name: "DepositWidthdrawList",
+        component: () =>
+          import(
+            "@/views/cast/deposit-withdraw/DepositWithdrawList/DepositWithdrawList.vue"
+          ),
+      },
+    ],
   },
   {
-    path: "/DI/supplier",
-    name: "DISupplier",
-    meta: {
-      layout: "default",
-    },
-    component: () =>
-      import(
-        /* webpackChunkName: "home" */ "@/views/supplier/SupplierList/SupplierList.vue"
-      ),
-  },
-  {
-    path: "/fake",
-    name: "Fake",
-    meta: {
-      layout: "default",
-    },
-    component: () => import("@/views/FakePage.vue"),
+    path: "/CA",
+    redirect: "/CA/CAProcess",
   },
   {
     path: "/components",

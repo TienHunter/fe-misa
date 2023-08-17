@@ -59,9 +59,7 @@ export default {
       btnTableRefs.value = supplierList.value.map(() => ref(null));
       // console.log(supplierIdListChecked.value);
     });
-    onBeforeMount(() => {
-      store.dispatch("getSupplierList");
-    });
+    onBeforeMount(() => {});
     onMounted(() => {
       btnTableRefs.value = supplierList.value.map(() => ref(null));
     });

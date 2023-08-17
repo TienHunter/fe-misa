@@ -83,7 +83,6 @@ export default {
         if (firstKey) {
           const firstErr = accessRef(firstKey);
           firstErr.value.focus();
-          firstErr.value.select();
         }
       } else if (
         newValue.action === DialogAction.confirmCreate &&
@@ -111,11 +110,8 @@ export default {
         let response = await DepartmentService.getAll();
 
         // console.log(response);
-        if (response) {
-          dataDeaprtment.value = response.map((item, index) => ({
-            id: item.DepartmentId,
-            value: item.DepartmentName,
-          }));
+        if (response?.length >= 0) {
+          dataDeaprtment.value = [...response];
         }
       } catch (error) {
         console.log(error);
@@ -354,7 +350,7 @@ export default {
           isShow: true,
           type: DialogType.error,
           title: DialogTitle.inValidInput,
-          content: Object.values(errMsgArray),
+          content: errMsgArray,
           action: DialogAction.confirmValidate,
         });
       }
@@ -551,6 +547,8 @@ export default {
                   place-holder="-- Chọn đơn vị --"
                   :err-msg="errsValidate?.DepartmentId?.join('') ?? ''"
                   :data-list="dataDeaprtment"
+                  field-select="DepartmentId"
+                  field-show="DepartmentName"
                   :id-selected="employeeInfo.DepartmentId"
                   @on-click-id-selected="
                     (id) => (employeeInfo.DepartmentId = id)

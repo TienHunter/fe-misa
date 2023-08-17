@@ -66,7 +66,7 @@
 <script setup>
 import { useStore } from "vuex";
 import { computed, onBeforeMount, ref, watch } from "vue";
-
+import { useRoute } from "vue-router";
 import AccountTable from "../AccountTable/AccountTable.vue";
 import AccountPaging from "../AccountPaging/AccountPaging.vue";
 import AccountDetail from "../AccountDetail/AccountDetail.vue";
@@ -77,6 +77,7 @@ import { useDebounce } from "@/hooks";
 
 //---------------start state-----------------
 const store = useStore();
+const route = useRoute();
 const accountsList = computed(() => store.state.account.accountsList);
 const popupStatus = computed(() => store.state.global.popupStatus);
 const isLoading = computed(() => store.state.global.isLoading);
@@ -90,8 +91,22 @@ const debounceSearch = useDebounce(searchValue, 600);
 //-------------end state-----------------
 
 //--start lifecycle----
-
+onBeforeMount(async () => {
+  store.dispatch("getFilterAndPaging", {
+    pageNumber: 1,
+    pageSize: 10,
+    keySearch: "",
+  });
+  await store.dispatch("getAccountsListTree");
+});
 watch(debounceSearch, () => {
+  if (debounceSearch.value === "") {
+    isExpand.value = false;
+    isLoadedAll.value = false;
+  } else {
+    isExpand.value = true;
+    isLoadedAll.value = true;
+  }
   store.dispatch("getFilterAndPaging", {
     ...filterAndPaging.value,
     keySearch: debounceSearch.value,
@@ -134,10 +149,7 @@ const toggleExpand = async () => {
       await store.dispatch("getAccountsListTree");
       let listParentId = accountsList.value.map((obj) => obj.AccountId);
       // goi cac node con lai
-      await store.dispatch(
-        "getListAccountChildrenByListParentId",
-        listParentId
-      );
+      await store.dispatch("getAllAcountByListParentIds", listParentId);
       isLoadedAll.value = true;
     }
     // goi it nhat 1 lan roi

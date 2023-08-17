@@ -201,7 +201,24 @@ function stringifyJson(data) {
     return null;
   }
 }
+// function formatDecimal(number) {
+//   const parts = number.toLocaleString("de-DE").split(",");
+//   const formattedNumber = parts[0].replace(/\./g, "") + "," + parts[1];
+//   return formattedNumber;
+// }
+function formatDecimal(number) {
+  if (typeof number !== "number") number = 0;
+  const formattedNumber = Math.abs(number).toLocaleString("de-DE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
+  if (number < 0) {
+    return `(${formattedNumber})`;
+  } else {
+    return formattedNumber;
+  }
+}
 export {
   removeDiacritics,
   converGender,
@@ -217,4 +234,5 @@ export {
   converStatusField,
   parseJson,
   stringifyJson,
+  formatDecimal,
 };

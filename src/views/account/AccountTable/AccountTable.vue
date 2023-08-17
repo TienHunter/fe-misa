@@ -165,7 +165,7 @@ const tableAccountRef = ref(null);
 const positionTableBottom = ref(0);
 const btnTableDirectUp = ref(false);
 onBeforeMount(() => {
-  store.dispatch("getAccountsListTree");
+  // store.dispatch("getAccountsListTree");
 });
 onMounted(() => {
   positionTableBottom.value =
@@ -221,7 +221,7 @@ const isshowTr = (ParentId) => {
  * @param {type} param -
  * @returns
  */
-const onClickToggleShowChild = (item) => {
+const onClickToggleShowChild = async (item) => {
   if (item.showChild === false) {
     // kiem tra xem no co con khong
     const childs = accountsList.value.filter(
@@ -233,7 +233,7 @@ const onClickToggleShowChild = (item) => {
       // neu co con roi thi khong can load api
       store.dispatch("toggleShowChild", item.AccountId);
     } else {
-      store.dispatch("getAccountsListByParentId", item.AccountId);
+      await store.dispatch("getAccountsListByParentId", item.AccountId);
     }
   } else {
     store.dispatch("toggleShowChild", item.AccountId);

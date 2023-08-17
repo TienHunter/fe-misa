@@ -7,7 +7,7 @@
       <div
         class="combobox-container flex items-center"
         :class="{
-          'mt-2': label,
+          'mt-1': label,
           'border--focus': isShowCombobox,
           'border--red': errMsg,
         }">
@@ -15,12 +15,14 @@
           ref="inputRef"
           type="text"
           class="input combobox-input flex-1 m-0"
-          :title="errMsg"
+          :title="errMsg || searchValue"
           :tabindex="tabIndex"
           :placeholder="placeHolder"
           :value="searchValue"
           @input="handleChangeInput"
-          @keydown="handleKeyDown" />
+          @keydown="handleKeyDown"
+          @focus="focus"
+          @blur="blur" />
         <div v-show="props.add" class="icon-wrapper btn-add">
           <div class="icon-v1 icon-v1--plus-green-small"></div>
         </div>
@@ -32,79 +34,91 @@
         </div>
       </div>
     </label>
-    <div
-      v-show="isShowCombobox"
-      class="combobox-list-wrapper"
-      style="z-index: 100">
-      <!-- :style="{
+    <Teleport to="body">
+      <div
+        v-show="isShowCombobox"
+        ref="listDataWrapperRef"
+        class="combobox-list-wrapper"
+        style="z-index: 100"
+        :style="{
+          top: showBottom ? positionList.top + 'px' : 'unset',
+          left: showLeft ? positionList.left + 'px' : 'unset',
+          bottom: showBottom ? 'unset' : positionList.bottom + 'px',
+          right: showLeft ? 'unset' : positionList.right + 'px',
+          minWidth: positionCombobox.width + 'px',
+        }">
+        <!-- :style="{
         top: positionCombobox.bottom + 'px',
         left: positionCombobox.left + 'px',
         minWidth: positionCombobox.width + 'px',
       }" -->
-      <div ref="listDataRef" class="combobox-list-container">
-        <table>
-          <thead>
-            <tr>
-              <th
-                v-for="(field, indexField) in props.fields"
-                :key="indexField"
-                :style="{
-                  minWidth: `${field?.minWidth}px`,
-                  maxWidth: `${field?.maxWidth}px`,
-                }"
-                :title="field?.title">
-                <span>{{ field?.text }}</span>
-              </th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-      <div ref="listDataWrapperRef" class="combobox-list-container tbody">
-        <table>
-          <tbody>
-            <template v-if="dataListFilter?.length > 0">
-              <tr
-                v-for="(item, index) in dataListFilter"
-                :ref="itemRefs[index]"
-                :key="index"
-                class="combobox-item"
-                :class="{
-                  'combobox-item--selected':
-                    idSelected === item[props.fieldSelect],
-                  'combobox-item--hover': selectedIndex === index,
-                }"
-                @click="() => onClickComboboxItem(item, index)">
-                <td
+        <div class="combobox-list-container">
+          <table>
+            <thead>
+              <tr>
+                <th
                   v-for="(field, indexField) in props.fields"
                   :key="indexField"
                   :style="{
                     minWidth: `${field?.minWidth}px`,
                     maxWidth: `${field?.maxWidth}px`,
                   }"
+                  :class="field?.class ?? ''"
+                  :title="field?.title">
+                  <span>{{ field?.label }}</span>
+                </th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div ref="listDataRef" class="combobox-list-container tbody">
+          <table>
+            <tbody>
+              <template v-if="dataListFilter?.length > 0">
+                <tr
+                  v-for="(item, index) in dataListFilter"
+                  :ref="itemRefs[index]"
+                  :key="index"
+                  class="combobox-item"
                   :class="{
-                    'font-bold': item?.IsParent,
+                    'combobox-item--selected':
+                      idSelected === item[props.fieldSelect],
+                    'combobox-item--hover': selectedIndex === index,
                   }"
-                  :title="item[field.name]">
-                  <span
-                    v-if="field.name === props.fieldShow"
-                    :style="{ 'padding-left': `${24 * item?.Grade ?? 0}px` }">
-                    {{ item[field.name] }}</span
-                  >
-                  <span v-else>{{ item[field.name] }}</span>
-                </td>
-              </tr>
-            </template>
-            <template v-else>
-              <tr>
-                <td :colspan="props?.fields?.length ?? 0" class="font-italic">
-                  {{ FreeText.notFoundRecord }}
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+                  @click="() => onClickComboboxItem(item, index)">
+                  <td
+                    v-for="(field, indexField) in props.fields"
+                    :key="indexField"
+                    :style="{
+                      minWidth: `${field?.minWidth}px`,
+                      maxWidth: `${field?.maxWidth}px`,
+                    }"
+                    :class="{
+                      'font-bold': item?.IsParent,
+                      [field?.class]: true,
+                    }"
+                    :title="item[field?.name]">
+                    <span
+                      v-if="field?.name === props.fieldShow"
+                      :style="{ 'padding-left': `${24 * item?.Grade ?? 0}px` }">
+                      {{ item[field.name] }}</span
+                    >
+                    <span v-else>{{ item[field?.name] }}</span>
+                  </td>
+                </tr>
+              </template>
+              <template v-else>
+                <tr>
+                  <td :colspan="props?.fields?.length ?? 0" class="font-italic">
+                    {{ FreeText.notFoundRecord }}
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 <script setup>
@@ -117,6 +131,7 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onBeforeUpdate,
+  nextTick,
 } from "vue";
 import { useClickOutside, useDebounce } from "@/hooks";
 import { removeDiacritics } from "@/utils/helper";
@@ -133,7 +148,7 @@ const props = defineProps({
   },
   tabIndex: {
     type: Number,
-    default: -1,
+    default: 0,
   },
   placeHolder: {
     type: String,
@@ -174,7 +189,7 @@ const props = defineProps({
   },
   direct: {
     type: String,
-    default: "show",
+    default: "down",
   },
   isRequired: {
     type: Boolean,
@@ -201,6 +216,7 @@ const emit = defineEmits([
   "update:modelValue",
   "onClickIdSelected",
   "emptyErrMsg",
+  "notSelectedYet",
   "addValueSelected",
   "loadDataLazy",
   "loadDataFilter",
@@ -210,14 +226,15 @@ const emit = defineEmits([
 //-------start state-----------
 const inputRef = ref(null);
 const comboboxRef = ref(null);
-const listDataRef = ref(null);
 const listDataWrapperRef = ref(null);
+const listDataRef = ref(null);
 const isShowCombobox = ref(false);
 const isLoading = ref(true);
 const searchValue = ref("");
 const debounceSearch = useDebounce(searchValue, 500);
 const isOutsideCombobox = useClickOutside(comboboxRef);
 const positionCombobox = ref({});
+const positionList = ref({});
 // console.log(props.dataList);
 const dataListFilter = ref([]);
 const itemRefs = ref([]);
@@ -230,6 +247,9 @@ const selectedIndex = ref(
   )?.value ?? -1
 );
 // console.log(props.fieldShow, debounceSearch.value);
+
+const showLeft = ref(true);
+const showBottom = ref(true);
 //----------end state
 
 //-------lifecycle
@@ -240,36 +260,18 @@ onBeforeMount(() => {
 });
 
 onMounted(() => {
-  // console.log(comboboxRef.value.getBoundingClientRect());
-  // positionCombobox.value.bottom =
-  //   comboboxRef.value.getBoundingClientRect().bottom + 8;
-  // positionCombobox.value.left = comboboxRef.value.getBoundingClientRect().left;
-  // positionCombobox.value.width =
-  //   comboboxRef.value.getBoundingClientRect().width;
   // console.log(props.fieldShow, props.valueSelected);
+
   itemRefs.value = dataListFilter.value.map(() => ref(null));
   if (props.isReloadScroll) {
-    listDataWrapperRef.value.addEventListener("scroll", handleScrollList);
+    listDataRef.value.addEventListener("scroll", handleScrollList);
   }
-
-  // if (props.idSelected !== "") {
-  //   const foundItem = props.dataList.find(
-  //     (obj) => obj[props.fieldSelect] === props.idSelected
-  //   );
-
-  //   if (foundItem) {
-  //     itemSelected.value = { ...foundItem };
-  //     searchValue.value = foundItem?.[props.fieldShow] ?? "";
-  //   } else {
-  //     searchValue.value = props?.valueSelected?.[props.fieldShow] ?? "";
-  //   }
-  // }
 });
 
 onBeforeUpdate(() => {});
 
 onBeforeUnmount(() => {
-  listDataWrapperRef.value.removeEventListener("scroll", handleScrollList);
+  listDataRef.value.removeEventListener("scroll", handleScrollList);
 });
 
 //kiểm tra sự thay đổi của debounceSearch
@@ -278,7 +280,7 @@ watch(debounceSearch, () => {
     // emit ra cha để call api
     isLoading.value = true;
     // console.log("emit");
-    listDataWrapperRef.value.scrollTop = 0;
+    listDataRef.value.scrollTop = 0;
     emit("loadDataFilter", debounceSearch.value);
   } else if (props.isReload === false && !isLoading.value) {
     // filter ở client
@@ -293,9 +295,16 @@ watch(debounceSearch, () => {
 });
 watchEffect(() => {
   itemSelected.value = { ...props?.valueSelected };
+  // console.log(typeof itemSelected.value);
 });
 watchEffect(() => {
-  searchValue.value = props?.valueSelected?.[props.fieldShow] ?? "";
+  if (
+    typeof itemSelected.value === "object" &&
+    itemSelected.value &&
+    Object.keys(itemSelected.value).length > 0
+  ) {
+    searchValue.value = itemSelected.value?.[props.fieldShow] ?? "";
+  }
 });
 // cập nhật dataList
 watchEffect(() => {
@@ -316,15 +325,65 @@ watch(isShowCombobox, () => {
     selectedIndex.value = dataListFilter.value.findIndex(
       (obj) => obj[props.fieldSelect] === itemSelected.value[props.fieldSelect]
     );
-    if (selectedIndex.value > -1 && itemRefs.value[selectedIndex.value]) {
-      listDataWrapperRef.value.scrollTop = selectedIndex.value * 30;
+    if (selectedIndex.value > -1) {
+      listDataRef.value.scrollTop = selectedIndex.value * 30;
       handleScrollList();
     }
   } else {
-    // listDataWrapperRef.value.scrollTop = 0;
+    // listDataRef.value.scrollTop = 0;
   }
 });
+watchEffect(() => {
+  if (isShowCombobox.value || !isShowCombobox.value) {
+    nextTick(() => {
+      positionCombobox.value.top =
+        comboboxRef.value.getBoundingClientRect().top;
+      positionCombobox.value.bottom =
+        comboboxRef.value.getBoundingClientRect().bottom;
+      positionCombobox.value.left =
+        comboboxRef.value.getBoundingClientRect().left;
+      positionCombobox.value.right =
+        comboboxRef.value.getBoundingClientRect().right;
+      positionCombobox.value.width =
+        comboboxRef.value.getBoundingClientRect().width;
 
+      // Lấy chiều cao và chiều rộng của cửa sổ trình duyệt
+      const windowHeight =
+        window.innerHeight || document.documentElement.clientHeight;
+      const windowWidth =
+        window.innerWidth || document.documentElement.clientWidth;
+      if (
+        windowHeight <
+        positionCombobox.value.bottom +
+          listDataWrapperRef.value.getBoundingClientRect().height
+      ) {
+        showBottom.value = false;
+        positionList.value.bottom =
+          windowHeight - positionCombobox.value.top + 4;
+      } else {
+        showBottom.value = true;
+        positionList.value.top = positionCombobox.value.bottom + 4;
+      }
+      if (
+        windowWidth <
+        positionCombobox.value.left +
+          listDataWrapperRef.value.getBoundingClientRect().width
+      ) {
+        showLeft.value = false;
+        positionList.value.right = windowWidth - positionCombobox.value.right;
+      } else {
+        showLeft.value = true;
+        positionList.value.left = positionCombobox.value.left;
+      }
+      // console.log(
+      //   positionCombobox.value,
+      //   listDataWrapperRef.value.getBoundingClientRect(),
+      //   windowHeight,
+      //   windowWidth
+      // );
+    });
+  }
+});
 watchEffect(() => {
   itemRefs.value = dataListFilter.value.map(() => ref(null));
 });
@@ -337,10 +396,10 @@ watchEffect(() => {
 // focus input
 const handleScrollList = async () => {
   // console.log("scrol...");
-  const clientHeight = listDataWrapperRef.value.clientHeight;
-  const scrollHeight = listDataWrapperRef.value.scrollHeight;
+  const clientHeight = listDataRef.value.clientHeight;
+  const scrollHeight = listDataRef.value.scrollHeight;
   const maxScroll = scrollHeight - clientHeight;
-  const scrollTop = listDataWrapperRef.value.scrollTop;
+  const scrollTop = listDataRef.value.scrollTop;
   // Khi người dùng cuộn đến cuối trang, tải thêm dữ liệu
   if (
     maxScroll - scrollTop < 48 &&
@@ -354,24 +413,33 @@ const handleScrollList = async () => {
 
 const focus = () => {
   inputRef.value.focus();
+  select();
 };
 const select = () => {
   inputRef.value.select();
 };
+const blur = () => {
+  if (searchValue.value && !props.idSelected) {
+    emit("notSelectedYet", true);
+  } else {
+  }
+  console.log("blur");
+};
 // ẩn hiện combolist khi click chuột
 const toggleCombobox = () => {
   isShowCombobox.value = !isShowCombobox.value;
-  selectedIndex.value = -1;
+  // selectedIndex.value = -1;
 };
 
 // chọn item được selected
 const onClickComboboxItem = (item) => {
+  focus();
   itemSelected.value = item;
   searchValue.value = item?.[props?.fieldShow] ?? "";
   isLoading.value = true;
   // emit idSelected ra cho component cha
   emit("onClickIdSelected", item[props.fieldSelect]);
-  // emit("addValueSelected", item);
+  emit("addValueSelected", item);
   emit("emptyErrMsg");
 
   // console.log(item);
@@ -386,7 +454,10 @@ const handleChangeInput = (e) => {
   isShowCombobox.value = true;
   searchValue.value = e.target.value;
   emit("onClickIdSelected", "");
-  // emit("addValueSelected", null);
+  emit("addValueSelected", {
+    [props.fieldSelect]: "",
+    [props.fieldShow]: searchValue.value,
+  });
   isLoading.value = false;
   itemSelected.value = {};
   selectedIndex.value = -1;
@@ -402,12 +473,11 @@ const handleKeyDown = (e) => {
 
     if (selectedIndex.value > 0) {
       selectedIndex.value--;
-      listDataWrapperRef.value.scrollTop -= 30;
+      listDataRef.value.scrollTop -= 30;
     } else if (selectedIndex.value === 0) {
       selectedIndex.value = dataListFilter.value.length - 1;
-      listDataWrapperRef.value.scrollTop =
-        listDataWrapperRef.value.scrollHeight -
-        listDataWrapperRef.value.clientHeight;
+      listDataRef.value.scrollTop =
+        listDataRef.value.scrollHeight - listDataRef.value.clientHeight;
     }
   } else if (e.key === "ArrowDown") {
     console.log(e);
@@ -416,11 +486,11 @@ const handleKeyDown = (e) => {
     if (selectedIndex.value < dataListFilter.value.length - 1) {
       selectedIndex.value++;
       if (selectedIndex.value > 3) {
-        listDataWrapperRef.value.scrollTop += 30;
+        listDataRef.value.scrollTop += 30;
       }
     } else if (selectedIndex.value === dataListFilter.value.length - 1) {
       selectedIndex.value = 0;
-      listDataWrapperRef.value.scrollTop = 0;
+      listDataRef.value.scrollTop = 0;
     }
     // scrollDow();
   } else if (e.key === "Enter") {
@@ -432,16 +502,19 @@ const handleKeyDown = (e) => {
         if (itemSelect) {
           onClickComboboxItem(itemSelect);
         }
-      } else {
-        // nếu không chọn thì trả về item selected trước đó nếu có
-        if (itemSelected.value) {
-          searchValue.value = itemSelected?.value?.[props.fieldShow] ?? "";
-        } else {
-        }
-
-        isShowCombobox.value = !isShowCombobox.value;
       }
-    } else {
+      // else {
+      //   // nếu không chọn thì trả về item selected trước đó nếu có
+      //   if (itemSelected.value) {
+      //     searchValue.value = itemSelected?.value?.[props.fieldShow] ?? "";
+      //   } else {
+      //   }
+
+      //   isShowCombobox.value = !isShowCombobox.value;
+      // }
+      // } else {
+      //   isShowCombobox.value = !isShowCombobox.value;
+      // }
       isShowCombobox.value = !isShowCombobox.value;
     }
   } else if (e.key === "Tab") {
@@ -479,5 +552,8 @@ tr:hover > td {
 }
 .btn-add {
   border-right: 1px solid #babec5;
+}
+.combobox-list-wrapper {
+  min-width: unset;
 }
 </style>

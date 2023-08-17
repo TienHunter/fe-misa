@@ -20,8 +20,9 @@ label {
     width: 100%;
     padding: 0px 12px;
     border-radius: var(--border-radius);
-    border: 1px solid #e6e6e6;
-    margin-top: 8px;
+    border: 1px solid #babec5;
+
+    margin-top: 4px;
     background-color: #fff;
     /* font-size: 14px; */
     /* background-color: transparent; */
@@ -84,12 +85,13 @@ label .errMsg {
 
 .combobox-container {
     position: relative;
-    border: 1px solid #e6e6e6;
+    border: 1px solid #babec5;
     border-radius: var(--border-radius);
     overflow: hidden;
     /* height: 2.25rem; */
     /* height: 26px; */
     min-height: 26px;
+    background-color: #fff;
 }
 
 .combobox-container:focus-within {
@@ -315,7 +317,7 @@ input[type="date"] {
 .textarea {
     resize: none;
     border-radius: 3px;
-    border: 1px solid #e6e6e6;
+    border: 1px solid #babec5;
     font-family: inherit;
     display: block;
     padding: 9px;
@@ -326,6 +328,25 @@ input[type="date"] {
 }
 
 .textarea:focus {
+    border: 1px solid #50b83c;
+    outline: none;
+}
+
+.td-textarea {
+    resize: none;
+    height: 27px;
+    line-height: 20px;
+    font-family: inherit;
+    width: 100%;
+    padding: 3px 10px;
+    border-radius: var(--border-radius);
+    border: 1px solid #e6e6e6;
+    background-color: #fff;
+    outline: unset;
+    overflow: hidden;
+}
+
+.td-textarea:focus {
     border: 1px solid #50b83c;
     outline: none;
 }

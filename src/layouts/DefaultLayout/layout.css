@@ -1,7 +1,8 @@
 .layout-default {
     width: 100vw;
-    min-width: 800px;
+    /* min-width: 800px; */
     height: 100vh;
+    overflow: hidden;
 }
 
 .content-area-default {

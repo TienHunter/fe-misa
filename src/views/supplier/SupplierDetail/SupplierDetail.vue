@@ -549,10 +549,6 @@ div
                         @on-click-id-selected="
                           (id) => (supplierInfo.AccountReceivableId = id)
                         "
-                        @add-value-selected="
-                          (itemSelected) =>
-                            (accountReceivableSelected = { ...itemSelected })
-                        "
                         @keydown.tab.stop="" />
                     </div>
                     <div class="w-input pr-3">
@@ -571,10 +567,6 @@ div
                         "
                         @on-click-id-selected="
                           (id) => (supplierInfo.AccountPayableId = id)
-                        "
-                        @add-value-selected="
-                          (itemSelected) =>
-                            (accountPayableSelected = { ...itemSelected })
                         "
                         @keydown.tab.stop="" />
                     </div>
@@ -706,7 +698,7 @@ div
                               </td>
                               <td class="px-3" title="Xóa">
                                 <div
-                                  class="flex items-center justif-center pointer"
+                                  class="flex items-center justify-center pointer"
                                   @click.stop="() => onClickRemoveBank(index)">
                                   <div class="icon-v1 icon-v1--bin"></div>
                                 </div>
@@ -939,6 +931,7 @@ import {
   DialogAction,
   Vocative,
   AccountFeature,
+  UserObject,
 } from "@/enums";
 import {
   computed,
@@ -990,14 +983,14 @@ const dataGroupSuppliers = ref([]);
 const fieldsGroupSuppliers = [
   {
     name: "GroupSupplierCode",
-    text: "Mã nhóm KH, NCC",
+    label: "Mã nhóm KH, NCC",
     minWidth: 120,
     maxWidth: 160,
     title: "Mã nhóm khách hàng, nhà cung cấp",
   },
   {
     name: "GroupSupplierName",
-    text: "Tên nhóm KH, NCC",
+    label: "Tên nhóm KH, NCC",
     minWidth: 200,
     maxWidth: 240,
     title: "Tên nhóm khách hàng, nhà cung cấp",
@@ -1010,13 +1003,13 @@ const dataEmployees = ref([]);
 const fieldsEmployee = [
   {
     name: "EmployeeCode",
-    text: "Mã nhân viên",
+    label: "Mã nhân viên",
     minWidth: 120,
     maxWidth: 160,
   },
   {
     name: "FullName",
-    text: "Tên nhân viên",
+    label: "Tên nhân viên",
     minWidth: 200,
     maxWidth: 240,
   },
@@ -1030,13 +1023,13 @@ const dataTermPayments = ref([]);
 const filedsTermPayment = [
   {
     name: "TermPaymentCode",
-    text: "Mã điều khoản thanh toán",
+    label: "Mã điều khoản thanh toán",
     minWidth: 200,
     maxWidth: 240,
   },
   {
     name: "TermPaymentName",
-    text: "Tên điều khoản thanh toán",
+    label: "Tên điều khoản thanh toán",
     minWidth: 200,
     maxWidth: 240,
   },
@@ -1049,13 +1042,13 @@ const pageTermPaymentIndex = ref(0);
 const fieldsAccount = [
   {
     name: "AccountCode",
-    text: "Số tài khoản",
+    label: "Số tài khoản",
     minWidth: 140,
     maxWidth: 160,
   },
   {
     name: "AccountName",
-    text: "Tên tài khoản",
+    label: "Tên tài khoản",
     minWidth: 200,
     maxWidth: 240,
   },
@@ -1230,79 +1223,6 @@ watch(maxAccountOfDebt, () => {
   );
 });
 
-// bat su thay doi cua location
-// watch(
-//   () => supplierInfo?.value?.CountryId,
-//   async () => {
-//     console.log("change country");
-//     if (supplierInfo?.value?.CountryId) {
-//       supplierInfo.value.CityId = null;
-//       dataCities.value = [];
-//       supplierInfo.value.DistrictId = null;
-//       dataDistricts.value = [];
-//       supplierInfo.value.WardId = null;
-//       dataWards.value = [];
-//       // call danh sach cities
-//       try {
-//         let res = await locationService.getAllLocationByParentId(
-//           supplierInfo.value.CountryId
-//         );
-//         if (res?.length >= 0) {
-//           dataCities.value = [...res];
-//         }
-//       } catch (error) {
-//         console.log(error);
-//         dataCities.value = [];
-//       }
-//     }
-//   }
-// );
-
-// watch(
-//   () => supplierInfo?.value?.CityId,
-//   async () => {
-//     if (supplierInfo?.value?.CityId) {
-//       supplierInfo.value.DistrictId = null;
-//       dataDistricts.value = [];
-//       supplierInfo.value.WardId = null;
-//       dataWards.value = [];
-//       // call danh sach cities
-//       try {
-//         let res = await locationService.getAllLocationByParentId(
-//           supplierInfo.value.CityId
-//         );
-//         if (res?.length >= 0) {
-//           dataDistricts.value = [...res];
-//         }
-//       } catch (error) {
-//         console.log(error);
-//         dataDistricts.value = [];
-//       }
-//     }
-//   }
-// );
-
-// watch(
-//   () => supplierInfo?.value?.DistrictId,
-//   async () => {
-//     if (supplierInfo?.value?.DistrictId) {
-//       supplierInfo.value.WardId = null;
-//       dataWards.value = [];
-//       // call danh sach cities
-//       try {
-//         let res = await locationService.getAllLocationByParentId(
-//           supplierInfo.value.DistrictId
-//         );
-//         if (res?.length >= 0) {
-//           dataWards.value = [...res];
-//         }
-//       } catch (error) {
-//         console.log(error);
-//         dataWards.value = [];
-//       }
-//     }
-//   }
-// );
 watchEffect(() => {
   supplierInfo.value = { ...supplierDetail.value };
 });
@@ -1408,7 +1328,7 @@ const loadDataTermPaymentFilter = async (termPaymentSearch) => {
   }
 };
 const hanldeAddTermPaymentId = (termPayment) => {
-  termPaymentSelected.value = { ...termPayment };
+  // termPaymentSelected.value = { ...termPayment };
   // bind vao truong due time
   if (termPayment) {
     supplierInfo.value.DueTime = termPayment?.DueTime ?? 0;
@@ -1417,10 +1337,10 @@ const hanldeAddTermPaymentId = (termPayment) => {
 
 const loadDataAccountPayable = async () => {
   try {
-    let res = await accountService.getAllAccountQuery([
-      AccountFeature.debt,
-      AccountFeature.combine,
-    ]);
+    let res = await accountService.getAllAccountQuery(
+      [AccountFeature.debt, AccountFeature.combine],
+      [UserObject.all, UserObject.supplier]
+    );
 
     if (res?.length >= 0) {
       dataAccountPayable.value = [...res];
@@ -1432,10 +1352,10 @@ const loadDataAccountPayable = async () => {
 
 const loadDataAccountReceivable = async () => {
   try {
-    let res = await accountService.getAllAccountQuery([
-      AccountFeature.redundant,
-      AccountFeature.combine,
-    ]);
+    let res = await accountService.getAllAccountQuery(
+      [AccountFeature.redundant, AccountFeature.combine],
+      [UserObject.all, UserObject.supplier]
+    );
 
     if (res?.length >= 0) {
       dataAccountReceivable.value = [...res];
@@ -1671,7 +1591,7 @@ const storeSupplier = () => {
 //---end methods----
 </script>
 <style scoped>
-@import url(./SupplierDetail.css);
+@import url("./SupplierDetail.css");
 .description .textarea {
   min-height: 190px;
 }

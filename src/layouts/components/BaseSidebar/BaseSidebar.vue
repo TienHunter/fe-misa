@@ -23,7 +23,7 @@
           :to="{ name: value.name, params: {} }"
           class="menu-item"
           :class="{
-            'menu-item--active': route.name === value.name,
+            'menu-item--active': isActiveTab(value.name),
             'justify-center': isSidebarShrink,
           }"
           :title="value.title">
@@ -41,7 +41,7 @@
           :to="{ name: value.name, params: {} }"
           class="menu-item"
           :class="{
-            'menu-item--active': route.name === value.name,
+            'menu-item--active': isActiveTab(value.name),
             'justify-center': isSidebarShrink,
           }"
           :title="value.title">
@@ -69,11 +69,15 @@ export default {
       // console.log(route);
     });
     const isSidebarShrink = computed(() => store.state.global.isSidebarShrink);
-
+    const isActiveTab = (name) => {
+      return route.matched.some((item) => item.name === name);
+      // return route.name === name;
+    };
     return {
       route,
       SidebarList,
       isSidebarShrink,
+      isActiveTab,
       toggleSdibarShrink: () => store.dispatch("toggleSidebarShrink"),
     };
   },

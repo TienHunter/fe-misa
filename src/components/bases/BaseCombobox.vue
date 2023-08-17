@@ -7,7 +7,7 @@
       <div
         class="combobox-container flex items-center"
         :class="{
-          'mt-2': label,
+          'mt-1': label,
           'border--focus': isShowCombobox,
           'border--red': errMsg,
         }">
@@ -32,20 +32,30 @@
     <div
       v-show="isShowCombobox"
       class="combobox-list-wrapper"
-      style="z-index: 100; min-width: 100%">
-      <ul ref="listDataWrapperRef" class="combobox-list" :class="classList">
-        <li
-          v-for="(item, index) in dataListFilter"
-          :ref="itemRefs[index]"
-          :key="index"
-          class="combobox-item"
-          :class="{
-            'combobox-item--selected': idSelected === item[fieldSelect],
-            'combobox-item--hover': selectedIndex === index,
-          }"
-          @click="() => onClickComboboxItem(item, index)">
-          {{ item[fieldShow] }}
-        </li>
+      style="z-index: 100; min-width: 100%"
+      @scroll.stop="">
+      <ul
+        ref="listDataWrapperRef"
+        class="combobox-list"
+        :class="classList"
+        @scroll.stop="">
+        <template v-if="dataListFilter?.length > 0">
+          <li
+            v-for="(item, index) in dataListFilter"
+            :ref="itemRefs[index]"
+            :key="index"
+            class="combobox-item"
+            :class="{
+              'combobox-item--selected': idSelected === item[fieldSelect],
+              'combobox-item--hover': selectedIndex === index,
+            }"
+            @click="() => onClickComboboxItem(item, index)">
+            {{ item[fieldShow] }}
+          </li>
+        </template>
+        <template v-else>
+          <li class="combobox-item">Không tìm thấy dữ liệu</li>
+        </template>
       </ul>
     </div>
   </div>
@@ -58,9 +68,11 @@ import {
   onMounted,
   watchEffect,
   onBeforeMount,
+  onBeforeUpdate,
 } from "vue";
 import { useClickOutside, useDebounce } from "@/hooks";
 import { removeDiacritics } from "@/utils/helper";
+import { onBeforeRouteUpdate } from "vue-router";
 export default {
   props: {
     label: {
@@ -69,7 +81,7 @@ export default {
     },
     tabIndex: {
       type: Number,
-      default: -1,
+      default: 0,
     },
     placeHolder: {
       type: String,
@@ -149,8 +161,9 @@ export default {
       //   comboboxRef.value.getBoundingClientRect().left;
       // positionCombobox.value.width =
       //   comboboxRef.value.getBoundingClientRect().width;
-      // console.log(listDataWrapperRef.value);
+      console.log(listDataWrapperRef.value);
     });
+
     //kiểm tra sự thay đổi của debounceSearch
     watch(debounceSearch, () => {
       if (!isLoading.value === true) {
@@ -210,11 +223,22 @@ export default {
         }
       }
     });
-
-    watchEffect(() => {
-      if (selectedIndex.value != -1) {
-        if (itemRefs.value[selectedIndex.value].value) {
-          itemRefs.value[selectedIndex.value].value[0].scrollIntoView();
+    // watchEffect(() => {
+    //   if (selectedIndex.value != -1) {
+    //     listDataWrapperRef.value.scroll = selectedIndex.value * 30 - 2;
+    //     // if (itemRefs?.value[selectedIndex.value]?.value) {
+    //     //   itemRefs.value[selectedIndex.value].value[0].scrollIntoView();
+    //     // }
+    //   }
+    // });
+    watch(isShowCombobox, () => {
+      if (itemSelected.value && Object.keys(itemSelected.value).length > 0) {
+        selectedIndex.value = dataListFilter.value.findIndex(
+          (obj) =>
+            obj[props.fieldSelect] === itemSelected.value[props.fieldSelect]
+        );
+        if (selectedIndex.value > -1 && itemRefs.value[selectedIndex.value]) {
+          listDataWrapperRef.value.scrollTop = selectedIndex.value * 30;
         }
       }
     });
@@ -321,6 +345,7 @@ export default {
 
     return {
       inputRef,
+      listDataWrapperRef,
       isShowCombobox,
       selectedIndex,
       toggleCombobox,

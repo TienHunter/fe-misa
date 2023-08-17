@@ -19,7 +19,8 @@
       :tabindex="tabIndex"
       :placeholder="placeHolder"
       :value="modelValue"
-      @input="(e) => handleChangeInput(e)" />
+      @input="(e) => handleChangeInput(e)"
+      @focus="focus" />
     <div v-if="classIcon" class="icon-wrapper">
       <div class="icon" :class="classIcon"></div>
     </div>
@@ -27,7 +28,7 @@
   </label>
 </template>
 <script>
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 export default {
   props: {
     label: {
@@ -108,6 +109,7 @@ export default {
     const focus = () => {
       // console.log("h1");
       inputRef.value.focus();
+      select();
     };
     const select = () => {
       inputRef.value.select();

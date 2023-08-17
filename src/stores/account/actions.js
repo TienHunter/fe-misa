@@ -22,45 +22,52 @@ const actions = {
     try {
       dispatch("toggleLoading");
 
-      let res = await AccountService.getListTreeAccount(
-        {
-          ...rootState.global.filterAndPaging,
-          isRoot: true,
-          grade: 0,
-        },
-        []
-      );
-      if (res && res.Data && res.TotalRecord) {
+      let res = await AccountService.getListTreeAccount({
+        ...rootState.global.filterAndPaging,
+      });
+      if (
+        res &&
+        res?.Data?.length >= 0 &&
+        res.TotalRecord >= 0 &&
+        res.TotalRoot >= 0
+      ) {
         // console.log(res);
         dispatch("getTotalRecords", res.TotalRecord);
         dispatch("getTotalRoots", res.TotalRoot);
+        //   let resNew = [];
+        //   if (rootState.global?.filterAndPaging?.keySearch)
+        //     resNew = res.Data.map((item) => ({ ...item, showChild: true }));
+        //   else resNew = res.Data.map((item) => ({ ...item, showChild: false }));
+        //   commit("SET_ACCOOUNTS_LIST", resNew);
+        // }
+        // if (rootState.global?.filterAndPaging?.keySearch) {
+        //   while (res.Data?.length > 0) {
+        //     let listParentId = res.Data.map((acc) => acc.AccountId);
+        //     res = await AccountService.getListTreeAccount(
+        //       {
+        //         ...rootState.global.filterAndPaging,
+        //         isRoot: false,
+        //         grade: 0,
+        //       },
+        //       listParentId
+        //     );
+        //     if (res?.Data?.length > 0) {
+        //       let childs = res.Data.map((obj) => ({ ...obj, showChild: true }));
+        //       // sap xep cay
+        //       await dispatch("getListAccountChildrenByParents", childs);
+        //     }
+        //   }
         let resNew = [];
-        if (rootState.global?.filterAndPaging?.keySearch)
+        if (rootState?.global?.filterAndPaging?.keySearch) {
           resNew = res.Data.map((item) => ({ ...item, showChild: true }));
-        else resNew = res.Data.map((item) => ({ ...item, showChild: false }));
-        commit("SET_ACCOOUNTS_LIST", resNew);
-      }
-      if (rootState.global?.filterAndPaging?.keySearch) {
-        while (res.Data?.length > 0) {
-          let listParentId = res.Data.map((acc) => acc.AccountId);
-          res = await AccountService.getListTreeAccount(
-            {
-              ...rootState.global.filterAndPaging,
-              isRoot: false,
-              grade: 0,
-            },
-            listParentId
-          );
-          if (res?.Data?.length > 0) {
-            let childs = res.Data.map((obj) => ({ ...obj, showChild: true }));
-            // sap xep cay
-            await dispatch("getListAccountChildrenByParents", childs);
-          }
+        } else {
+          resNew = res.Data.map((item) => ({ ...item, showChild: false }));
         }
+        commit("SET_ACCOOUNTS_LIST", resNew);
       }
     } catch (error) {
       console.log(error);
-      // hanldeException(dispatch, error);
+      hanldeException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -91,14 +98,22 @@ const actions = {
       dispatch("toggleLoading");
     }
   },
+  // async getAllAcountByListParentIds({state,commit, dispatch},listParentId) {
 
-  async getListAccountChildrenByListParentId(
-    { state, commit, dispatch },
-    listParentId
-  ) {
+  // },
+
+  async getAllAcountByListParentIds({ state, commit, dispatch }, listParentId) {
     try {
       dispatch("toggleLoading");
-      await dispatch("sortTreeChildrens", listParentId);
+      // await dispatch("sortTreeChildrens", listParentId);
+      let res = await AccountService.getListAccountByListParentId(listParentId);
+      while (res?.length > 0) {
+        listParentId = [...res.map((obj) => obj.AccountId)];
+        res = res.map((obj) => ({ ...obj, showChild: false }));
+        // sap xep cay
+        await dispatch("getListAccountChildrenByParents", res);
+        res = await AccountService.getListAccountByListParentId(listParentId);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -112,24 +127,24 @@ const actions = {
    * @param {type} param -
    * @returns
    */
-  async sortTreeChildrens({ state, commit, dispatch }, listParentId) {
-    try {
-      let res = await AccountService.getListAccountByListParentId(listParentId);
-      if (res && res.length > 0) {
-        // tien xu ly res them truong showChild
-        listParentId = [...res.map((obj) => obj.AccountId)];
+  // async sortTreeChildrens({ state, commit, dispatch }, listParentId) {
+  //   try {
+  //     let res = await AccountService.getListAccountByListParentId(listParentId);
+  //     if (res && res.length > 0) {
+  //       // tien xu ly res them truong showChild
+  //       listParentId = [...res.map((obj) => obj.AccountId)];
 
-        res = res.map((obj) => ({ ...obj, showChild: false }));
-        // sap xep cay
-        await dispatch("getListAccountChildrenByParents", res);
-        // de quy
-        await dispatch("sortTreeChildrens", listParentId);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-    }
-  },
+  //       res = res.map((obj) => ({ ...obj, showChild: false }));
+  //       // sap xep cay
+  //       await dispatch("getListAccountChildrenByParents", res);
+  //       // de quy
+  //       await dispatch("sortTreeChildrens", listParentId);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //   }
+  // },
 
   /**
    * Mô tả: them danh sach node con vao danh sach node cha
@@ -243,7 +258,7 @@ const actions = {
       //cập nhật thành công
       if (res) {
         res.showChild = false;
-        commit("UPDATE_EMPLOYEE", res);
+        commit("UPDATE_ACCOUNT", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
@@ -285,7 +300,7 @@ const actions = {
 
       //xóa thành công
       if (res) {
-        commit("DELETE_EMPLOYEE", account);
+        commit("DELETE_ACCOUNT", account);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,

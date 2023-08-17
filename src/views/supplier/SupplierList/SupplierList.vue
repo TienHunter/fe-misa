@@ -242,18 +242,18 @@ watchEffect(() => {
   }
 });
 watchEffect(() => {
-  console.log();
   if (isOutsideActionMulti.value === true) {
     isShowActionMulti.value = false;
   }
 });
 
 onBeforeMount(async () => {
-  await store.dispatch("getFilterAndPaging", {
+  store.dispatch("getFilterAndPaging", {
     pageNumber: 1,
     pageSize: 10,
     keySearch: "",
   });
+  await store.dispatch("getSupplierList");
 });
 //-- end lifecycle-----
 
@@ -344,7 +344,7 @@ const exportExcelSupplierList = () => {
 //---------------end method------------------
 </script>
 <style scoped>
-@import url(./SupplierList.css);
+/* @import url("./SupplierList.css"); */
 .content__body {
   background-color: transparent;
   padding: 0;
@@ -362,5 +362,145 @@ const exportExcelSupplierList = () => {
   height: calc(100% - 20px) !important;
   position: relative;
   transition: all 0.1s ease;
+}
+.overview .inner-overview .dued-debit-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #ff7f2c;
+}
+
+.overview .inner-overview .inner-overview-data {
+  padding: 4px 10px;
+  min-height: var(--overview-height);
+  overflow: hidden;
+}
+
+.inner-overview-data .icon-wrapper-dued-debit {
+  position: absolute;
+  right: 8px;
+  width: 18px;
+  height: 22px;
+}
+
+.overview .inner-overview .overview-data-number {
+  align-items: baseline;
+  font-weight: 700;
+}
+
+.overview .inner-overview .label-overview {
+  font-size: var(--overview-label-size);
+}
+
+.con-ms-tooltip .tooltip-content {
+  height: 100%;
+}
+
+.overview .inner-overview .total-debit-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #b8bcc3;
+  height: 100%;
+}
+
+.overview .inner-overview .payment-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #74cb2f;
+  height: unset;
+}
+
+.divider-section {
+  position: relative;
+  width: 100%;
+}
+
+.con-ms-tooltip .tooltip-content {
+  height: 100%;
+}
+
+.divider-section .collapse-overview {
+  left: calc(50% - 30px);
+  width: 48px;
+  height: 13px;
+  background: #d4d7dc;
+  border: 1px solid #d4d7dc;
+  display: flex;
+  justify-content: center;
+  z-index: 9;
+  margin: auto;
+}
+
+.divider-section .collapse-overview .icon--down-small-black.hide-overview {
+  transform: rotate(180deg);
+}
+.overview .inner-overview .dued-debit-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #ff7f2c;
+}
+
+.overview .inner-overview .inner-overview-data {
+  padding: 4px 10px;
+  min-height: var(--overview-height);
+  overflow: hidden;
+}
+
+.inner-overview-data .icon-wrapper-dued-debit {
+  position: absolute;
+  right: 8px;
+  width: 18px;
+  height: 22px;
+}
+
+.overview .inner-overview .overview-data-number {
+  align-items: baseline;
+  font-weight: 700;
+}
+
+.overview .inner-overview .label-overview {
+  font-size: var(--overview-label-size);
+}
+
+.con-ms-tooltip .tooltip-content {
+  height: 100%;
+}
+
+.overview .inner-overview .total-debit-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #b8bcc3;
+  height: 100%;
+}
+
+.overview .inner-overview .payment-overview {
+  background: #fff;
+  min-height: var(--overview-height);
+  border-left: 5px solid #74cb2f;
+  height: unset;
+}
+
+.divider-section {
+  position: relative;
+  width: 100%;
+}
+
+.con-ms-tooltip .tooltip-content {
+  height: 100%;
+}
+
+.divider-section .collapse-overview {
+  left: calc(50% - 30px);
+  width: 48px;
+  height: 13px;
+  background: #d4d7dc;
+  border: 1px solid #d4d7dc;
+  display: flex;
+  justify-content: center;
+  z-index: 9;
+  margin: auto;
+}
+
+.divider-section .collapse-overview .icon--down-small-black.hide-overview {
+  transform: rotate(180deg);
 }
 </style>

@@ -15,11 +15,11 @@
 </template>
 <script setup>
 import { useStore } from "vuex";
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 
 const store = useStore();
 const filterAndPaging = computed(() => store.state.global.filterAndPaging);
-console.log(filterAndPaging.value);
+watchEffect(() => console.log(filterAndPaging.value));
 const totalRecords = computed(() => store.state.global.totalRecords);
 // console.log(filterAndPaging.value);
 const totalPages = computed(() => {
@@ -105,10 +105,10 @@ const onClickPageNumber = (pageNumber) => {
  * @param {type} param -
  * @returns
  */
-const onClickPageSize = (pageSize) => {
+const onClickPageSize = (item) => {
   store.dispatch("getFilterAndPaging", {
     ...filterAndPaging.value,
-    pageSize: pageSize,
+    pageSize: item?.[fieldSelect] ?? 10,
     pageNumber: 1,
   });
   store.dispatch("getSupplierList", filterAndPaging.value);

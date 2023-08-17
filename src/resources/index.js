@@ -223,7 +223,7 @@ export const SidebarList = {
       text: "Tổng quan",
     },
     cash: {
-      name: "Fake",
+      name: "Cast",
       icon: "icon--cash",
       title: "Tiền mặt",
       text: "Tiền mặt",

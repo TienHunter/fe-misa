@@ -69,13 +69,3 @@
 .divider-section .collapse-overview .icon--down-small-black.hide-overview {
   transform: rotate(180deg);
 }
-
-.ckeck-all-arrow {
-  padding-top: 12px;
-  padding-right: 12px;
-}
-
-.ckeck-all-arrow .icon-wrapper {
-  width: 24px;
-  height: 24px;
-}

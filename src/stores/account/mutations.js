@@ -82,7 +82,7 @@ const mutations = {
    * @param {type} param -
    * @returns
    */
-  UPDATE_EMPLOYEE(state, payload) {
+  UPDATE_ACCOUNT(state, payload) {
     let account = { ...payload };
     let tmpAccountsList = [...state.accountsList];
     // tim tai khoan cu
@@ -171,7 +171,7 @@ const mutations = {
    * @param {type} param -
    * @returns
    */
-  DELETE_EMPLOYEE(state, payload) {
+  DELETE_ACCOUNT(state, payload) {
     const index = state.accountsList.findIndex(
       (acc) => acc.AccountId === payload.AccountId
     );

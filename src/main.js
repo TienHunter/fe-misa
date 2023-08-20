@@ -24,6 +24,11 @@ app.component("BDialog", BaseDialog);
 app.component("BPaging", BasePaging);
 app.directive("auto-focus", AutoFocus);
 registerGlobalComponents(app);
+router.beforeEach((to, from, next) => {
+  // Thay đổi title dựa trên route hiện tại
+  document.title = to.meta.title || "Kế toán";
+  next();
+});
 app.use(router);
 app.use(store);
 app.mount("#app");

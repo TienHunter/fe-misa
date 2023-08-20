@@ -181,9 +181,9 @@ const actions = {
       "AccountingId"
     );
     payment.Accountings = [...changeAccountings];
-    const tmpAccountings = changeAccountings.filter(
-      (accounting) => accounting.StatusAction !== StaticRange.noChange
-    );
+    // const tmpAccountings = changeAccountings.filter(
+    //   (accounting) => accounting.StatusAction !== StaticRange.noChange
+    // );
     try {
       dispatch("toggleLoading");
       let res = await paymentService.updateRecord(payment, payment.PaymentId);

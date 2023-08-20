@@ -49,7 +49,7 @@ const directoryList = ref([
       {
         title: "Nhân viên",
         subTitle: "Nhân viên",
-        // name: "DIEmployee",
+        name: "DIEmployee",
       },
       {
         title: "Nhóm khách hàng, nhà cung cấp",

@@ -238,7 +238,6 @@ export const SupplierCol = {
 export const SidebarList = {
   top: {
     general: {
-      name: "Employee",
       icon: "icon--general",
       title: "Tổng quan",
       text: "Tổng quan",

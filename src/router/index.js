@@ -5,21 +5,11 @@ import { createRouter, createWebHistory } from "vue-router";
 // We'll talk about nested routes later.
 const routes = [
   {
-    path: "/DI/employee",
-    name: "Employee",
-    meta: {
-      layout: "default",
-    },
-    component: () =>
-      import(
-        /* webpackChunkName: "home" */ "@/views/employee/EmployeeList/EmployeeList.vue"
-      ),
-  },
-  {
     path: "/DI",
     name: "Directory",
     meta: {
       layout: "default",
+      title: "Danh mục | Kế toán",
     },
     component: () =>
       import(/* webpackChunkName: "home" */ "@/views/DirectoryPage.vue"),
@@ -29,6 +19,7 @@ const routes = [
         name: "DIAccountSystem",
         meta: {
           layout: "default",
+          title: "Hệ thống tài khoản | Danh mục | Kế toán",
         },
         component: () =>
           import(
@@ -40,10 +31,23 @@ const routes = [
         name: "DISupplier",
         meta: {
           layout: "default",
+          title: "Nhà cung cấp | Danh mục | Kế toán",
         },
         component: () =>
           import(
             /* webpackChunkName: "home" */ "@/views/supplier/SupplierList/SupplierList.vue"
+          ),
+      },
+      {
+        path: "/DI/employee",
+        name: "DIEmployee",
+        meta: {
+          layout: "default",
+          title: "Nhân viên | Danh mục | Kế toán",
+        },
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/views/employee/EmployeeList/EmployeeList.vue"
           ),
       },
     ],
@@ -54,6 +58,7 @@ const routes = [
     name: "Cast",
     meta: {
       layout: "default",
+      title: "Tiền mặt | Kế toán",
     },
     redirect: "/CA/CAProcess",
     component: () => import("@/views/cast/CastContainer.vue"),
@@ -61,11 +66,17 @@ const routes = [
       {
         path: "CAProcess",
         name: "CastProcess",
+        meta: {
+          title: "Quy trình | Tiền mặt | Kế toán",
+        },
         component: () => import("@/views/cast/procedure/CastProcedure.vue"),
       },
       {
         path: "CAReceipt/DepositWidthdrawList",
         name: "DepositWidthdrawList",
+        meta: {
+          title: "Thu chi, tiền | Tiền mặt | Kế toán",
+        },
         component: () =>
           import(
             "@/views/cast/deposit-withdraw/DepositWithdrawList/DepositWithdrawList.vue"
@@ -88,6 +99,7 @@ const routes = [
     name: "NotFound",
     meta: {
       layout: "notfound",
+      title: "Không tìm thấy",
     },
     redirect: "/DI",
     // component: () => <div>NotFound</div>,

@@ -1,5 +1,5 @@
-import { DialogAction, DialogType } from "@/enums";
-import { DialogTitle } from "@/resources";
+import { DialogAction, DialogType, ErrCode } from "@/enums";
+import { DefaultErrorMessage, DialogTitle } from "@/resources";
 
 const actions = {
   toggleLoading({ commit }) {
@@ -55,27 +55,65 @@ const actions = {
 };
 function hanldeException(dispatch, ex) {
   console.log(ex);
-  let errsMsg = ex?.response?.data?.UserMsg ?? [];
-  if (!Array.isArray(errsMsg)) {
-    errsMsg = ["Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ"];
+  let errsMsg = ex?.response?.data?.UserMsg || [ex?.response?.data?.DevMsg];
+  if (!Array.isArray(errsMsg) || errsMsg.length === 0) {
+    errsMsg = [DefaultErrorMessage];
   }
-  // check loi validate hoac dupCode
-  if (ex?.response?.data?.ErrCode === 2 || ex?.response?.data?.ErrCode === 3) {
-    dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.inValidInput,
-      content: [...errsMsg],
-      action: DialogAction.confirmValidate,
-    });
-  } else {
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.errorServer,
-      content: [...errsMsg],
-    });
+  dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
+  const errorCode = ex?.response?.data?.ErrCode;
+  switch (errorCode) {
+    case ErrCode.exception:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.errorServer,
+        content: [...errsMsg],
+      });
+      break;
+    case ErrCode.duplicateCode:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.inValidInput,
+        content: [...errsMsg],
+        action: DialogAction.confirmValidate,
+      });
+      break;
+    case ErrCode.invalidData:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.inValidInput,
+        content: [...errsMsg],
+        action: DialogAction.confirmValidate,
+      });
+      break;
+    case ErrCode.notFound:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.errorServer,
+        content: [...errsMsg],
+      });
+      break;
+    case ErrCode.duplicationCodeHasFix:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.warning,
+        title: DialogTitle.inValidInput,
+        content: [...errsMsg],
+        action: DialogAction.confirmChangeCode,
+        errorCode: ErrCode.duplicationCodeHasFix,
+      });
+      break;
+    default:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.errorServer,
+        content: [...errsMsg],
+      });
+      break;
   }
 }
 export default actions;

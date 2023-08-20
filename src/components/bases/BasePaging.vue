@@ -17,10 +17,10 @@
             :fields="fields"
             :field-select="fieldSelect"
             :field-show="fieldShow"
-            :item-selected="itemSelect"
+            :id-selected="pageSize"
             title-dropdown-list="--Chọn số bản ghi / trang--"
             direct="up"
-            @on-click-select-item="onClickPageSize" />
+            @on-click-id-select="onClickPageSize" />
         </div>
         <div class="list-number-page flex items-center">
           <div
@@ -185,12 +185,12 @@ export default {
   },
   emits: ["onClickPageSize", "onClickPageNumber"],
   setup(props, ctx) {
-    const itemSelect = ref(null);
-    watchEffect(() => {
-      itemSelect.value = props.dataDropdown.find(
-        (item) => item[props.fieldSelect] === props.pageSize
-      );
-    });
+    // const itemSelect = ref(null);
+    // watchEffect(() => {
+    //   itemSelect.value = props.dataDropdown.find(
+    //     (item) => item[props.fieldSelect] === props.pageSize
+    //   );
+    // });
     // watchEffect(() => console.log(props.pageSize));
     // watchEffect(() => console.log(itemSelect.value));
     const onClickPageNumber = (item) => {
@@ -202,7 +202,6 @@ export default {
     return {
       onClickPageNumber,
       onClickPageSize,
-      itemSelect,
     };
   },
 };

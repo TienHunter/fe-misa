@@ -27,8 +27,8 @@ div
               :data="dataReasonList"
               field-select="id"
               field-show="value"
-              :item-selected="reasonSelected"
-              @on-click-select-item="onClickReason" />
+              :id-selected="paymentInfo?.ReasonTypeId ?? 1"
+              @on-click-id-select-="(id) => (paymentInfo.ReasonTypeId = id)" />
           </div>
         </div>
         <div class="header-detail-buttons flex items-center">
@@ -103,6 +103,7 @@ div
                         @empty-err-msg="
                           () => {
                             delete errsValidator.SupplierId;
+                            flagChangeNotSelectedCombobox = false;
                           }
                         "
                         @keydown.tab.stop="" />
@@ -204,6 +205,7 @@ div
                         @empty-err-msg="
                           () => {
                             delete errsValidator.EmployeeId;
+                            flagChangeNotSelectedCombobox = false;
                           }
                         "
                         @keydown.tab.stop="" />
@@ -335,6 +337,7 @@ div
                             <div class="flex items-center">
                               <textarea
                                 v-model="accounting.AccountingExplain"
+                                v-auto-focus
                                 rows="1"
                                 class="td-textarea" />
                             </div>
@@ -342,6 +345,7 @@ div
                           <td class="px-3">
                             <div class="flex items-center">
                               <BaseComboboxV1
+                                :ref="errRefs.Accountings[index]"
                                 :max-length="MaxLength.default"
                                 :fields="fieldsAccount"
                                 :field-select="fieldSelectAccount"
@@ -380,6 +384,7 @@ div
                                       errsValidator?.AccountsDebtId?.length >= 0
                                     )
                                       errsValidator.AccountsDebtId[index] = '';
+                                    flagChangeNotSelectedCombobox = false;
                                   }
                                 "
                                 @keydown.tab.stop="" />
@@ -429,6 +434,7 @@ div
                                     )
                                       errsValidator.AccountsBalanceId[index] =
                                         '';
+                                    flagChangeNotSelectedCombobox = false;
                                   }
                                 "
                                 @keydown.tab.stop="" />
@@ -496,7 +502,7 @@ div
                           </td>
                           <td class="px-3">
                             <div
-                              class="flex items-center justify-center pointer">
+                              class="flex items-center justify-center no-pointer">
                               <div class="icon-v1 icon-v1--bin"></div>
                             </div>
                           </td>
@@ -572,7 +578,7 @@ div
               title="Ghi sổ"
               type="primary"
               size="mini"
-              @click="() => onClickButton(TypeClickButton.unWrite)" />
+              @click="() => onClickButton(TypeClickButton.write)" />
           </template>
           <template
             v-if="
@@ -591,11 +597,7 @@ div
               size="mini"
               @click="() => onClickButton(TypeClickButton.unWrite)" />
           </template>
-          <template
-            v-if="
-              popupStatus.type === PopupType.update &&
-              paymentInfo.PaymentStatus === PaymentStatus.unWritten
-            ">
+          <template v-if="popupStatus.type === PopupType.update">
             <button
               class="btn btn--mini button-footer"
               @click="() => onClickButton(TypeClickButton.update)">
@@ -644,6 +646,7 @@ import {
   TypeStore,
   PaymentStatus,
   PopupType,
+  ErrCode,
 } from "@/enums";
 import {
   convertToDDMMYYYY,
@@ -686,6 +689,7 @@ const errRefs = toRefs(
     AccountingDate: null,
     PaymentDate: null,
     PaymentCode: null,
+    Accountings: ref([]),
   })
 );
 const errsValidator = ref({
@@ -702,6 +706,7 @@ const errsValidator = ref({
   AccountsBalanceId: [],
 });
 const errsValidate = computed(() => store.state.global.errsValidate);
+const flagChangeNotSelectedCombobox = ref(false);
 const accoutingCols = [
   {
     name: "#",
@@ -736,7 +741,7 @@ const accoutingCols = [
     class: "mw-32 w-32 Mw-32 text-center",
   },
 ];
-const indexFocusAccouting = ref(0);
+const indexFocusAccouting = ref(-1);
 const totalMoney = ref(0);
 const dataReasonList = [
   {
@@ -868,9 +873,10 @@ const sup = ref(null);
 
 //========= start lifecycle =========
 watchEffect(() => {
-  errsValidator.value = { ...errsValidate.value };
+  errsValidator.value = structuredClone(errsValidate.value);
 });
 onBeforeMount(async () => {
+  // console.log(" before muonte");
   // lấy tất cả danh sách tài khoản nợ
   try {
     let res = await accountService.getAllAccountQuery(
@@ -900,7 +906,17 @@ onBeforeMount(async () => {
     console.log(error);
     dataAccountsBalance.value = [];
   }
-  if (!paymentInfo.value?.Accountings?.length) {
+
+  supplierSelected.value = {
+    SupplierId: paymentInfo.value?.SupplierId ?? "",
+    SupplierCode: paymentInfo.value?.SupplierCode ?? "",
+  };
+  employeeSelected.value = {
+    EmployeeId: paymentInfo.value?.EmployeeId ?? "",
+    EmployeeName: paymentInfo.value?.EmployeeName ?? "",
+  };
+
+  if (!paymentDetail.value?.Accountings) {
     paymentInfo.value.Accountings = [];
     paymentInfo.value.Accountings.push({
       AccountingExplain: "Chi tiền cho ",
@@ -911,6 +927,7 @@ onBeforeMount(async () => {
       Money: 0,
     });
   }
+
   // them account selected
 
   paymentInfo.value.Accountings.forEach((element) => {
@@ -927,12 +944,18 @@ onBeforeMount(async () => {
 
 onMounted(() => {
   nextTick(() => {
-    console.log(sup.value);
+    // console.log(sup.value);
+    errRefs.SupplierId.value.focus();
   });
 });
-
 watchEffect(() => {
-  paymentInfo.value = { ...paymentDetail.value };
+  nextTick(() => console.log(errRefs.Accountings));
+});
+// watchEffect(() => {
+//   err;
+// });
+watchEffect(() => {
+  paymentInfo.value = structuredClone(paymentDetail.value);
 });
 /**
  * Mô tả: tính lại tổng tiền khi accountings thay dổi
@@ -950,7 +973,7 @@ watchEffect(() => {
   }
 });
 
-watch(dialog, (newDialog, oldDialog) => {
+watch(dialog, async (newDialog, oldDialog) => {
   if (
     oldDialog.type === DialogType.error &&
     oldDialog.action === DialogAction.confirmValidate
@@ -966,6 +989,19 @@ watch(dialog, (newDialog, oldDialog) => {
         console.log(firstErr?.value);
         if (firstErr?.value) firstErr.value.focus();
       });
+    }
+  } else if (oldDialog.action === DialogAction.confirmChangeCode) {
+    console.log("change code");
+    if (newDialog.action === DialogAction.confirmChangeCode) {
+      console.log("change v1");
+      store.dispatch("getErrsValidate", {});
+      await store.dispatch("createPayment", {
+        payment: paymentInfo.value,
+        typeStore: TypeStore.store,
+        changeCode: true,
+      });
+    } else {
+      errRefs.PaymentCode.value.focus();
     }
   }
 });
@@ -996,14 +1032,31 @@ watch(
     }
   }
 );
+
+/**
+ * Mô tả: bắt sự thay đổi của ngày hạch toán
+ * created by : vdtien
+ * created date: 18-08-2023
+ * @param {type} param -
+ * @returns
+ */
+watch(
+  () => paymentInfo.value.AccountingDate,
+  (newValue, oldValue) => {
+    if (oldValue === paymentInfo.value.PaymentDate)
+      paymentInfo.value.PaymentDate = newValue;
+  }
+);
+
 watchEffect(() => {
   if (
     popupStatus.value.type === PopupType.update &&
     paymentInfo.value.PaymentStatus === PaymentStatus.written
   ) {
     disableWritten.value = true;
+  } else {
+    disableWritten.value = false;
   }
-  disableWritten.value = false;
 });
 
 watchEffect(() => {
@@ -1231,8 +1284,12 @@ const onClickAddAccountingRow = () => {
     });
   } else {
     const index = paymentInfo.value.Accountings.length - 1;
-    const lastEl =
-      paymentInfo.value.Accountings[paymentInfo.value.Accountings.length - 1];
+    const lastEl = {
+      ...paymentInfo.value.Accountings[
+        paymentInfo.value.Accountings.length - 1
+      ],
+    };
+    delete lastEl.AccountingId;
     paymentInfo.value.Accountings.push({ ...lastEl, Money: 0 });
     if (
       Array.isArray(errsValidator.value.AccountsDebtId) &&
@@ -1298,20 +1355,21 @@ const onClickDeleteAllAccountingRow = () => {
  * @param {type} param -
  * @returns
  */
-const hanldeAddErrorMsgNotSelectedYet = (state, field, label, index) => {
-  if (typeof index === "number" && !isNaN(index) && index >= 0) {
-    if (!Array.isArray(errsValidator.value[field])) {
-      errsValidator.value[field] = [];
-    }
-    errsValidator.value[field][index] = [
-      `Dữ liệu <${label}> không có trong danh mục.`,
-    ];
-  } else {
-    errsValidator.value[field] = [
-      `Dữ liệu <${label}> không có trong danh mục.`,
-    ];
-  }
-};
+// const hanldeAddErrorMsgNotSelectedYet = (state, field, label, index) => {
+//   if (typeof index === "number" && !isNaN(index) && index >= 0) {
+//     if (!Array.isArray(errsValidator.value[field])) {
+//       errsValidator.value[field] = [];
+//     }
+//     errsValidator.value[field][index] = [
+//       `Dữ liệu <${label}> không có trong danh mục.`,
+//     ];
+//   } else {
+//     errsValidator.value[field] = [
+//       `Dữ liệu <${label}> không có trong danh mục.`,
+//     ];
+//   }
+//   flagChangeNotSelectedCombobox.value = true;
+// };
 
 const isValidateData = () => {
   // xóa các lỗi không có trong errRefs
@@ -1319,7 +1377,8 @@ const isValidateData = () => {
     if (!errRefs[key]) delete errsValidator.value[key];
     if (errsValidator.value[key]?.length === 0) delete errsValidator.value[key];
   });
-  if (Object.keys(errsValidator.value).length !== 0) {
+
+  if (flagChangeNotSelectedCombobox.value) {
     // errsValidator không rỗng -> còn các lỗi chưa chọn trong combobox
     store.dispatch("getErrsValidate", { ...errsValidator.value });
     let tmpErrs = {
@@ -1331,7 +1390,6 @@ const isValidateData = () => {
         errsValidator.value.AccountsBalanceId
       ),
     };
-    removeEmptyFields(tmpErrs);
     // xóa phần tử trống
 
     const errMsgArray = Object.values(tmpErrs).flat();
@@ -1343,6 +1401,8 @@ const isValidateData = () => {
       action: DialogAction.confirmValidate,
     });
     return false;
+  } else {
+    store.dispatch("getErrsValidate", {});
   }
 
   // check số phiếu chi không để trống
@@ -1468,12 +1528,12 @@ function findFirstTruthyElement(arr) {
  * @returns
  */
 const onClickButton = (type) => {
-  let isValid = isValidateData();
+  console.log("on click button");
   switch (type) {
     case TypeClickButton.create:
       // validate fe
-
-      if (isValid) {
+      if (isValidateData()) {
+        // removeEmptyFields(paymentInfo.value);
         store.dispatch("createPayment", {
           payment: paymentInfo.value,
           typeStore: TypeStore.store,
@@ -1482,14 +1542,18 @@ const onClickButton = (type) => {
       break;
     case TypeClickButton.createAndAdd:
       // validate fe
-      if (isValid) {
+      if (isValidateData()) {
         console.log("create and add");
       }
       break;
     case TypeClickButton.update:
       // validate fe
-      if (isValid) {
-        console.log("update");
+      if (isValidateData()) {
+        // removeEmptyFields(paymentInfo.value);
+        store.dispatch("updatePayment", {
+          payment: paymentInfo.value,
+          typeStore: TypeStore.store,
+        });
       }
       break;
     case TypeClickButton.edit:
@@ -1497,7 +1561,6 @@ const onClickButton = (type) => {
         isShowPopup: true,
         type: PopupType.update,
       });
-
       break;
     case TypeClickButton.quickEdit:
       // validate fe
@@ -1507,8 +1570,17 @@ const onClickButton = (type) => {
       });
       break;
     case TypeClickButton.unWrite:
-      store.dispatch("unWrittenPayment", paymentInfo.value?.PaymentId);
+      store.dispatch("updateStatusPayment", {
+        paymentId: paymentInfo.value?.PaymentId,
+        status: PaymentStatus.unWritten,
+      });
       break;
+
+    case TypeClickButton.write:
+      store.dispatch("updateStatusPayment", {
+        paymentId: paymentInfo.value?.PaymentId,
+        status: PaymentStatus.written,
+      });
     default:
       break;
   }

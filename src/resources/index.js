@@ -38,6 +38,8 @@ export const ErrValidator = {
   nameEmpty: (recordName) => {
     return `Tên ${recordName} không được để trống.`;
   },
+  accountDetailIsPrefixaccountSynthetic:
+    "Số tài khoản không hợp lệ. Số tài khoản chi tiết phải bắt đầu bằng số của Tài khoản tổng hợp",
 
   fieldNotEmpty: (fieldName) => {
     return `${fieldName} không được để trống.`;
@@ -53,7 +55,8 @@ export const DialogTitle = {
   delete: "Xóa bản ghi?",
   errorServer: "Lỗi máy chủ.",
   notify: "Thông báo.",
-  failWrite: "Ghi số không thành công .",
+  failWrite: "Ghi số không thành công.",
+  error: "Lỗi",
 };
 
 export const DialogContent = {
@@ -76,6 +79,12 @@ export const DialogContent = {
   },
   confirmDeleteMultiSupplier: (numberRecords) => {
     return `Bạn có chắc chắn muốn xóa ${numberRecords} nhà cung cấp này không?`;
+  },
+  paymentWritten: (paymentCode) => {
+    return `Phiếu chi <${paymentCode}> đã ghi sổ không thể xóa.`;
+  },
+  confirmDeletePayment: (paymentCode) => {
+    return `Bạn có chắc chắn muốn xóa ${paymentCode} này không?`;
   },
 };
 
@@ -113,7 +122,8 @@ export const ToastContent = {
   },
 
   // payment
-  createPaymentSuccess: "Ghi sổ thành công.",
+  writtenPaymentSuccess: "Ghi sổ thành công.",
+  unWrittenPaymentSuccess: "Bỏ ghi sổ thành công.",
 };
 export const AccountCol = {
   AccountCode: {
@@ -350,6 +360,9 @@ export const ButtonTitle = {
   multiAction: "Thực hiện hàng loạt",
   prev: "Trước",
   last: "Sau",
+  view: "Xem",
+  written: "Ghi sổ",
+  unWritten: "Bỏ ghi",
 };
 export const FreeText = {
   employee: "Nhân viên",
@@ -368,3 +381,6 @@ export const StatusText = {
   using: "Đang sử dụng",
   stopUsing: "Ngừng sử dụng",
 };
+
+export const DefaultErrorMessage =
+  "Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ.";

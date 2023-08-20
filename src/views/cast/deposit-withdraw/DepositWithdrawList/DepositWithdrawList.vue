@@ -88,7 +88,7 @@
                 <div
                   class="batch-actions flex items-center pointer"
                   :class="{
-                    'no-pointer': !paymentIdListChecked?.length,
+                    'no-pointer': !(paymentIdListChecked?.length > 1),
                   }">
                   <div
                     ref="actionMultiRef"
@@ -104,7 +104,19 @@
                   <div
                     v-show="isShowActionMulti"
                     class="dropdown-list batch-actions__list">
-                    <div class="dropdown-item" @click="onClickDeleteMulti">
+                    <div
+                      class="dropdown-item"
+                      @click="onClickButton(TypeClickButton.write)">
+                      {{ ButtonTitle.written }}
+                    </div>
+                    <div
+                      class="dropdown-item"
+                      @click="onClickButton(TypeClickButton.unWrite)">
+                      {{ ButtonTitle.unWritten }}
+                    </div>
+                    <div
+                      class="dropdown-item"
+                      @click="onClickButton(TypeClickButton.deleteMulti)">
                       {{ ButtonTitle.delete }}
                     </div>
                   </div>
@@ -153,6 +165,7 @@
   </div>
   <DepositWithdrawDetail v-if="popupStatus?.isShowPopup" />
   <DepositWithdrawDialog v-if="dialog.isShow" />
+  <DepositWithdrawNotice v-if="dialogDetail?.show" />
   <b-toast-message v-if="toast?.isShow" />
   <b-loading v-if="isLoading" />
 </template>
@@ -160,12 +173,13 @@
 import { computed, onBeforeMount, ref, watch, watchEffect } from "vue";
 import { useStore } from "vuex";
 import { ButtonTitle } from "@/resources";
-import { ButtonType, PopupType } from "@/enums";
+import { ButtonType, PaymentStatus, PopupType, TypeClickButton } from "@/enums";
 import { useClickOutside, useDebounce } from "@/hooks";
 import DepositWidthdrawTable from "../DepositWithdrawTable/DepositWithdrawTable.vue";
 import DepositWithdrawPaging from "../DepositWithdrawPaging/DepositWithdrawPaging.vue";
 import DepositWithdrawDetail from "../DepositWithdrawDetail/DepositWithdrawDetail.vue";
 import DepositWithdrawDialog from "../DepositWithdrawDialog/DepositWithdrawDialog.vue";
+import DepositWithdrawNotice from "../DepositWithdrawNotice/DepositWithdrawNotice.vue";
 import { convertToYYYYMMDD } from "@/utils/helper";
 //---- start state ----------
 
@@ -174,7 +188,7 @@ const isLoading = computed(() => store.state.global.isLoading);
 const popupStatus = computed(() => store.state.global.popupStatus);
 const dialog = computed(() => store.state.global.dialog);
 const toast = computed(() => store.state.global.toast);
-
+const dialogDetail = computed(() => store.state.payment.dialogDetail);
 const paymentIdListChecked = computed(
   () => store.state.payment.paymentIdListChecked
 );
@@ -216,6 +230,17 @@ watchEffect(() => {
 });
 //========= end lifecycle =========
 //========= start methods =========
+
+/**
+ * Mô tả: toggle trạng thái của batch action
+ * created by : vdtien
+ * created date: 19-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const toggleActionMulti = () => {
+  isShowActionMulti.value = !isShowActionMulti.value;
+};
 /**
  * Mô tả: mở form thêm mới phiếu chi
  * created by : vdtien
@@ -239,6 +264,32 @@ const onOpenPopupCreate = async () => {
     isShowPopup: true,
     type: PopupType.create,
   });
+};
+
+/**
+ * Mô tả: xử lý sự kiện click button
+ * created by : vdtien
+ * created date: 19-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const onClickButton = (type) => {
+  switch (type) {
+    case TypeClickButton.deleteMulti:
+      store.dispatch("deleteMulPayment");
+      break;
+
+    case TypeClickButton.write:
+      store.dispatch("bulkUpdateStatusPayment", PaymentStatus.written);
+      break;
+
+    case TypeClickButton.unWrite:
+      store.dispatch("bulkUpdateStatusPayment", PaymentStatus.unWritten);
+      break;
+
+    default:
+      break;
+  }
 };
 //========= end methods =========
 </script>

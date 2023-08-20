@@ -9,6 +9,7 @@ import {
 } from "@/enums";
 import { DialogTitle, ToastContent } from "@/resources";
 import { convertToYYYYMMDD } from "@/utils/helper";
+import { hanldeException } from "../global/actions";
 const actions = {
   /**
    *
@@ -297,9 +298,9 @@ const actions = {
       }
     } catch (error) {
       dispatch("toggleLoading");
-      console.log(error);
       // add error vào dialog
       hanldeException(dispatch, error);
+    } finally {
     }
   },
 
@@ -337,29 +338,4 @@ const actions = {
     commit("SET_LIST_EMPLOYEE_LIST_CHECKED", payload);
   },
 };
-function hanldeException(dispatch, ex) {
-  console.log(ex);
-  let errsMsg = ex?.response?.data?.UserMsg ?? [];
-  if (!Array.isArray(errsMsg)) {
-    errsMsg = ["Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ"];
-  }
-  // check loi validate hoac dupCode
-  if (ex?.response?.data?.ErrCode === 2 || ex?.response?.data?.ErrCode === 3) {
-    dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.inValidInput,
-      content: [...errsMsg],
-      action: DialogAction.confirmValidate,
-    });
-  } else {
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.errorServer,
-      content: [...errsMsg],
-    });
-  }
-}
 export default actions;

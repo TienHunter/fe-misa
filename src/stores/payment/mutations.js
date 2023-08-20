@@ -6,7 +6,7 @@ import {
 
 const mutations = {
   SET_PAYMENT_LIST(state, payload) {
-    state.paymentList = [...payload];
+    state.paymentList = structuredClone(payload);
   },
   SET_PAYMENT_ID_LIST_CHECKED(state, payload) {
     let tmpPaymentIdListChecked = [...state.paymentIdListChecked]; // Giữ nguyên proxy array
@@ -34,18 +34,18 @@ const mutations = {
     }
   },
   SET_PAYMENT_DETAIL(state, payload) {
-    state.paymentDetail = { ...payload };
+    state.paymentDetail = structuredClone(payload);
   },
   SET_NEW_PAYMENT_CODE(state, payload) {
     state.paymentDetail = { ...state.paymentDetail, PaymentCode: payload };
   },
   CREATE_PAYMENT(state, payload) {
-    let newPayment = { ...payload };
+    let newPayment = structuredClone(payload);
     state.paymentList.unshift(newPayment);
   },
 
   UPDATE_PAYMENT(state, payload) {
-    let updatePayment = { ...payload };
+    let updatePayment = structuredClone(payload);
     const index = state.paymentList.findIndex(
       (emp) => emp.PaymentId === updatePayment.PaymentId
     );
@@ -54,6 +54,17 @@ const mutations = {
       tmpPaymentList.splice(index, 1, updatePayment);
       state.paymentList = [...tmpPaymentList];
     }
+  },
+
+  SET_RESULT_BULK_ACTION(state, payload) {
+    state.resultBulkAction = { ...payload };
+  },
+  SET_PAYMENT_LIST_FAILURE(state, payload) {
+    state.paymentListFailure = structuredClone(payload);
+  },
+
+  SET_DIALOG_DETAIL(state, paylaod) {
+    state.dialogDetail = { ...paylaod };
   },
 };
 export default mutations;

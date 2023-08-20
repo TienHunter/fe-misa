@@ -27,6 +27,7 @@ export const DialogAction = {
   confirmValidate: "CONFIRM_VALIDATE",
   confirmDeleteMulti: "CONFIRM_DELETE_MULTI",
   confirmUpdateStatus: "CONFIRM_UPDATE_STATUS",
+  confirmChangeCode: "CONFIRM_CHANGE_CODE",
 };
 export const TypeStore = {
   store: "STORE",
@@ -42,7 +43,9 @@ export const TypeClickButton = {
   updateAndPrint: "UPDATE_AND_PRINT",
   edit: "EDIT",
   quickEdit: "QUICK_EDIT",
-
+  delete: "DELETE",
+  deleteMulti: "DELETE_MULTI",
+  duplicate: "DUPLICATE",
   write: "WRITE",
   unWrite: "UN_WRITE",
 };
@@ -84,6 +87,12 @@ export const TypeUpdate = {
   one: 1,
   all: 2,
 };
+export const TypeBulkUpdate = {
+  delete: -1,
+  noChange: 0,
+  create: 1,
+  edit: 2,
+};
 export const SupplierType = {
   organization: 1,
   individual: 2,
@@ -122,4 +131,13 @@ export const TypeCol = {
   date: "DATE",
   money: "MONEY",
   number: "NUMBER",
+  array: "ARRAY",
+};
+export const ErrCode = {
+  exception: 1,
+  duplicateCode: 2,
+  invalidData: 3,
+  notFound: 4,
+  internalException: 5,
+  duplicationCodeHasFix: 6,
 };

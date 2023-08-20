@@ -88,8 +88,8 @@
                   <a
                     href="#"
                     class="text-blue font-semi-bold h-full flex items-center px-4"
-                    @click="() => onOpenPopupUpdate(item)"
-                    >{{ ButtonTitle.edit }}</a
+                    @click="() => onClickButton(item, TypeClickButton.view)"
+                    >{{ ButtonTitle.view }}</a
                   >
 
                   <div
@@ -117,24 +117,34 @@
                       class="dropdown-list td-action-list"
                       :class="{ 'td-action-list--up': btnTableDirectUp }">
                       <div
-                        v-if="item.PaymentStatus == 1"
-                        class="dropdown-item td-action-item td-action-item--remove">
-                        Bỏ ghi
+                        v-if="item.PaymentStatus == PaymentStatus.written"
+                        class="dropdown-item td-action-item td-action-item--remove"
+                        @click="
+                          () => onClickButton(item, TypeClickButton.unWrite)
+                        ">
+                        {{ ButtonTitle.unWritten }}
                       </div>
                       <div
-                        v-else
-                        class="dropdown-item td-action-item td-action-item--remove">
-                        Ghi sổ
+                        v-if="item.PaymentStatus === PaymentStatus.unWritten"
+                        class="dropdown-item td-action-item td-action-item--remove"
+                        @click="
+                          () => onClickButton(item, TypeClickButton.write)
+                        ">
+                        {{ ButtonTitle.written }}
                       </div>
                       <div
                         v-if="item.PaymentStatus !== 1"
                         class="dropdown-item td-action-item td-action-item--remove"
-                        @click="() => onClickDeleteSupplier(item)">
+                        @click="
+                          () => onClickButton(item, TypeClickButton.delete)
+                        ">
                         {{ ButtonTitle.delete }}
                       </div>
                       <div
                         class="dropdown-item td-action-item"
-                        @click="() => onClickCloneRecord(item)">
+                        @click="
+                          () => onClickButton(item, TypeClickButton.duplicate)
+                        ">
                         {{ ButtonTitle.duplicate }}
                       </div>
                     </div>
@@ -184,9 +194,17 @@ import {
   areAllElementsInArray,
   convertToDDMMYYYY,
   formatDecimal,
+  converTitle,
 } from "@/utils/helper";
-import { TypeCol } from "@/enums";
-import { FreeText, ButtonTitle } from "@/resources";
+import {
+  PaymentStatus,
+  PopupType,
+  TypeCol,
+  TypeClickButton,
+  DialogType,
+  DialogAction,
+} from "@/enums";
+import { FreeText, ButtonTitle, DialogTitle, DialogContent } from "@/resources";
 import { useDebounce } from "@/hooks";
 
 //======== start state ===========
@@ -326,18 +344,6 @@ const toggleTableAction = (e, item, index) => {
   // console.log(rowSelected);
 };
 
-const converTitle = (label, key) => {
-  let text = label;
-  switch (key) {
-    case TypeCol.date:
-      text = convertToDDMMYYYY(label);
-      break;
-
-    default:
-      break;
-  }
-  return text;
-};
 const sumMoney = () => {
   let total = 0;
   if (paymentList?.value?.length >= 0) {
@@ -352,6 +358,84 @@ const sumMoney = () => {
   }
 
   return total;
+};
+
+const onClickButton = async (item, type) => {
+  const _item = structuredClone(item);
+  rowSelected.value = "";
+  switch (type) {
+    case TypeClickButton.view:
+      await store.dispatch("getPaymentById", _item.PaymentId);
+
+      // mở form detail
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.view,
+      });
+      break;
+    case TypeClickButton.unWrite:
+      store.dispatch("updateStatusPayment", {
+        paymentId: _item?.PaymentId,
+        status: PaymentStatus.unWritten,
+        outForm: true,
+      });
+      break;
+    case TypeClickButton.write:
+      store.dispatch("updateStatusPayment", {
+        paymentId: _item?.PaymentId,
+        status: PaymentStatus.written,
+        outForm: true,
+      });
+      break;
+    case TypeClickButton.duplicate:
+      _item.PaymentStatus = PaymentStatus.unWritten;
+      delete _item.PaymentId;
+      if (Array.isArray(_item.Accountings)) {
+        const tmp = _item.Accountings.map(
+          ({ AccountingId, ...accounting }) => accounting
+        );
+        _item.Accountings = structuredClone(tmp);
+      }
+      store.dispatch("getPaymentDetail", _item);
+      await store.dispatch("getNewPaymentCode");
+
+      store.dispatch("getPopupStatus", {
+        isShowPopup: true,
+        type: PopupType.create,
+      });
+      break;
+    case TypeClickButton.delete:
+      if (_item.PaymentStatus === PaymentStatus.written) {
+        store.dispatch("getDialog", {
+          isShow: true,
+          type: DialogType.error,
+          title: DialogTitle.error,
+          content: [DialogContent.paymentWritten(_item.PaymentCode)],
+        });
+        break;
+      }
+      store.dispatch("getPaymentDetail", _item);
+      store.dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.warning,
+        title: DialogTitle.delete,
+        content: [`${DialogContent.confirmDeletePayment(_item?.PaymentCode)}`],
+        action: DialogAction.confirmDelete,
+      });
+      break;
+    default:
+      break;
+  }
+};
+
+const onOpenPopupView = async (item) => {
+  await store.dispatch("getPaymentById", item.PaymentId);
+
+  // mở form detail
+  store.dispatch("getPopupStatus", {
+    isShowPopup: true,
+    type: PopupType.view,
+  });
 };
 //========= end methods =========
 </script>

@@ -10,11 +10,10 @@
 <script setup>
 import { useStore } from "vuex";
 import { computed } from "vue";
-import { DialogAction } from "@/enums";
+import { DialogAction, ErrCode } from "@/enums";
 
 const store = useStore();
 const dialog = computed(() => store.state.global.dialog);
-const employeeDetail = computed(() => store.state.employee.employeeDetail);
 
 /**
  * Mô tả: Đóng dialog và popup
@@ -34,7 +33,7 @@ const onClose = () => {
  * @param {type} param -
  * @returns
  */
-const onAccept = () => {
+const onAccept = async () => {
   switch (dialog.value.action) {
     case DialogAction.confirmCreate:
       store.dispatch("getDialog", {
@@ -48,11 +47,17 @@ const onAccept = () => {
       break;
     case DialogAction.confirmDelete:
       store.dispatch("getDialog", {});
-      // store.dispatch("deleteEmployee", employeeDetail.value);
+      store.dispatch("deletePayment");
       break;
     case DialogAction.confirmDeleteMulti:
       store.dispatch("getDialog", {});
-    // store.dispatch("deleteMultiEmployee");
+      // store.dispatch("deleteMultiEmployee");
+      break;
+    case DialogAction.confirmChangeCode:
+      store.dispatch("getDialog", {
+        action: DialogAction.confirmChangeCode,
+      });
+      break;
     default:
       store.dispatch("getDialog", {});
       break;

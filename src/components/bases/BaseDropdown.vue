@@ -84,6 +84,10 @@ export default {
       type: String,
       required: true,
     },
+    idSelected: {
+      type: [String, Number],
+      default: "",
+    },
     itemSelected: {
       type: Object,
       default: () => ({}),
@@ -105,7 +109,7 @@ export default {
       default: false,
     },
   },
-  emits: ["onClickSelectItem"],
+  emits: ["onClickSelectItem", "onClickIdSelect"],
   setup(props, ctx) {
     const valueInput = ref("");
     const isShowDropdown = ref(false);
@@ -129,24 +133,19 @@ export default {
     });
 
     watchEffect(() => {
-      if (props.itemSelected) {
-        // console.log("field show", props.fieldShow, props.itemSelected);
-        const foundItem = props.data.find(
-          (obj) =>
-            obj[props?.fieldSelect] ===
-            props?.itemSelected?.[props?.fieldSelect]
-        );
-        if (foundItem) {
-          // console.log(foundItem[props?.fieldShow]);
-          valueInput.value = foundItem[props?.fieldShow];
-        }
-        // console.log(props.itemSelected);
+      const foundItem = props.data.find(
+        (obj) => obj[props?.fieldSelect] === props.idSelected
+      );
+      if (foundItem) {
+        // console.log(foundItem[props?.fieldShow]);
+        valueInput.value = foundItem[props?.fieldShow];
       }
     });
     const onClickSelectItem = (item) => {
       // add text cho input
       // valueInput.value = item[props.fieldShow];
       // emit event
+      ctx.emit("onClickIdSelect", item[props.fieldSelect]);
       ctx.emit("onClickSelectItem", item);
 
       // đóng dropdown

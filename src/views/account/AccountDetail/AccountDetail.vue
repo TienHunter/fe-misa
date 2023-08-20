@@ -41,6 +41,7 @@ const errRefs = toRefs(
     AccountCode: null,
     AccountName: null,
     AccountFeature: null,
+    ParentId: null,
   })
 );
 const btnCancel = ref(null);
@@ -114,31 +115,26 @@ const dataUserObject = [
     text: "Nhân viên",
   },
 ];
-/** -----------------------watch-------------------- */
 
 /** start lifesycle */
 
 onBeforeMount(async () => {
   store.dispatch("getErrsValidate", {});
-  if (popupStatus.value.type === PopupType.update) {
-    if (accountDetail.value?.ParentId) {
-      try {
-        let res = await accountService.getById(accountDetail.value.ParentId);
-        console.log(res);
-        if (res && Object.keys(res).length > 0) {
-          // searchAccountSynthetic.value = res.AccountCode;
-          valueAccountSynthetic.value = { ...res };
-        }
-      } catch (error) {
-        console.log(error);
+
+  if (accountDetail.value?.ParentId) {
+    try {
+      let res = await accountService.getById(accountDetail.value.ParentId);
+      console.log(res);
+      if (res && Object.keys(res).length > 0) {
+        // searchAccountSynthetic.value = res.AccountCode;
+        valueAccountSynthetic.value = { ...res };
       }
+    } catch (error) {
+      console.log(error);
     }
-    if (
-      accountDetail.value?.UserObject !== null ||
-      accountDetail.value?.UserObject !== undefined
-    ) {
-      toggleAttrDetailTracking.value.UserObject = true;
-    }
+  }
+  if (accountDetail.value?.UserObject) {
+    toggleAttrDetailTracking.value.UserObject = true;
   }
 });
 
@@ -169,7 +165,9 @@ watch(dialog, (newValue, oldValue) => {
     // console.log("firstKey:", firstKey);
     if (firstKey) {
       const firstErr = accessRef(firstKey);
-      firstErr.value.focus();
+      if (firstErr) {
+        firstErr.value.focus();
+      }
     }
   } else if (
     newValue.action === DialogAction.confirmCreate &&
@@ -342,6 +340,24 @@ const validatorAccount = () => {
         ...(errValidator?.AccountCode ?? []),
         "Số tài khoản phải có độ dài >= 3 ký tự.",
       ];
+    } else {
+      if (!accountInfo.value?.ParentId) {
+        errValidator.ParentId = [
+          ...(errValidator?.ParentId ?? []),
+          "Số tài khoản có độ dài > 3 ký tự thì phải điền tài khoản tổng hợp",
+        ];
+      } else {
+        if (
+          !valueAccountSynthetic.value.AccountCode.startsWith(
+            accountInfo?.value.AccountCode
+          )
+        ) {
+          errValidator.AccountCode = [
+            ...(errValidator?.AccountCode ?? []),
+            ErrValidator.accountDetailIsPrefixaccountSynthetic,
+          ];
+        }
+      }
     }
   }
   // Tên không được để trống
@@ -530,6 +546,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
             <div class="w-full flex justify-start gap-0-8">
               <div class="flex justify-start gap-0-8 w-1/2">
                 <BaseComboboxV1
+                  :ref="errRefs.ParentId"
                   class="w-1/2"
                   label="Tài khoản tổng hợp"
                   :tab-index="4"
@@ -542,6 +559,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   :data-list="dataAccountSynthetic"
                   :id-selected="accountInfo.ParentId"
                   :value-selected="valueAccountSynthetic"
+                  :err-msg="errsValidate?.ParentId?.join('') ?? ''"
                   @load-data-lazy="
                     (searchAccountSynthetic) =>
                       loadDataAccountSyntheticLazy(searchAccountSynthetic)
@@ -551,6 +569,12 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                       loadDataAccountSyntheticFilter(searchAccountSynthetic)
                   "
                   @on-click-id-selected="(id) => (accountInfo.ParentId = id)"
+                  @add-value-selected="(item) => (valueAccountSynthetic = item)"
+                  @empty-err-msg="
+                    () => {
+                      delete errsValidate.ParentId;
+                    }
+                  "
                   @keydown.tab.stop="" />
                 <b-combobox
                   :ref="errRefs.AccountFeature"
@@ -638,16 +662,14 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :tabindex="9"
-                      :disable="!toggleAttrDetailTracking?.UserObject"
+                      :disabled="!toggleAttrDetailTracking?.UserObject"
                       :data="dataUserObject"
                       :fields="fieldsUserObject"
                       :field-select="fieldSelectUserObject"
                       :field-show="fieldShowUserObject"
-                      title-dropdown-list="--Chọn đối tượng--"
-                      :item-selected="accountInfo.UserObject"
-                      @on-click-select-item="
-                        (item) =>
-                          onClickSelectAttrDetailTracking('UserObject', item)
+                      :id-selected="accountInfo?.UserObject ?? -1"
+                      @on-click-id-select="
+                        (id) => (accountInfo.UserObject = id)
                       "
                       @keydown.tab.stop="" />
                   </div>
@@ -673,7 +695,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -686,7 +708,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -702,7 +724,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -715,7 +737,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -731,7 +753,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -744,7 +766,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -760,7 +782,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -773,7 +795,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     </label>
                     <BDropdown
                       class="w-1/2"
-                      :disable="true"
+                      :disabled="true"
                       @keydown.tab.stop="" />
                   </div>
                 </div>

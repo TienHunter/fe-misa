@@ -156,13 +156,13 @@ export default {
 
     onMounted(() => {
       itemRefs.value = dataListFilter.value.map(() => ref(null));
-      // positionCombobox.value.bottom =
-      //   comboboxRef.value.getBoundingClientRect().bottom + 8;
-      // positionCombobox.value.left =
-      //   comboboxRef.value.getBoundingClientRect().left;
-      // positionCombobox.value.width =
-      //   comboboxRef.value.getBoundingClientRect().width;
-      console.log(listDataWrapperRef.value);
+      positionCombobox.value.bottom =
+        comboboxRef.value.getBoundingClientRect().bottom + 8;
+      positionCombobox.value.left =
+        comboboxRef.value.getBoundingClientRect().left;
+      positionCombobox.value.width =
+        comboboxRef.value.getBoundingClientRect().width;
+      // console.log(listDataWrapperRef.value);
     });
 
     //kiểm tra sự thay đổi của debounceSearch

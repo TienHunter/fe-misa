@@ -63,14 +63,15 @@ const props = defineProps({
     type: Object,
     default: new Object(),
   },
+  maxLength: {
+    type: Number,
+    default: 14,
+  },
   label: {
     type: String,
     default: "",
   },
-  numberFormat: {
-    type: Boolean,
-    default: false,
-  },
+
   titleLabel: {
     type: String,
     default: "",

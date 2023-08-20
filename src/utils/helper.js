@@ -1,7 +1,27 @@
-import { AccountFeature, Gender, Status } from "@/enums";
+import { AccountFeature, Gender, Status, TypeCol } from "@/enums";
 
 function removeDiacritics(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
+ * Mô tả: convert title
+ * created by : vdtien
+ * created date: 20-08-2023
+ * @param {type} param -
+ * @returns
+ */
+function converTitle(label, key) {
+  let text = label;
+  switch (key) {
+    case TypeCol.date:
+      text = convertToDDMMYYYY(label);
+      break;
+
+    default:
+      break;
+  }
+  return text;
 }
 
 function converGender(genderType) {
@@ -77,33 +97,33 @@ function convertToYYYYMMDD(dateString) {
   return formattedDate;
 }
 
-// function removeEmptyFields(obj) {
-//   for (let key in obj) {
-//     if (obj[key] === "" || obj[key] === null) {
-//       delete obj[key];
-//     }
-//   }
-//   return obj;
-// }
 function removeEmptyFields(obj) {
-  if (typeof obj === "object")
-    for (let key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        if (
-          obj[key] === null ||
-          obj[key] === undefined ||
-          (typeof obj[key] === "object" &&
-            Object.keys(obj[key]).length === 0) ||
-          (Array.isArray(obj[key]) && obj[key].length === 0) ||
-          (typeof obj[key] === "string" && obj[key].trim() === "")
-        ) {
-          delete obj[key];
-        } else if (typeof obj[key] === "object") {
-          removeEmptyFields(obj[key]);
-        }
-      }
+  for (let key in obj) {
+    if (obj[key] === "" || obj[key] === null) {
+      delete obj[key];
     }
+  }
+  return obj;
 }
+// function removeEmptyFields(obj) {
+//   if (typeof obj === "object")
+//     for (let key in obj) {
+//       if (obj.hasOwnProperty(key)) {
+//         if (
+//           obj[key] === null ||
+//           obj[key] === undefined ||
+//           (typeof obj[key] === "object" &&
+//             Object.keys(obj[key]).length === 0) ||
+//           (Array.isArray(obj[key]) && obj[key].length === 0) ||
+//           (typeof obj[key] === "string" && obj[key].trim() === "")
+//         ) {
+//           delete obj[key];
+//         } else if (typeof obj[key] === "object") {
+//           removeEmptyFields(obj[key]);
+//         }
+//       }
+//     }
+// }
 
 /**
  * Mô tả: kiểm tra 1 mảng có chứa các phần tử của 1 mảng khác không (chuyển tham chiếu thành string)
@@ -254,4 +274,5 @@ export {
   parseJson,
   stringifyJson,
   formatDecimal,
+  converTitle,
 };

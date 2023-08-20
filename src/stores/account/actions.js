@@ -10,6 +10,7 @@ import {
 import { DialogTitle, ToastContent } from "@/resources";
 import { nestTreeData } from "@/utils/helper";
 import { ref } from "vue";
+import { hanldeException } from "../global/actions";
 const actions = {
   /**
    * Mô tả: lay danh sach tai khoan
@@ -410,29 +411,5 @@ const actions = {
     commit("TOGGLE_SHOW_ALL", payload);
   },
 };
-function hanldeException(dispatch, ex) {
-  console.log(ex);
-  let errsMsg = ex?.response?.data?.UserMsg ?? [];
-  if (!Array.isArray(errsMsg)) {
-    errsMsg = ["Có lỗi vui lòng liên hệ nhân viên Misa để được hỗ trợ"];
-  }
-  // check loi validate hoac dupCode
-  if (ex?.response?.data?.ErrCode === 2 || ex?.response?.data?.ErrCode === 3) {
-    dispatch("getErrsValidate", ex?.response?.data?.ErrorsMore ?? {});
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.inValidInput,
-      content: [...errsMsg],
-      action: DialogAction.confirmValidate,
-    });
-  } else {
-    dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.errorServer,
-      content: [...errsMsg],
-    });
-  }
-}
+
 export default actions;

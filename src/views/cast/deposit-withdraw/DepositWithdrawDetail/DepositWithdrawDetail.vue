@@ -321,13 +321,9 @@ div
                         v-for="(accounting, index) in paymentInfo.Accountings"
                         :key="index">
                         <tr
-                          v-if="
-                            indexFocusAccouting === index &&
-                            !disableView &&
-                            !disableWritten
-                          "
                           :class="{
                             'tr--checked': indexFocusAccouting === index,
+                            'no-pointer': disableView || disableWritten,
                           }"
                           @click="() => onClickAccountingRow(index)">
                           <td class="px-3 text-center">
@@ -337,7 +333,6 @@ div
                             <div class="flex items-center">
                               <textarea
                                 v-model="accounting.AccountingExplain"
-                                v-auto-focus
                                 rows="1"
                                 class="td-textarea" />
                             </div>
@@ -345,7 +340,7 @@ div
                           <td class="px-3">
                             <div class="flex items-center">
                               <BaseComboboxV1
-                                :ref="errRefs.Accountings[index]"
+                                :ref="accountsDebtRef[index]"
                                 :max-length="MaxLength.default"
                                 :fields="fieldsAccount"
                                 :field-select="fieldSelectAccount"
@@ -393,6 +388,7 @@ div
                           <td class="px-3">
                             <div class="flex items-center">
                               <BaseComboboxV1
+                                :ref="accountsBalanceRef[index]"
                                 :max-length="MaxLength.default"
                                 :fields="fieldsAccount"
                                 :field-select="fieldSelectAccount"
@@ -461,7 +457,7 @@ div
                             </div>
                           </td>
                         </tr>
-                        <tr v-else @click="() => onClickAccountingRow(index)">
+                        <!-- <tr v-else @click="() => onClickAccountingRow(index)">
                           <td class="px-3 text-center">
                             <span>{{ index + 1 }}</span>
                           </td>
@@ -488,7 +484,7 @@ div
                           </td>
                           <td class="px-3">
                             <div>
-                              <!-- xu ly nhap tien -->
+                    
                               <div class="flex items-center">
                                 <div
                                   class="flex items-center justify-end w-full"
@@ -506,7 +502,7 @@ div
                               <div class="icon-v1 icon-v1--bin"></div>
                             </div>
                           </td>
-                        </tr>
+                        </tr> -->
                       </template>
                     </tbody>
                     <tfoot>
@@ -689,9 +685,10 @@ const errRefs = toRefs(
     AccountingDate: null,
     PaymentDate: null,
     PaymentCode: null,
-    Accountings: ref([]),
   })
 );
+const accountsDebtRef = ref([]);
+const accountsBalanceRef = ref([]);
 const errsValidator = ref({
   SupplierId: [],
   SupplierName: [],
@@ -875,6 +872,14 @@ const sup = ref(null);
 watchEffect(() => {
   errsValidator.value = structuredClone(errsValidate.value);
 });
+watchEffect(() => {
+  if (paymentInfo.value?.Accountings) {
+    accountsDebtRef.value = paymentInfo.value?.Accountings.map(() => ref(null));
+    accountsBalanceRef.value = paymentInfo.value?.Accountings.map(() =>
+      ref(null)
+    );
+  }
+});
 onBeforeMount(async () => {
   // console.log(" before muonte");
   // lấy tất cả danh sách tài khoản nợ
@@ -951,6 +956,7 @@ onMounted(() => {
 watchEffect(() => {
   nextTick(() => console.log(errRefs.Accountings));
 });
+
 // watchEffect(() => {
 //   err;
 // });
@@ -981,19 +987,17 @@ watch(dialog, async (newDialog, oldDialog) => {
     // Lấy phần tử đầu tiên của danh sách
     // console.log(errsValidate.value);
     const firstKey = Object.keys(errsValidator.value)[0];
-    // console.log(firstKey);
+    console.log(firstKey);
     // console.log("firstKey:", firstKey);
     if (firstKey) {
       nextTick(() => {
         const firstErr = accessRef(firstKey);
-        console.log(firstErr?.value);
-        if (firstErr?.value) firstErr.value.focus();
+        // console.log(firstErr?.value);
+        if (firstErr) firstErr.focus();
       });
     }
   } else if (oldDialog.action === DialogAction.confirmChangeCode) {
-    console.log("change code");
     if (newDialog.action === DialogAction.confirmChangeCode) {
-      console.log("change v1");
       store.dispatch("getErrsValidate", {});
       await store.dispatch("createPayment", {
         payment: paymentInfo.value,
@@ -1068,7 +1072,32 @@ watchEffect(() => {
 //========= start methods =========
 // Truy cập vào ref dựa trên tên chuỗi
 const accessRef = (refName) => {
-  return errRefs[refName] ? errRefs[refName] : null;
+  if (errRefs?.[refName]?.value) {
+    return errRefs[refName]?.value;
+  } else if (refName === "AccountsDebtId") {
+    let index = -1;
+    for (let i = 0; i < errsValidator.value?.AccountsDebtId?.length; i++) {
+      if (errsValidator.value?.AccountsDebtId) {
+        index = i;
+        break;
+      }
+    }
+    if (accountsDebtRef.value?.[index]?.value?.[0]) {
+      return accountsDebtRef.value?.[index]?.value?.[0];
+    }
+  } else if (refName === "AccountsBalanceId") {
+    let index = -1;
+    for (let i = 0; i < errsValidator.value?.AccountsBalanceId?.length; i++) {
+      if (errsValidator.value?.AccountsBalanceId) {
+        index = i;
+        break;
+      }
+    }
+    if (accountsBalanceRef.value?.[index]?.value?.[0]) {
+      return accountsBalanceRef.value?.[index]?.value?.[0];
+    }
+  }
+  return null;
 };
 
 /**
@@ -1348,66 +1377,14 @@ const onClickDeleteAllAccountingRow = () => {
   accountsBalanceSelected.value = [];
 };
 
-/**
- * Mô tả: xử lý sự kiên có nhập ô search ở combobox nhưng không chọn
- * created by : vdtien
- * created date: 16-08-2023
- * @param {type} param -
- * @returns
- */
-// const hanldeAddErrorMsgNotSelectedYet = (state, field, label, index) => {
-//   if (typeof index === "number" && !isNaN(index) && index >= 0) {
-//     if (!Array.isArray(errsValidator.value[field])) {
-//       errsValidator.value[field] = [];
-//     }
-//     errsValidator.value[field][index] = [
-//       `Dữ liệu <${label}> không có trong danh mục.`,
-//     ];
-//   } else {
-//     errsValidator.value[field] = [
-//       `Dữ liệu <${label}> không có trong danh mục.`,
-//     ];
-//   }
-//   flagChangeNotSelectedCombobox.value = true;
-// };
-
 const isValidateData = () => {
+  // console.log(errRefs);
+  console.log(accountsDebtRef.value[0].value[0]);
   // xóa các lỗi không có trong errRefs
-  Object.keys(errsValidator.value).forEach((key) => {
-    if (!errRefs[key]) delete errsValidator.value[key];
-    if (errsValidator.value[key]?.length === 0) delete errsValidator.value[key];
-  });
-
-  if (flagChangeNotSelectedCombobox.value) {
-    // errsValidator không rỗng -> còn các lỗi chưa chọn trong combobox
-    store.dispatch("getErrsValidate", { ...errsValidator.value });
-    let tmpErrs = {
-      ...errsValidator.value,
-      AccountsDebtId: findFirstTruthyElement(
-        errsValidator.value.AccountsDebtId
-      ),
-      AccountsBalanceId: findFirstTruthyElement(
-        errsValidator.value.AccountsBalanceId
-      ),
-    };
-    // xóa phần tử trống
-
-    const errMsgArray = Object.values(tmpErrs).flat();
-    store.dispatch("getDialog", {
-      isShow: true,
-      type: DialogType.error,
-      title: DialogTitle.inValidInput,
-      content: errMsgArray,
-      action: DialogAction.confirmValidate,
-    });
-    return false;
-  } else {
-    store.dispatch("getErrsValidate", {});
-  }
-
+  errsValidator.value = {};
   // check số phiếu chi không để trống
   let isPaymentCodeEmpty = !String(paymentInfo.value?.PaymentCode ?? "").trim();
-  console.log("payment coe", isPaymentCodeEmpty);
+  // console.log("payment coe", isPaymentCodeEmpty);
   if (isPaymentCodeEmpty) {
     errsValidator.value.PaymentCode = [
       ...(errsValidator.value?.PaymentCode ?? []),

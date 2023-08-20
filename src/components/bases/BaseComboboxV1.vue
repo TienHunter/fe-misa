@@ -451,10 +451,10 @@ export default {
       emit("onClickIdSelected", "");
       emit("addValueSelected", {
         [props.fieldSelect]: "",
-        [props.fieldShow]: searchValue.value,
+        [props.fieldShow]: "",
       });
       isLoading.value = false;
-      itemSelected.value = {};
+      // itemSelected.value = {};
       selectedIndex.value = -1;
       // emit("update:modelValue", e.target.value);
       emit("emptyErrMsg");

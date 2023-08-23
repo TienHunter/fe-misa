@@ -28,19 +28,19 @@
         <div class="result-synthetic">
           <div class="flex items-center gap-0-24 pb-4">
             <div class="flex items-center">
-              <span>Số chứng từ được xử lý</span>
+              <span>Số nhà cung cấp được xử lý</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExceute ?? 0
               }}</span>
             </div>
             <div class="flex items-center">
-              <span>Số chứng từ thành công</span>
+              <span>Số nhà cung cấp thành công</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExcuteSuccess ?? 0
               }}</span>
             </div>
             <div class="flex items-center">
-              <span>Số chứng từ không thành công</span>
+              <span>Số nhà cung cấp không thành công</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExcuteFailure ?? 0
               }}</span>
@@ -73,9 +73,9 @@
               </thead>
               <tbody>
                 <!-- length danh sach lớn hơn 0 -->
-                <template v-if="paymentListFailure?.length > 0">
+                <template v-if="listSupplierExecuteFailure?.length > 0">
                   <tr
-                    v-for="(item, index) in paymentListFailure"
+                    v-for="(item, index) in listSupplierExecuteFailure"
                     :key="item.PaymentId"
                     class="pointer">
                     <td
@@ -85,22 +85,13 @@
                       :class="{
                         [col.class]: true,
                       }">
-                      <span
-                        v-if="col?.name === 'index'"
-                        :class="{ 'col-key': col?.key }"
-                        @click="onOpenPopupView(col?.key, item?.PaymentId)">
+                      <span v-if="col?.name === 'index'">
                         {{ index + 1 }}
                       </span>
-                      <span
-                        v-else-if="col?.type === TypeCol.date"
-                        :class="{ 'col-key': col?.key }"
-                        @click="onOpenPopupView(col?.key, item?.PaymentId)">
+                      <span v-else-if="col?.type === TypeCol.date">
                         {{ convertToDDMMYYYY(item?.[col?.name]) }}
                       </span>
-                      <span
-                        v-else-if="col?.type === TypeCol.array"
-                        :class="{ 'col-key': col?.key }"
-                        @click="onOpenPopupView(col?.key, item?.PaymentId)">
+                      <span v-else-if="col?.type === TypeCol.array">
                         <ul>
                           <li
                             v-for="(item1, index1) in item?.[col?.name]"
@@ -109,12 +100,7 @@
                           </li>
                         </ul>
                       </span>
-                      <span
-                        v-else
-                        :class="{ 'col-key': col?.key }"
-                        @click="onOpenPopupView(col?.key, item?.PaymentId)">
-                        {{ item?.[col?.name] }}</span
-                      >
+                      <span v-else> {{ item?.[col?.name] }}</span>
                     </td>
                   </tr>
                 </template>
@@ -144,7 +130,7 @@
   </div>
 </template>
 <script setup>
-import { PopupType, TypeCol } from "@/enums";
+import { TypeCol } from "@/enums";
 import { FreeText } from "@/resources";
 import { convertToDDMMYYYY, converTitle } from "@/utils/helper";
 import { computed, ref } from "vue";
@@ -157,23 +143,16 @@ const dataCols = [
     class: "mw-32 w-32 Mw-32 text-center",
   },
   {
-    name: "AccountingDate",
-    label: "Ngày hạch toán",
-    class: "mw-150 w-150 Mw-150 text-center",
-    type: TypeCol.date,
-  },
-  {
-    name: "PaymentDate",
-    label: "Ngày phiếu chi",
-    class: "mw-150 w-150 Mw-150 text-center",
-    type: TypeCol.date,
-  },
-  {
-    name: "PaymentCode",
-    label: "Số phiếu chi",
+    name: "SupplierCode",
+    label: "Mã nhà cung cấp",
     class: "mw-150 w-150 Mw-150 text-left",
-    key: true,
   },
+  {
+    name: "SupplierName",
+    label: "Tên nhà cung cấp",
+    class: "mw-150 w-150 Mw-150 text-left",
+  },
+
   {
     name: "ListUesrMsg",
     label: "Nguyên nhân",
@@ -184,48 +163,15 @@ const dataCols = [
 
 const store = useStore();
 const resultBulkAction = computed(() => store.state.global.resultBulkAction);
-const paymentListFailure = computed(
-  () => store.state.payment.paymentListFailure
+const listSupplierExecuteFailure = computed(
+  () => store.state.supplier.listSupplierExecuteFailure
 );
 const dialogDetail = computed(() => store.state.global.dialogDetail);
 
-/**
- * Mô tả: đóng form thông báo
- * created by : vdtien
- * created date: 23-08-2023
- * @param {type} param -
- * @returns
- */
 const onClosePopup = () => {
   store.dispatch("getDialogDetail", {
     show: false,
   });
 };
-
-/**
- * Mô tả: mở popup detail theo id
- * created by : vdtien
- * created date: 23-08-2023
- * @param {type} param -
- * @returns
- */
-const onOpenPopupView = async (type, id) => {
-  if (type) {
-    await store.dispatch("getPaymentById", id);
-
-    // mở form detail
-    store.dispatch("getPopupStatus", {
-      isShowPopup: true,
-      type: PopupType.view,
-    });
-  }
-};
 </script>
-<style scoped>
-.col-key {
-  color: #0075c0;
-}
-.col-key:hover {
-  text-decoration: underline;
-}
-</style>
+<style lang=""></style>

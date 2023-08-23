@@ -139,7 +139,7 @@
                 <div
                   class="icon-wrapper content-body-tools__export-excel"
                   title="Xuất file"
-                  @click="exportExcelSupplierList">
+                  @click="exportExcelPaymentList">
                   <div class="icon icon--excel"></div>
                 </div>
                 <b-button
@@ -163,9 +163,9 @@
       </div>
     </div>
   </div>
-  <DepositWithdrawDetail v-if="popupStatus?.isShowPopup" />
   <DepositWithdrawDialog v-if="dialog.isShow" />
   <DepositWithdrawNotice v-if="dialogDetail?.show" />
+  <DepositWithdrawDetail v-if="popupStatus?.isShowPopup" />
   <b-toast-message v-if="toast?.isShow" />
   <b-loading v-if="isLoading" />
 </template>
@@ -188,7 +188,7 @@ const isLoading = computed(() => store.state.global.isLoading);
 const popupStatus = computed(() => store.state.global.popupStatus);
 const dialog = computed(() => store.state.global.dialog);
 const toast = computed(() => store.state.global.toast);
-const dialogDetail = computed(() => store.state.payment.dialogDetail);
+const dialogDetail = computed(() => store.state.global.dialogDetail);
 const paymentIdListChecked = computed(
   () => store.state.payment.paymentIdListChecked
 );
@@ -291,6 +291,25 @@ const onClickButton = (type) => {
       break;
   }
 };
+const onClickRefreshPage = () => {
+  searchValue.value = "";
+  store.dispatch("getFilterAndPaging", {
+    pageSize: 10,
+    pageNumber: 1,
+    keySearch: "",
+  });
+  store.dispatch("getPaymentList");
+};
+/**
+ * Mô tả: xuất excel danh sách phiếu chi theo từ khóa tìm kiếm
+ * created by : vdtien
+ * created date: 22-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const exportExcelPaymentList = () => {
+  store.dispatch("exportExcelPaymentList");
+};
 //========= end methods =========
 </script>
 <style scoped>
@@ -298,6 +317,102 @@ const onClickButton = (type) => {
 
 .layout-master-detail {
   background-color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 114px);
+}
+
+.overview {
+  background-color: #fff;
+  margin-bottom: 1px;
+  margin-top: 0;
+  padding-left: 12px;
+  padding-top: 13px;
+  padding-bottom: 10px;
+  padding-right: 13px;
+  height: 60px;
+}
+
+.overview .inner-overview .inner-overview-data {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inner-overview-data {
+  display: flex;
+  align-items: center;
+  background-color: #eceef1;
+  padding: 0 4px !important;
+  -moz-column-gap: 25px;
+  column-gap: 25px;
+}
+
+.first-overview {
+  border-left: 4px solid #00a9f2;
+}
+
+.second-overview {
+  border-left: 4px solid #ff7f2c;
+}
+
+.rthird-overview {
+  border-left: 4px solid #74cb2f;
+}
+
+.total-money {
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.hyper-link {
+  color: #0075c0;
+  cursor: pointer;
+}
+
+.second-overview .hyper-link {
+  color: #ed1c24;
+}
+
+.label-overview {
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overview-data-number {
+  align-items: baseline;
+  font-weight: 700;
+}
+
+.last-update {
+  font-size: 12px;
+  color: #757575;
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  background-color: #fff;
+  padding: 2px;
+  left: unset;
+  right: 16px;
+}
+
+.grid-list-data {
+  background: #fff;
+  padding: 8px 12px;
+  position: relative;
+}
+
+.grid-mode-control {
+  background: #fff;
+  flex: 1;
+  height: 0;
+  min-width: 100%;
+}
+.layout-master-detail {
   position: relative;
   display: flex;
   flex-direction: column;

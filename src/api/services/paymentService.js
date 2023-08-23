@@ -29,6 +29,16 @@ class PaymentService extends BaseService {
     );
     return res.data;
   }
+
+  async exportExcelPaymentList(keySearch) {
+    const res = await axios.get(`${this.getEndpoint()}/export-excel`, {
+      params: {
+        keySearch,
+      },
+      responseType: "blob",
+    });
+    return res.data;
+  }
 }
 
 export default new PaymentService();

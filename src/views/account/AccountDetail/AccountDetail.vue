@@ -226,7 +226,7 @@ const loadDataAccountSyntheticLazy = async (searchAccountSynthetic) => {
 
 const loadDataAccountSyntheticFilter = async (searchAccountSynthetic) => {
   try {
-    store.dispatch("toggleLoading");
+    // store.dispatch("toggleLoading");
     // tang offset
     pageAccountSynthetic.value = 1;
     // call danh sach tai khoan tong hop
@@ -243,7 +243,7 @@ const loadDataAccountSyntheticFilter = async (searchAccountSynthetic) => {
   } catch (error) {
     console.log(error);
   } finally {
-    store.dispatch("toggleLoading");
+    // store.dispatch("toggleLoading");
   }
 };
 
@@ -348,8 +348,8 @@ const validatorAccount = () => {
         ];
       } else {
         if (
-          !valueAccountSynthetic.value.AccountCode.startsWith(
-            accountInfo?.value.AccountCode
+          !accountInfo.value.AccountCode.startsWith(
+            valueAccountSynthetic.value.AccountCode
           )
         ) {
           errValidator.AccountCode = [
@@ -548,6 +548,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                 <BaseComboboxV1
                   :ref="errRefs.ParentId"
                   class="w-1/2"
+                  tree
                   label="Tài khoản tổng hợp"
                   :tab-index="4"
                   :max-length="MaxLength.default"
@@ -667,7 +668,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                       :fields="fieldsUserObject"
                       :field-select="fieldSelectUserObject"
                       :field-show="fieldShowUserObject"
-                      :id-selected="accountInfo?.UserObject ?? -1"
+                      :id-selected="`${accountInfo?.UserObject ?? -1}`"
                       @on-click-id-select="
                         (id) => (accountInfo.UserObject = id)
                       "
@@ -696,6 +697,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -709,6 +713,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -725,6 +732,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -738,6 +748,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -754,6 +767,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -767,6 +783,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -783,6 +802,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -796,6 +818,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <BDropdown
                       class="w-1/2"
                       :disabled="true"
+                      :fields="fieldsUserObject"
+                      :field-select="fieldSelectUserObject"
+                      :field-show="fieldShowUserObject"
                       @keydown.tab.stop="" />
                   </div>
                 </div>
@@ -867,7 +892,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
   color: #000;
   width: 100%;
   outline: unset;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .textarea:focus {

@@ -271,10 +271,11 @@ export default {
       itemSelected.value = item;
       searchValue.value = item[props.fieldShow];
       isLoading.value = true;
-
-      emit("onClickIdSelected", item[props.fieldSelect]);
-      emit("addValueSelected", item[props.fieldShow]);
-      emit("emptyErrMsg");
+      if (item[props.fieldSelect] !== props.idSelected) {
+        emit("onClickIdSelected", item[props.fieldSelect]);
+        emit("addValueSelected", item[props.fieldShow]);
+        emit("emptyErrMsg");
+      }
 
       isShowCombobox.value = false;
       selectedIndex.value = -1; //

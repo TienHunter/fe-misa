@@ -80,6 +80,10 @@ const mutations = {
       }
     }
   },
+
+  SET_ALL_SUPPLIER_FAILURE(state, payload) {
+    state.listSupplierExecuteFailure = structuredClone(payload);
+  },
 };
 
 export default mutations;

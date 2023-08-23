@@ -28,7 +28,7 @@ div
               field-select="id"
               field-show="value"
               :id-selected="paymentInfo?.ReasonTypeId ?? 1"
-              @on-click-id-select-="(id) => (paymentInfo.ReasonTypeId = id)" />
+              @on-click-id-select="(id) => (paymentInfo.ReasonTypeId = id)" />
           </div>
         </div>
         <div class="header-detail-buttons flex items-center">
@@ -59,7 +59,7 @@ div
         </div>
       </div>
       <div class="popup__body flex-1 flex flex-col">
-        <div class="w-full bg position-sticky left-0">
+        <div class="w-full bg">
           <div class="main-information">
             <div class="flex basic-information pt-0">
               <div class="w-3/4 flex">
@@ -216,6 +216,8 @@ div
                           :ref="errRefs.AttachOriginalDocuments"
                           v-model="paymentInfo.AttachOriginalDocuments"
                           :disabled="disableView"
+                          :max-length="5"
+                          :max-value="9999"
                           label="Kèm theo"
                           place-holder="Số lượng"
                           class-input="text-right"
@@ -270,6 +272,7 @@ div
                     <b-textfield
                       :ref="errRefs.PaymentCode"
                       v-model="paymentInfo.PaymentCode"
+                      :max-length="MaxLength.code - 2"
                       :disabled="disableWritten || disableView"
                       label="Số phiếu chi"
                       :err-msg="errsValidator?.PaymentCode?.join('') ?? ''"
@@ -319,18 +322,19 @@ div
                     <tbody>
                       <template
                         v-for="(accounting, index) in paymentInfo.Accountings"
-                        :key="index">
+                        :key="accounting.AccountingId">
                         <tr
                           :class="{
                             'tr--checked': indexFocusAccouting === index,
-                            'no-pointer': disableView || disableWritten,
                           }"
-                          @click="() => onClickAccountingRow(index)">
+                          @click="indexFocusAccouting = index">
                           <td class="px-3 text-center">
                             <span>{{ index + 1 }}</span>
                           </td>
                           <td class="px-3">
-                            <div class="flex items-center">
+                            <div
+                              class="flex items-center"
+                              :class="{ 'no-pointer': disableView }">
                               <textarea
                                 v-model="accounting.AccountingExplain"
                                 rows="1"
@@ -338,7 +342,11 @@ div
                             </div>
                           </td>
                           <td class="px-3">
-                            <div class="flex items-center">
+                            <div
+                              class="flex items-center"
+                              :class="{
+                                'no-pointer': disableView || disableWritten,
+                              }">
                               <BaseComboboxV1
                                 :ref="accountsDebtRef[index]"
                                 :max-length="MaxLength.default"
@@ -386,7 +394,11 @@ div
                             </div>
                           </td>
                           <td class="px-3">
-                            <div class="flex items-center">
+                            <div
+                              class="flex items-center"
+                              :class="{
+                                'no-pointer': disableView || disableWritten,
+                              }">
                               <BaseComboboxV1
                                 :ref="accountsBalanceRef[index]"
                                 :max-length="MaxLength.default"
@@ -439,7 +451,11 @@ div
                           <td class="px-3">
                             <div>
                               <!-- xu ly nhap tien -->
-                              <div class="flex items-center">
+                              <div
+                                class="flex items-center"
+                                :class="{
+                                  'no-pointer': disableView || disableWritten,
+                                }">
                                 <CurrencyInput
                                   v-model.lazy="accounting.Money"
                                   :options="options" />
@@ -449,7 +465,12 @@ div
                           <td class="px-3">
                             <div
                               class="flex items-center justify-center pointer"
-                              tabindex="0"
+                              :class="{
+                                'no-pointer':
+                                  indexFocusAccouting !== index ||
+                                  disableView ||
+                                  disableWritten,
+                              }"
                               @click.stop="
                                 () => onClickDeleteAccountingRow(index)
                               ">
@@ -627,6 +648,7 @@ import {
   watchEffect,
 } from "vue";
 import { useStore } from "vuex";
+
 import BaseComboboxV1 from "@/components/bases/BaseComboboxV1.vue";
 import CurrencyInput from "@/components/bases/CurrencyInput.vue";
 import NumberInput from "@/components/bases/NumberInput.vue";
@@ -648,6 +670,7 @@ import {
   convertToDDMMYYYY,
   formatDecimal,
   removeEmptyFields,
+  generateUniqueId,
 } from "@/utils/helper";
 import supplierService from "@/api/services/supplierService";
 import employeeService from "@/api/services/employeeService";
@@ -1070,6 +1093,7 @@ watchEffect(() => {
 //========= end lifecycle =========
 
 //========= start methods =========
+
 // Truy cập vào ref dựa trên tên chuỗi
 const accessRef = (refName) => {
   if (errRefs?.[refName]?.value) {
@@ -1198,11 +1222,11 @@ const hanldeSelectedSupplier = (item) => {
       item?.SupplierName ?? ""
     }`;
   }
-  paymentInfo.value.SupplierName = item?.SupplierName;
+  paymentInfo.value.SupplierName = item?.SupplierName ?? "";
 
   // nếu nhà cung cấp là cá nhân thì bind cả người nhận
   if (item?.SupplierType === SupplierType.individual) {
-    paymentInfo.value.Receiver = item?.SupplierName;
+    paymentInfo.value.Receiver = item?.SupplierName ?? "";
   }
 
   // bind địa chỉ theo nhà cung cấp
@@ -1210,7 +1234,7 @@ const hanldeSelectedSupplier = (item) => {
 
   if (isChangeEmployee.value === false) {
     paymentInfo.value.EmployeeId = item?.EmployeeId;
-    paymentInfo.value.EmployeeName = item?.EmployeeName;
+    paymentInfo.value.EmployeeName = item?.EmployeeName ?? "";
     employeeSelected.value = {
       EmployeeId: item?.EmployeeId,
       FullName: item?.EmployeeName,
@@ -1309,8 +1333,11 @@ const onClickAddAccountingRow = () => {
       AccountDebtCode: dataAccountsDebt?.value?.[0]?.AccountCode,
       AccountBalanceId: dataAccountsBalance?.value?.[0]?.AccountId,
       AccountBalanceCode: dataAccountsBalance?.value?.[0]?.AccountCode,
+      AccountingId: generateUniqueId(),
       Money: 0,
     });
+    const tmpARrs = structuredClone(paymentInfo.value.Accountings);
+    paymentInfo.value.Accountings = tmpARrs;
   } else {
     const index = paymentInfo.value.Accountings.length - 1;
     const lastEl = {
@@ -1318,7 +1345,7 @@ const onClickAddAccountingRow = () => {
         paymentInfo.value.Accountings.length - 1
       ],
     };
-    delete lastEl.AccountingId;
+    lastEl.AccountingId = generateUniqueId();
     paymentInfo.value.Accountings.push({ ...lastEl, Money: 0 });
     if (
       Array.isArray(errsValidator.value.AccountsDebtId) &&
@@ -1364,7 +1391,9 @@ const onClickDeleteAccountingRow = (index) => {
     accountsDebtSelected.value?.length > 0 &&
     accountsBalanceSelected.value?.length > 0
   ) {
-    paymentInfo.value.Accountings.splice(index, 1);
+    const tmpArrs = structuredClone(paymentInfo.value.Accountings);
+    tmpArrs.splice(index, 1);
+    paymentInfo.value.Accountings = tmpArrs;
     accountsDebtSelected.value.splice(index, 1);
     accountsBalanceSelected.value.splice(index, 1);
     indexFocusAccouting.value = paymentInfo.value.Accountings.length - 1;
@@ -1378,8 +1407,6 @@ const onClickDeleteAllAccountingRow = () => {
 };
 
 const isValidateData = () => {
-  // console.log(errRefs);
-  console.log(accountsDebtRef.value[0].value[0]);
   // xóa các lỗi không có trong errRefs
   errsValidator.value = {};
   // check số phiếu chi không để trống

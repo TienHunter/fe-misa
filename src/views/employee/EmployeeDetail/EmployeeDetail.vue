@@ -163,10 +163,10 @@ export default {
         } else if (popupStatus.value.type === PopupType.update) {
           store.dispatch("getDialog", {
             isShow: true,
-            type: DialogType.info,
-            title: DialogTitle.store,
-            content: [DialogContent.confirmStoreEmployee],
-            action: DialogAction.confirmUpdate,
+            type: DialogType?.info,
+            title: DialogTitle?.store,
+            content: [DialogContent?.confirmStoreEmployee],
+            action: DialogAction?.confirmUpdate,
           });
         } else {
           store.dispatch("getPopupStatus", {

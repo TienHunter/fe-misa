@@ -30,6 +30,7 @@ export const ErrValidator = {
   accountCodeEmpty: "Mã tài khoản không được để trống.",
   accountNameEmpty: "Tên tài khoản không được để trống.",
   accountFeatureEmpty: "Tính chất tài khoản không được để trống.",
+  accoutAriseAccounting: "Tài khoản đã phát sinh hạch toán không thể xóa.",
 
   // general
   codeEmpty: (recordName) => {
@@ -47,6 +48,14 @@ export const ErrValidator = {
   accountingDateMoreEqualPaymentDate: (paymentDate) =>
     `Ngày hạch toán phải lớn hơn hoặc bằng Ngày chứng từ <${paymentDate}>. Xin vui lòng kiểm tra lại.`,
   accountingsNotEmpty: "Bạn phải nhập chứng từ chi tiết.",
+
+  containsOnlyNumber: (fieldName) => {
+    return `${fieldName} chỉ chứa ký tự số.`;
+  },
+
+  malformed: (fieldName) => {
+    return `${fieldName} không đúng định dạng.`;
+  },
 };
 
 export const DialogTitle = {
@@ -73,6 +82,8 @@ export const DialogContent = {
   confirmDeleteAccount: (accountCode) => {
     return `Bạn có chắc muốn xóa tài khoản <${accountCode}> này không?`;
   },
+  accountHasChildren:
+    "Xóa không thành công. Không thể xóa danh mục cha nếu chưa xóa danh mục con.",
   // supplier
   confirmDeleteSupplier: (supplierCode) => {
     return `Bạn có chắc muốn xóa nhà cung cấp <${supplierCode}> này không?`;

@@ -26,5 +26,13 @@ const mutations = {
   SET_POPUP_STATUS(state, payload) {
     state.popupStatus = { ...payload };
   },
+
+  SET_RESULT_BULK_ACTION(state, payload) {
+    state.resultBulkAction = { ...payload };
+  },
+
+  SET_DIALOG_DETAIL(state, paylaod) {
+    state.dialogDetail = { ...paylaod };
+  },
 };
 export default mutations;

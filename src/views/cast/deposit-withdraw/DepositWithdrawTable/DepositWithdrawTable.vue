@@ -39,7 +39,7 @@
               :class="{
                 'tr--checked': paymentIdListChecked.includes(item.PaymentId),
               }"
-              @dblclick="() => onOpenPopupUpdate(item)">
+              @dblclick="() => onClickButton(item, TypeClickButton.view)">
               <td
                 v-for="(col, indexCol) in paymentCols"
                 :key="indexCol"
@@ -65,7 +65,10 @@
                   @dblclick.stop=""
                   @click.stop=""
                   @click="() => onClickCheckRecord([item.PaymentId])" />
-                <span v-else-if="col?.key === 'PaymentCode'" class="col-key">
+                <span
+                  v-else-if="col?.key === 'PaymentCode'"
+                  class="col-key"
+                  @click.stop="onClickButton(item, TypeClickButton.view)">
                   {{ item[col?.key] }}
                 </span>
                 <span v-else-if="col?.type == TypeCol.date">
@@ -365,7 +368,7 @@ const onClickButton = async (item, type) => {
   rowSelected.value = "";
   switch (type) {
     case TypeClickButton.view:
-      await store.dispatch("getPaymentById", _item.PaymentId);
+      await store.dispatch("getPaymentById", _item?.PaymentId);
 
       // mở form detail
       store.dispatch("getPopupStatus", {

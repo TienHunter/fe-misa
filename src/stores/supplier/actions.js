@@ -310,11 +310,27 @@ const actions = {
       );
       if (res) {
         dispatch("toggleLoading");
-        dispatch("getToast", {
-          isShow: true,
-          type: ToastType.success,
-          content: ToastContent.deleteMultiRecordSuccess("nhà cung cấp"),
-        });
+
+        if (res?.Tottal && res?.Tottal === res?.Success) {
+          dispatch("getToast", {
+            isShow: true,
+            type: ToastType.success,
+            content: ToastContent.deleteMultiRecordSuccess("nhà cung cấp"),
+          });
+        } else {
+          dispatch("getResultBulkAction", {
+            totalRecordExceute: res?.Total ?? 0,
+            totalRecordExcuteSuccess: res?.Success ?? 0,
+            totalRecordExcuteFailure: res?.Failure ?? 0,
+          });
+          dispatch("getAllSupplierFailure", res?.ListRecordFailure ?? []);
+          dispatch("getDialogDetail", {
+            show: true,
+            title: "Kết quả nhà cung cấp",
+            type: "xoa",
+          });
+        }
+
         dispatch("getFilterAndPaging", {
           ...rootState.global.filterAndPaging,
           pageNumber: 1,
@@ -343,6 +359,17 @@ const actions = {
 
   getSupplierIdListCkecked({ state, commit, dispatch }, payload) {
     commit("SET_LIST_SUPPLIER_LIST_CHECKED", payload);
+  },
+
+  /**
+   * Mô tả: gán danh sách record thực hiện không thành công vào store
+   * created by : vdtien
+   * created date: 20-08-2023
+   * @param {type} param -
+   * @returns
+   */
+  getAllSupplierFailure({ state, commit, dispatch }, payload) {
+    commit("SET_ALL_SUPPLIER_FAILURE", payload);
   },
 };
 

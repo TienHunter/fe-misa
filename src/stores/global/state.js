@@ -26,5 +26,17 @@ const state = {
     isShowPopup: false,
     type: "",
   },
+
+  // listExecuteFailure: [],
+  resultBulkAction: {
+    totalRecordExceute: 0,
+    totalRecordExcuteSuccess: 0,
+    totalRecordExcuteFailure: 0,
+  },
+  dialogDetail: {
+    show: false,
+    title: "",
+    type: "",
+  },
 };
 export default state;

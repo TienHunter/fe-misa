@@ -1,5 +1,16 @@
+import { v4 as uuidv4 } from "uuid";
 import { AccountFeature, Gender, Status, TypeCol } from "@/enums";
 
+/**
+ * Mô tả: trả về uuid làm key cho danh sách
+ * created by : vdtien
+ * created date: 22-08-2023
+ * @param {type} param -
+ * @returns
+ */
+function generateUniqueId() {
+  return uuidv4();
+}
 function removeDiacritics(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
@@ -105,25 +116,25 @@ function removeEmptyFields(obj) {
   }
   return obj;
 }
-// function removeEmptyFields(obj) {
-//   if (typeof obj === "object")
-//     for (let key in obj) {
-//       if (obj.hasOwnProperty(key)) {
-//         if (
-//           obj[key] === null ||
-//           obj[key] === undefined ||
-//           (typeof obj[key] === "object" &&
-//             Object.keys(obj[key]).length === 0) ||
-//           (Array.isArray(obj[key]) && obj[key].length === 0) ||
-//           (typeof obj[key] === "string" && obj[key].trim() === "")
-//         ) {
-//           delete obj[key];
-//         } else if (typeof obj[key] === "object") {
-//           removeEmptyFields(obj[key]);
-//         }
-//       }
-//     }
-// }
+function removeEmptyFieldsDeep(obj) {
+  if (typeof obj === "object")
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (
+          obj[key] === null ||
+          obj[key] === undefined ||
+          (typeof obj[key] === "object" &&
+            Object.keys(obj[key]).length === 0) ||
+          (Array.isArray(obj[key]) && obj[key].length === 0) ||
+          (typeof obj[key] === "string" && obj[key].trim() === "")
+        ) {
+          delete obj[key];
+        } else if (typeof obj[key] === "object") {
+          removeEmptyFieldsDeep(obj[key]);
+        }
+      }
+    }
+}
 
 /**
  * Mô tả: kiểm tra 1 mảng có chứa các phần tử của 1 mảng khác không (chuyển tham chiếu thành string)
@@ -258,6 +269,17 @@ function formatDecimal(number) {
     return formattedNumber;
   }
 }
+function containsOnlyNumber(str) {
+  return /^\d+$/.test(str);
+}
+function isValidEmail(email) {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  return emailRegex.test(email);
+}
+function containsOnlyAlphanumeric(inputString) {
+  const regex = /^[a-zA-Z0-9]*$/;
+  return regex.test(inputString);
+}
 export {
   removeDiacritics,
   converGender,
@@ -275,4 +297,10 @@ export {
   stringifyJson,
   formatDecimal,
   converTitle,
+  containsOnlyNumber,
+  isValidEmail,
+  containsOnlyAlphanumeric,
+  removeEmptyFieldsDeep,
+  generateUniqueId,
+  isValidDate,
 };

@@ -10,9 +10,11 @@
               <div class="div-face-button hoverable receive">
                 <div class="title-button">Thu tiền</div>
               </div>
-              <div class="div-face-button hoverable payment">
-                <div class="title-button">Chi tiền</div>
-              </div>
+              <router-link :to="{ name: 'DepositWidthdrawList', params: {} }">
+                <div class="div-face-button hoverable payment">
+                  <div class="title-button">Chi tiền</div>
+                </div>
+              </router-link>
               <div class="div-face-button hoverable audit">
                 <div class="title-button">Kiểm kê quỹ</div>
               </div>
@@ -31,25 +33,31 @@
             </div>
           </div>
           <div class="dictionary-item hoverable flex-grow">
-            <div class="tooltip-content">
-              <div class="dictionary-content">
-                <div class="icon-wrapper">
-                  <div class="icon-v1 icon-v1--process-provider"></div>
+            <router-link :to="{ name: 'DISupplier', to: {} }">
+              <div class="tooltip-content">
+                <div class="dictionary-content">
+                  <div class="icon-wrapper">
+                    <div class="icon-v1 icon-v1--process-provider"></div>
+                  </div>
+                  <div class="text-center">Nhà cung cấp</div>
                 </div>
-                <div class="text-center">Nhà cung cấp</div>
               </div>
-            </div>
+            </router-link>
           </div>
+
           <div class="dictionary-item hoverable flex-grow">
-            <div class="tooltip-content">
-              <div class="dictionary-content">
-                <div class="icon-wrapper">
-                  <div class="icon-v1 icon-v1--process-employee"></div>
+            <router-link :to="{ name: 'DIEmployee', params: {} }">
+              <div class="tooltip-content">
+                <div class="dictionary-content">
+                  <div class="icon-wrapper">
+                    <div class="icon-v1 icon-v1--process-employee"></div>
+                  </div>
+                  <div class="text-center">Nhân viên</div>
                 </div>
-                <div class="text-center">Nhân viên</div>
               </div>
-            </div>
+            </router-link>
           </div>
+
           <div class="dictionary-item hoverable flex-grow">
             <div class="tooltip-content">
               <div class="dictionary-content">
@@ -78,7 +86,11 @@
     </div>
   </div>
 </template>
-<script setup></script>
+<script setup>
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+</script>
 <style scoped>
 @import url("./CastProcedure.css");
 </style>

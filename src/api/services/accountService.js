@@ -57,8 +57,11 @@ class AccountService extends BaseService {
    * @returns
    */
 
-  async exportExcelAccountList() {
+  async exportExcelAccountList(keySearch) {
     const res = await axios.get(`${this.getEndpoint()}/export-excel`, {
+      params: {
+        keySearch,
+      },
       responseType: "blob",
     });
     return res.data;

@@ -56,15 +56,8 @@ const mutations = {
     }
   },
 
-  SET_RESULT_BULK_ACTION(state, payload) {
-    state.resultBulkAction = { ...payload };
-  },
-  SET_PAYMENT_LIST_FAILURE(state, payload) {
+  SET_ALL_PAYMENT_FAILURE(state, payload) {
     state.paymentListFailure = structuredClone(payload);
-  },
-
-  SET_DIALOG_DETAIL(state, paylaod) {
-    state.dialogDetail = { ...paylaod };
   },
 };
 export default mutations;

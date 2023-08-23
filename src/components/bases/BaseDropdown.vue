@@ -86,7 +86,7 @@ export default {
     },
     idSelected: {
       type: [String, Number],
-      default: "",
+      default: null,
     },
     itemSelected: {
       type: Object,
@@ -145,8 +145,10 @@ export default {
       // add text cho input
       // valueInput.value = item[props.fieldShow];
       // emit event
-      ctx.emit("onClickIdSelect", item[props.fieldSelect]);
-      ctx.emit("onClickSelectItem", item);
+      if (item?.[props.fieldSelect] !== props?.idSelected) {
+        ctx.emit("onClickIdSelect", item[props.fieldSelect]);
+        ctx.emit("onClickSelectItem", item);
+      }
 
       // đóng dropdown
       toggleDrodown();

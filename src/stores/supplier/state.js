@@ -6,6 +6,7 @@ const state = {
   //   isShowPopup: false,
   //   type: "",
   // },
+  listSupplierExecuteFailure: [],
 };
 
 export default state;

@@ -119,7 +119,7 @@ label .errMsg {
 
 .combobox-container .icon-wrapper {
     border: 1px solid transparent;
-    background-color: #fff;
+    /* background-color: #fff; */
     /* border-left-color: #e6e6e6; */
 }
 
@@ -337,7 +337,7 @@ input[type="date"] {
     color: #000;
     width: 100%;
     outline: unset;
-    margin-top: 8px;
+    margin-top: 4px;
 }
 
 .textarea:focus {

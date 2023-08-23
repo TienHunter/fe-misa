@@ -7,7 +7,7 @@
     <span v-show="required" class="text-red">(*)</span>
     <input
       ref="inputRef"
-      class="input"
+      class="input text-right"
       :maxlength="maxLength"
       :type="inputType"
       :title="errMsg"
@@ -32,7 +32,7 @@
   </label>
 </template>
 <script>
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watchEffect } from "vue";
 export default {
   props: {
     disabled: {
@@ -61,7 +61,7 @@ export default {
     },
     maxLength: {
       type: Number,
-      default: 18,
+      default: 17,
     },
     errMsg: {
       type: String,
@@ -95,27 +95,53 @@ export default {
       type: String,
       default: "",
     },
+    maxValue: {
+      type: Number,
+      default: Number.MAX_VALUE,
+    },
+    minValue: {
+      type: Number,
+      default: Number.MIN_VALUE,
+    },
   },
   emits: ["update:modelValue", "emptyErrMsg"],
 
   setup(props, ctx) {
     const inputRef = ref(null);
+    // const inputValue = ref("0");
+
+    // onMounted(() => {
+    //   if (typeof props.modelValue === "number" && !isNaN(props.modelValue)) {
+    //     inputValue.value = Math.abs(props.modelValue).toLocaleString();
+    //   }
+    // });
     const inputValue = computed(() => {
       if (typeof props.modelValue === "number" && !isNaN(props.modelValue)) {
         return Math.abs(props.modelValue).toLocaleString();
-      } else return 0;
+      }
+      return "0";
     });
+
     const handleChangeInput = (e) => {
       let value = e.target.value;
       // Xóa tất cả các ký tự không phải là số từ giá trị input
       value = value.replace(/[^\d]/g, "");
-      console.log(value);
+      // console.log(value);
+
       // Gán giá trị đã được định dạng lại vào input
 
       // Định dạng phần ngàn với dấu chấm để ngăn cách hàng nghìn
-      const formattedValue = Number(value);
+      let formattedValue = Number(value);
+      console.log(formattedValue);
+      if (formattedValue < props.minValue) {
+        formattedValue = props.minValue;
+      }
+      if (formattedValue > props.maxValue) {
+        formattedValue = props.maxValue;
+      }
       // console.log(formattedValue);
-      inputValue.value = value;
+      e.target.value = formattedValue.toLocaleString();
+      // inputValue.value = formattedValue.toLocaleString();
       ctx.emit("update:modelValue", formattedValue);
       ctx.emit("emptyErrMsg");
     };

@@ -170,6 +170,7 @@
   </div>
   <SupplierDetail v-if="popupStatus.isShowPopup" />
   <SupplierDialog v-if="dialog?.isShow" />
+  <SupplierNotice v-if="dialogDetail.show" />
   <b-toast-message v-if="toast?.isShow" />
   <b-loading v-if="isLoading" />
 </template>
@@ -206,7 +207,7 @@ import SupplierTable from "../../supplier/SupplierTable/SupplierTable.vue";
 import SupplierPaging from "../../supplier/SupplierPaging/SupplierPaging.vue";
 import SupplierDetail from "../../supplier/SupplierDetail/SupplierDetail.vue";
 import SupplierDialog from "../../supplier/SupplierDialog/SupplierDialog.vue";
-
+import SupplierNotice from "../../supplier/SupplierNotice/SupplierNotice.vue";
 //---------------start state-----------------
 const store = useStore();
 const popupStatus = computed(() => store.state.global.popupStatus);
@@ -217,6 +218,7 @@ const filterAndPaging = computed(() => store.state.global.filterAndPaging);
 const supplierIdListChecked = computed(
   () => store.state.supplier.supplierIdListChecked
 );
+const dialogDetail = computed(() => store.state.global.dialogDetail);
 const supplierSearch = ref("");
 const debounceSearch = useDebounce(supplierSearch, 600);
 const isShowActionMulti = ref(false);
@@ -233,7 +235,7 @@ watch(debounceSearch, () => {
     keySearch: debounceSearch,
     pageNumber: 1,
   });
-  store.dispatch("getSupplierIdListCkecked");
+  // store.dispatch("getSupplierIdListCkecked");
   store.dispatch("getSupplierList");
 });
 watchEffect(() => {
@@ -254,6 +256,10 @@ onBeforeMount(async () => {
     keySearch: "",
   });
   await store.dispatch("getSupplierList");
+});
+
+watch(popupStatus, () => {
+  store.dispatch("getErrsValidate", {});
 });
 //-- end lifecycle-----
 

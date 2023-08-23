@@ -52,6 +52,28 @@ const actions = {
   getPopupStatus({ commit }, payload) {
     commit("SET_POPUP_STATUS", payload);
   },
+
+  /**
+   * Mô tả: gán giá trị các biến ở thông báo kết quả thực hiện hàng loạt
+   * created by : vdtien
+   * created date: 19-08-2023
+   * @param {type} param -
+   * @returns
+   */
+  getResultBulkAction({ state, commit, dispatch }, payload) {
+    commit("SET_RESULT_BULK_ACTION", payload);
+  },
+
+  /**
+   * Mô tả: gán thông số cho form thông báo chi tiết
+   * created by : vdtien
+   * created date: 19-08-2023
+   * @param {type} param -
+   * @returns
+   */
+  getDialogDetail({ state, commit, dispatch }, paylaod) {
+    commit("SET_DIALOG_DETAIL", paylaod);
+  },
 };
 function hanldeException(dispatch, ex) {
   console.log(ex);

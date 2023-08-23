@@ -95,13 +95,17 @@
                       maxWidth: `${field?.maxWidth}px`,
                     }"
                     :class="{
-                      'font-bold': item?.IsParent,
+                      'font-bold': item?.IsParent && tree,
                       [field?.class]: true,
                     }"
                     :title="item[field?.name]">
                     <span
                       v-if="field?.name === fieldShow"
-                      :style="{ 'padding-left': `${24 * item?.Grade ?? 0}px` }">
+                      :style="{
+                        'padding-left': tree
+                          ? `${24 * item?.Grade ?? 0}px`
+                          : '',
+                      }">
                       {{ item[field.name] }}</span
                     >
                     <span v-else>{{ item[field?.name] }}</span>
@@ -142,6 +146,10 @@ export default {
   //---start props-----
   props: {
     disabled: {
+      type: Boolean,
+      default: false,
+    },
+    tree: {
       type: Boolean,
       default: false,
     },
@@ -282,7 +290,6 @@ export default {
         emit("loadDataFilter", debounceSearch.value);
       } else if (props.isReload === false && !isLoading.value) {
         // filter ở client
-
         dataListFilter.value = props.dataList.filter((item) =>
           removeDiacritics(`${item[props.fieldShow]}`.toLowerCase()).includes(
             removeDiacritics(debounceSearch.value.toLowerCase())
@@ -448,11 +455,8 @@ export default {
       // if(e.key === "ArrowUp" ||e.key === "ArrowDown" )
       isShowCombobox.value = true;
       searchValue.value = e.target.value;
-      emit("onClickIdSelected", "");
-      emit("addValueSelected", {
-        [props.fieldSelect]: "",
-        [props.fieldShow]: "",
-      });
+      emit("onClickIdSelected", null);
+      emit("addValueSelected", null);
       isLoading.value = false;
       // itemSelected.value = {};
       selectedIndex.value = -1;
@@ -498,18 +502,6 @@ export default {
               onClickComboboxItem(itemSelect);
             }
           }
-          // else {
-          //   // nếu không chọn thì trả về item selected trước đó nếu có
-          //   if (itemSelected.value) {
-          //     searchValue.value = itemSelected?.value?.[props.fieldShow] ?? "";
-          //   } else {
-          //   }
-
-          //   isShowCombobox.value = !isShowCombobox.value;
-          // }
-          // } else {
-          //   isShowCombobox.value = !isShowCombobox.value;
-          // }
           isShowCombobox.value = !isShowCombobox.value;
         }
       } else if (e.key === "Tab") {

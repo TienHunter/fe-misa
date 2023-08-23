@@ -248,8 +248,17 @@ const onClickToggleShowChild = async (item) => {
  * @returns
  */
 const onClickDeleteAccount = (item) => {
-  console.log(item);
+  // console.log(item);
   toggleTableAction(item);
+  if (item?.IsParent === 1) {
+    store.dispatch("getDialog", {
+      isShow: true,
+      type: DialogType.error,
+      title: DialogTitle.error,
+      content: [DialogContent.accountHasChildren],
+    });
+    return;
+  }
   store.dispatch("getAccountDetail", item);
   store.dispatch("getDialog", {
     isShow: true,

@@ -9,7 +9,7 @@ import {
   TypeBulkUpdate,
   TypeUpdate,
 } from "@/enums";
-import { convertToYYYYMMDD } from "@/utils/helper";
+import { convertToYYYYMMDD, removeEmptyFieldsDeep } from "@/utils/helper";
 const actions = {
   /**
    * Mô tả: lấy danh sách phiếu chi theo từ khóa và phân trang
@@ -128,10 +128,8 @@ const actions = {
       }
       let res = await paymentService.createRecord(payment);
       if (res) {
-        commit("CREATE_PAYMENT", res);
-        dispatch("getPaymentDetail", {
-          ...res,
-        });
+        commit("CREATE_PAYMENT", structuredClone(res));
+        dispatch("getPaymentDetail", structuredClone(res));
         dispatch("getTotalRecords", rootState.global.totalRecords + 1);
         // ghi sổ không thành công
         if (res?.ListUesrMsg?.length > 0) {
@@ -172,23 +170,29 @@ const actions = {
    */
   async updatePayment({ state, rootState, commit, dispatch }, payload) {
     const { payment, type } = payload;
+    const paymentSend = structuredClone(payment);
     const paymentPrev = { ...state.paymentDetail };
     const accountingsOld = paymentPrev.Accountings;
-    const accountingsNew = payment.Accountings;
+    const accountingsNew = paymentSend?.Accountings ?? [];
     const changeAccountings = compareArrays(
       accountingsOld,
       accountingsNew,
       "AccountingId"
     );
-    payment.Accountings = [...changeAccountings];
+
+    paymentSend.Accountings = [...changeAccountings];
+    // removeEmptyFieldsDeep(paymentSend);
     // const tmpAccountings = changeAccountings.filter(
     //   (accounting) => accounting.StatusAction !== StaticRange.noChange
     // );
     try {
       dispatch("toggleLoading");
-      let res = await paymentService.updateRecord(payment, payment.PaymentId);
+      let res = await paymentService.updateRecord(
+        paymentSend,
+        paymentSend.PaymentId
+      );
       if (res) {
-        commit("UPDATE_PAYMENT", res);
+        commit("UPDATE_PAYMENT", structuredClone(res));
         dispatch("getPaymentDetail", structuredClone(res));
         dispatch("getTotalRecords", rootState.global.totalRecords + 1);
         // ghi sổ không thành công
@@ -344,13 +348,16 @@ const actions = {
             });
             break;
           case PaymentStatus.written:
-            if (Array.isArray(res?.ListPayment) && res.ListPayment.length > 0) {
+            if (
+              Array.isArray(res?.ListRecordFailure) &&
+              res.ListRecordFailure.length > 0
+            ) {
               dispatch("getResultBulkAction", {
-                totalPayemntExceute: res?.Total ?? 0,
-                totalPaymentExcuteSuccess: res?.Success ?? 0,
-                totalPaymentExcuteFailure: res?.Failure ?? 0,
+                totalRecordExceute: res?.Total ?? 0,
+                totalRecordExcuteSuccess: res?.Success ?? 0,
+                totalRecordExcuteFailure: res?.Failure ?? 0,
               });
-              dispatch("getPaymentListFailure", res?.ListPayment ?? []);
+              dispatch("getAllPaymentFailure", res?.ListRecordFailure ?? []);
               dispatch("getDialogDetail", {
                 show: true,
                 title: "Chứng từ không thực hiện ghi sổ được",
@@ -400,7 +407,7 @@ const actions = {
             pageNumber: 1,
           });
           dispatch("getPaymentIdListCkecked");
-          await dispatch("getPaymentList");
+          dispatch("getPaymentList");
         } else {
           dispatch("getFilterAndPaging", {
             ...rootState.global.filterAndPaging,
@@ -409,11 +416,11 @@ const actions = {
           dispatch("getPaymentIdListCkecked");
           dispatch("getPaymentList");
           dispatch("getResultBulkAction", {
-            totalPayemntExceute: res?.Total ?? 0,
-            totalPaymentExcuteSuccess: res?.Success ?? 0,
-            totalPaymentExcuteFailure: res?.Failure ?? 0,
+            totalRecordExceute: res?.Total ?? 0,
+            totalRecordExcuteSuccess: res?.Success ?? 0,
+            totalRecordExcuteFailure: res?.Failure ?? 0,
           });
-          dispatch("getPaymentListFailure", res?.ListPayment ?? []);
+          dispatch("getAllPaymentFailure", res?.ListRecordFailure ?? []);
           dispatch("getDialogDetail", {
             show: true,
             title: "Kết quả xóa chứng từ",
@@ -430,36 +437,52 @@ const actions = {
   },
 
   /**
-   * Mô tả: gán giá trị các biến ở thông báo kết quả thực hiện hàng loạt
+   * Mô tả: xuất excel danh sách phiếu chi theo nhà cung cáp
    * created by : vdtien
-   * created date: 19-08-2023
+   * created date: 22-08-2023
    * @param {type} param -
    * @returns
    */
-  getResultBulkAction({ state, commit, dispatch }, payload) {
-    commit("SET_RESULT_BULK_ACTION", payload);
+  async exportExcelPaymentList({ state, commit, dispatch }) {
+    try {
+      dispatch("toggleLoading");
+
+      let res = await paymentService.exportExcelPaymentList(
+        state?.filterAndPaging?.keySearch ?? ""
+      );
+      if (res) {
+        //https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios
+        // create file link in browser's memory
+        const href = URL.createObjectURL(res);
+
+        // create "a" HTML element with href to file & click
+        const link = document.createElement("a");
+        link.href = href;
+        link.setAttribute("download", `Danh_sach_phieu_chi_${Date.now()}.xlsx`); //or any other extension
+        document.body.appendChild(link);
+        link.click();
+
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link);
+        URL.revokeObjectURL(href);
+      }
+    } catch (error) {
+      // console.log(error);
+      hanldeException(dispatch, error);
+    } finally {
+      dispatch("toggleLoading");
+    }
   },
 
   /**
-   * Mô tả: gán danh sách phiếu chi thực hiện không thành công vào store
+   * Mô tả: gán danh sách record thực hiện không thành công vào store
    * created by : vdtien
    * created date: 20-08-2023
    * @param {type} param -
    * @returns
    */
-  getPaymentListFailure({ state, commit, dispatch }, payload) {
-    commit("SET_PAYMENT_LIST_FAILURE", payload);
-  },
-
-  /**
-   * Mô tả: gán thông số cho form thông báo chi tiết
-   * created by : vdtien
-   * created date: 19-08-2023
-   * @param {type} param -
-   * @returns
-   */
-  getDialogDetail({ state, commit, dispatch }, paylaod) {
-    commit("SET_DIALOG_DETAIL", paylaod);
+  getAllPaymentFailure({ state, commit, dispatch }, payload) {
+    commit("SET_ALL_PAYMENT_FAILURE", payload);
   },
 };
 function compareArrays(oldArray, newArray, key) {

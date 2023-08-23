@@ -263,7 +263,7 @@ const actions = {
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
-          content: ToastContent.updateAccountSuccess(account.AccountCde),
+          content: ToastContent.updateAccountSuccess(account.AccountCode),
         });
         dispatch("getAccountDetail");
         dispatch("getPopupStatus");
@@ -329,11 +329,13 @@ const actions = {
    * @param {type} param -
    * @returns
    */
-  async exportExcelAccountList({ state, commit, dispatch }) {
+  async exportExcelAccountList({ state, rootState, commit, dispatch }) {
     try {
       dispatch("toggleLoading");
 
-      let res = await AccountService.exportExcelAccountList();
+      let res = await AccountService.exportExcelAccountList(
+        rootState?.global?.filterAndPaging?.keySearch ?? ""
+      );
       if (res) {
         //https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios
         // create file link in browser's memory

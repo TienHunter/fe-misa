@@ -130,8 +130,8 @@
 .dropdown-item--selected {
   color: #fff;
   background-color: #50b83c;
-  pointer-events: none;
-  cursor: not-allowed;
+  /* pointer-events: none; */
+  /* cursor: not-allowed; */
 }
 
 /* .dropdowm-item--selected:hover {

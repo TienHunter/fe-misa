@@ -35,7 +35,9 @@
             :placeholder="placeHolder"
             :value="searchValue"
             @input="handleChangeInput"
-            @keydown="handleKeyDown" />
+            @keydown="handleKeyDown"
+            @focus="focus"
+            @blur="blur" />
         </div>
         <div class="flex items-center">
           <div v-show="props.add" class="icon-wrapper btn-add h-full">
@@ -350,6 +352,7 @@ const handleScrollList = async () => {
 
 const focus = () => {
   inputRef.value.focus();
+  select();
 };
 const select = () => {
   inputRef.value.select();
@@ -435,6 +438,12 @@ const handleKeyDown = (e) => {
     searchValue.value = "";
     isShowCombobox.value = false;
     selectedIndex.value = -1;
+  }
+};
+
+const blur = () => {
+  if (searchValue.value) {
+    searchValue.value = "";
   }
 };
 

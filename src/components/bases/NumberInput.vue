@@ -108,13 +108,7 @@ export default {
 
   setup(props, ctx) {
     const inputRef = ref(null);
-    // const inputValue = ref("0");
 
-    // onMounted(() => {
-    //   if (typeof props.modelValue === "number" && !isNaN(props.modelValue)) {
-    //     inputValue.value = Math.abs(props.modelValue).toLocaleString();
-    //   }
-    // });
     const inputValue = computed(() => {
       if (typeof props.modelValue === "number" && !isNaN(props.modelValue)) {
         return Math.abs(props.modelValue).toLocaleString();

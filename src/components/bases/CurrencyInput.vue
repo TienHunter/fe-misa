@@ -65,7 +65,11 @@ const props = defineProps({
   },
   maxLength: {
     type: Number,
-    default: 17,
+    default: 15,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
   label: {
     type: String,

@@ -14,8 +14,7 @@
           <div
             ref="btnClose"
             class="popup-header-actions__close"
-            title="Đóng - ESC"
-            :tabindex="21"
+            :title="FreeText.closeEsc"
             @click="onClosePopup"
             @keydown.tab.stop="">
             <div class="icon-wrapper">
@@ -28,19 +27,19 @@
         <div class="result-synthetic">
           <div class="flex items-center gap-0-24 pb-4">
             <div class="flex items-center">
-              <span>Số chứng từ được xử lý</span>
+              <span>{{ FreeText.numberOfProcessingDocuments }}</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExceute ?? 0
               }}</span>
             </div>
             <div class="flex items-center">
-              <span>Số chứng từ thành công</span>
+              <span>{{ FreeText.numberOfDocumentsProcessedSuccessfully }}</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExcuteSuccess ?? 0
               }}</span>
             </div>
             <div class="flex items-center">
-              <span>Số chứng từ không thành công</span>
+              <span>{{ FreeText.numberOfDocumentsProcessedFailed }}</span>
               <span class="pl-1 font-bold">{{
                 resultBulkAction?.totalRecordExcuteFailure ?? 0
               }}</span>
@@ -51,7 +50,7 @@
           <div class="w-250">
             <b-textfield
               class-input="m-0"
-              place-holder="Nhập từ khóa tìm kiếm"
+              :place-holder="FreeText.search"
               class-icon="icon icon--search-small" />
           </div>
         </div>
@@ -134,7 +133,7 @@
       <div class="popup__footer flex justify-end items-center p-4">
         <b-button
           ref="btnStore"
-          title="Đóng"
+          :title="FreeText.close"
           type="primary"
           size="mini"
           :tab-index="18"
@@ -227,5 +226,8 @@ const onOpenPopupView = async (type, id) => {
 }
 .col-key:hover {
   text-decoration: underline;
+}
+ul {
+  list-style: none;
 }
 </style>

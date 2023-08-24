@@ -30,6 +30,16 @@ td {
     user-select: none;
 }
 
+td span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+td:last-child {
+    overflow: unset;
+}
+
 th.before-last,
 td.before-last {
     border-right: unset;

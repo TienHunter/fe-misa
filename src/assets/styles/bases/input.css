@@ -119,7 +119,12 @@ label .errMsg {
 
 .combobox-container .icon-wrapper {
     border: 1px solid transparent;
-    /* background-color: #fff; */
+    background-color: #fff;
+    /* border-left-color: #e6e6e6; */
+}
+
+.combobox-container .select-option .icon-wrapper {
+    background-color: transparent;
     /* border-left-color: #e6e6e6; */
 }
 

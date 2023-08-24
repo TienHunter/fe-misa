@@ -127,24 +127,24 @@
                   <b-textfield
                     v-model="searchValue"
                     class-input="m-0"
-                    place-holder="Tìm kiến"
+                    :place-holder="FreeText.search"
                     class-icon="icon icon--search-small" />
                 </div>
                 <div
                   class="icon-wrapper content-body-tools__refresh"
-                  title="Tải lại"
+                  :title="FreeText.reload"
                   @click="onClickRefreshPage">
                   <div class="icon icon--refresh"></div>
                 </div>
                 <div
                   class="icon-wrapper content-body-tools__export-excel"
-                  title="Xuất file"
+                  :title="FreeText.exportExcel"
                   @click="exportExcelPaymentList">
                   <div class="icon icon--excel"></div>
                 </div>
                 <b-button
                   :type="ButtonType.combo"
-                  :title="'Chi tiền'"
+                  :title="FreeText.spneding"
                   round
                   size="mini"
                   :on-click="onOpenPopupCreate">
@@ -172,7 +172,7 @@
 <script setup>
 import { computed, onBeforeMount, ref, watch, watchEffect } from "vue";
 import { useStore } from "vuex";
-import { ButtonTitle } from "@/resources";
+import { ButtonTitle, FreeText } from "@/resources";
 import { ButtonType, PaymentStatus, PopupType, TypeClickButton } from "@/enums";
 import { useClickOutside, useDebounce } from "@/hooks";
 import DepositWidthdrawTable from "../DepositWithdrawTable/DepositWithdrawTable.vue";
@@ -253,7 +253,7 @@ const onOpenPopupCreate = async () => {
   store.dispatch("getPaymentDetail", {
     PaymentDate: convertToYYYYMMDD(new Date().toLocaleDateString("en-US")),
     AccountingDate: convertToYYYYMMDD(new Date().toLocaleDateString("en-US")),
-    ReasonSpending: "Chi tiền cho ",
+    ReasonSpending: FreeText.spendingFor,
   });
 
   // sinh mã phiếu chi mới

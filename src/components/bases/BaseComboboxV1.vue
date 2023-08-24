@@ -264,7 +264,6 @@ export default {
     //-------lifecycle
 
     onBeforeMount(() => {
-      isLoading.value = true;
       emit("loadDataFilter");
     });
 
@@ -319,7 +318,7 @@ export default {
     });
     watchEffect(() => {
       dataListFilter.value = [...props.dataList];
-      isLoading.value = false;
+      // isLoading.value = false;
     });
     // watchEffect(() => {
     //   searchValue.value = props?.valueSelected?.[props.fieldShow] ?? "";
@@ -382,24 +381,15 @@ export default {
             showLeft.value = true;
             positionList.value.left = positionCombobox.value.left;
           }
-          // console.log(
-          //   positionCombobox.value,
-          //   listDataWrapperRef.value.getBoundingClientRect(),
-          //   windowHeight,
-          //   windowWidth
-          // );
         });
       }
     });
-    //kiểm tra sự thay đổi của idSelected
-    // watch(props.idSelected, () => {});
 
     // ---------end lifecycle
 
     //----------start medthos
     // focus input
     const handleScrollList = async () => {
-      // console.log("scrol...");
       const clientHeight = listDataRef.value.clientHeight;
       const scrollHeight = listDataRef.value.scrollHeight;
       const maxScroll = scrollHeight - clientHeight;
@@ -436,8 +426,8 @@ export default {
     // chọn item được selected
     const onClickComboboxItem = (item) => {
       focus();
-      itemSelected.value = item;
-      searchValue.value = item?.[props?.fieldShow] ?? "";
+      // itemSelected.value = item;
+      // searchValue.value = item?.[props?.fieldShow] ?? "";
       isLoading.value = true;
       // emit idSelected ra cho component cha
       emit("onClickIdSelected", item[props.fieldSelect]);
@@ -502,7 +492,7 @@ export default {
               onClickComboboxItem(itemSelect);
             }
           }
-          isShowCombobox.value = !isShowCombobox.value;
+          isShowCombobox.value = false;
         }
       } else if (e.key === "Tab") {
         // tìm value input theo idSelected trước đó

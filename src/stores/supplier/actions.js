@@ -4,12 +4,13 @@ import {
   DialogType,
   PopupType,
   StatusCode,
+  SupplierType,
   ToastType,
   TypeStore,
 } from "@/enums";
-import { DialogTitle, ToastContent } from "@/resources";
+import { DialogTitle, FreeText, ToastContent } from "@/resources";
 import { convertToYYYYMMDD, parseJson, stringifyJson } from "@/utils/helper";
-import { hanldeException } from "../global/actions";
+import { handleException } from "../global/actions";
 const actions = {
   /**
    *
@@ -24,7 +25,7 @@ const actions = {
       commit("SET_SUPPLIER_LIST", data);
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -61,7 +62,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -99,7 +100,7 @@ const actions = {
       }
     } catch (error) {
       // console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -121,7 +122,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -139,14 +140,9 @@ const actions = {
       dispatch("toggleLoading");
       const data = await SuppliersService.getNewCode();
       if (data) commit("SET_NEW_SUPPLIER_CODE", data);
-      // chuyển supplierCode sang dạng NV-<mã số>
-      // if (data) {
-      //   let newSupplierCode = `NV-${data}`;
-      //   commit("SET_NEW_SUPPLIER_CODE", newSupplierCode);
-      // }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -178,14 +174,12 @@ const actions = {
           DeliverAddress:
             res?.DeliverAddress?.length > 0 ? res.DeliverAddress : [],
         };
-        // add nhân viên mới vào đầu danh sách
-        // res đang trả về chỉ là 1 nếu thành công thì không ổn, cần trả về bản ghi mới để lấy id bản ghi
 
         commit("CREATE_SUPPLIER", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
-          content: ToastContent.createRecordSuccess("nhà cung cấp"),
+          content: ToastContent.createRecordSuccess(FreeText.supplier),
         });
         dispatch("getSupplierDetail");
         dispatch("getTotalRecords", rootState.global.totalRecords + 1);
@@ -193,8 +187,15 @@ const actions = {
         dispatch("getPopupStatus");
         if (typeStore === TypeStore.store) {
         } else if (typeStore === TypeStore.storeAndAdd) {
-          const data = await SuppliersService.getNewSuppliercode();
-          if (data) commit("SET_NEW_SUPPLIER_CODE", data);
+          const data = await SuppliersService.getNewCode();
+          dispatch("getSupplierDetail", {
+            SupplierCode: data,
+            SupplierType: SupplierType.organization,
+            ContractInfor: {},
+            GroupSuppliersId: [],
+            BanksAccount: [{}],
+            DeliverAddress: [],
+          });
           dispatch("getPopupStatus", {
             isShowPopup: true,
             type: PopupType.create,
@@ -206,7 +207,7 @@ const actions = {
     } catch (error) {
       // console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -235,7 +236,7 @@ const actions = {
           isShow: true,
           type: ToastType.success,
           content: ToastContent.updateRecordSuccess(
-            "nhà cung cấp",
+            FreeText.supplier,
             supplier.SupplierCode
           ),
         });
@@ -243,8 +244,15 @@ const actions = {
         dispatch("getPopupStatus");
         if (typeStore === TypeStore.store) {
         } else if (typeStore === TypeStore.storeAndAdd) {
-          const data = await SuppliersService.getNewSuppliercode();
-          if (data) commit("SET_NEW_SUPPLIER_CODE", data);
+          const data = await SuppliersService.getNewCode();
+          dispatch("getSupplierDetail", {
+            SupplierCode: data,
+            SupplierType: SupplierType.organization,
+            ContractInfor: {},
+            GroupSuppliersId: [],
+            BanksAccount: [{}],
+            DeliverAddress: [],
+          });
           dispatch("getPopupStatus", {
             isShowPopup: true,
             type: PopupType.create,
@@ -255,7 +263,7 @@ const actions = {
     } catch (error) {
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -282,7 +290,7 @@ const actions = {
           isShow: true,
           type: ToastType.success,
           content: ToastContent.deleteRecordSuccess(
-            "Nhà cung cấp",
+            FreeText.supplier,
             supplier.SupplierCode
           ),
         });
@@ -295,12 +303,19 @@ const actions = {
     } catch (error) {
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
   },
 
+  /**
+   * Mô tả: xóa hàng loạt nhà cung cấp
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   async deleteMultiSupplier({ state, rootState, commit, dispatch }) {
     try {
       // console.log(state.supplierIdListChecked);
@@ -315,7 +330,7 @@ const actions = {
           dispatch("getToast", {
             isShow: true,
             type: ToastType.success,
-            content: ToastContent.deleteMultiRecordSuccess("nhà cung cấp"),
+            content: ToastContent.deleteMultiRecordSuccess(FreeText.supplier),
           });
         } else {
           dispatch("getResultBulkAction", {
@@ -326,8 +341,7 @@ const actions = {
           dispatch("getAllSupplierFailure", res?.ListRecordFailure ?? []);
           dispatch("getDialogDetail", {
             show: true,
-            title: "Kết quả nhà cung cấp",
-            type: "xoa",
+            title: FreeText.resultDeleteSupplier,
           });
         }
 
@@ -342,7 +356,7 @@ const actions = {
       dispatch("toggleLoading");
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     }
   },
 
@@ -357,6 +371,13 @@ const actions = {
     commit("SET_SUPPLIER_DETAIL", payload);
   },
 
+  /**
+   * Mô tả: gán danh sách id nhà cung cấp được chọn vào state
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   getSupplierIdListCkecked({ state, commit, dispatch }, payload) {
     commit("SET_LIST_SUPPLIER_LIST_CHECKED", payload);
   },

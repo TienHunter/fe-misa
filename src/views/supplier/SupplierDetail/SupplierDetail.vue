@@ -99,7 +99,7 @@ divdiv
                       v-model="supplierInfo.SupplierCode"
                       required
                       label="Mã nhà cung cấp"
-                      :max-length="MaxLength.code"
+                      :max-length="MaxLength.code - 2"
                       :err-msg="errsValidator?.SupplierCode?.join('') ?? ''"
                       @empty-err-msg="
                         () => {
@@ -115,7 +115,7 @@ divdiv
                       v-model="supplierInfo.SupplierCode"
                       required
                       label="Mã nhà cung cấp"
-                      :max-length="MaxLength.code"
+                      :max-length="MaxLength.code - 2"
                       :err-msg="errsValidator?.SupplierCode?.join('') ?? ''"
                       @empty-err-msg="
                         () => {
@@ -167,6 +167,7 @@ divdiv
                         field-select="id"
                         field-show="value"
                         place-holder="Xưng hộ"
+                        :max-length="MaxLength.default"
                         :id-selected="supplierInfo.ContractInfor.Vocative"
                         @on-click-id-selected="
                           (id) => (supplierInfo.ContractInfor.Vocative = id)
@@ -215,6 +216,7 @@ divdiv
                   <b-textfield
                     :ref="errRefs.PhoneNumber"
                     v-model="supplierInfo.PhoneNumber"
+                    :max-length="MaxLength.phoneNumber"
                     label="Điện thoại"
                     :err-msg="errsValidator?.PhoneNumber?.join('') ?? ''"
                     @empty-err-msg="
@@ -228,6 +230,7 @@ divdiv
                   <b-textfield
                     :ref="errRefs.Website"
                     v-model="supplierInfo.Website"
+                    :max-length="MaxLength.default"
                     label="Website" />
                 </div>
               </div>
@@ -239,6 +242,7 @@ divdiv
                   :field-select="fieldSelectGroupSuppliers"
                   :field-show="fieldShowGroupSuppliers"
                   :data-list="dataGroupSuppliers"
+                  :max-length="MaxLength.name"
                   :ids-selected="supplierInfo.GroupSuppliersId"
                   @on-click-ids-selected="
                     (idsSelected) =>
@@ -250,7 +254,7 @@ divdiv
                 <BaseComboboxV1
                   label="Nhân viên mua hàng"
                   add
-                  :max-length="MaxLength.default"
+                  :max-length="MaxLength.name"
                   is-reload-scroll
                   is-reload
                   :fields="fieldsEmployee"
@@ -350,6 +354,7 @@ divdiv
                       <div class="flex items-center justify-center pb-2">
                         <div class="w-2/5 pr-2">
                           <b-combobox
+                            :max-length="MaxLength.name"
                             :data-list="vocatives"
                             field-select="id"
                             field-show="value"
@@ -363,6 +368,7 @@ divdiv
                         <div class="w-3/5">
                           <b-textfield
                             v-model="supplierInfo.ContractInfor.Fullname"
+                            :max-length="MaxLength.name"
                             place-holder="Họ và tên" />
                         </div>
                       </div>
@@ -370,6 +376,7 @@ divdiv
                         <b-textfield
                           :ref="errRefs.Email"
                           v-model="supplierInfo.ContractInfor.Email"
+                          :max-length="MaxLength.email"
                           place-holder="Email"
                           :err-msg="errsValidator?.Email?.join('') ?? ''"
                           @empty-err-msg="
@@ -382,6 +389,7 @@ divdiv
                         <b-textfield
                           :ref="errRefs.MobilePhoneNumber"
                           v-model="supplierInfo.ContractInfor.PhoneNumber"
+                          :max-length="MaxLength.phoneNumber"
                           place-holder="Số điện thoại"
                           :err-msg="
                             errsValidator?.MobilePhoneNumber?.join('') ?? ''
@@ -404,6 +412,7 @@ divdiv
                         <b-textfield
                           :ref="errRefs.Email"
                           v-model="supplierInfo.ContractInfor.Email"
+                          :max-length="MaxLength.email"
                           place-holder="Email"
                           :err-msg="errsValidator?.Email?.join('') ?? ''"
                           @empty-err-msg="
@@ -417,6 +426,7 @@ divdiv
                           <b-textfield
                             :ref="errRefs.MobilePhoneNumber"
                             v-model="supplierInfo.ContractInfor.PhoneNumber"
+                            :max-length="MaxLength.phoneNumber"
                             place-holder="Điện thoại di động"
                             :err-msg="
                               errsValidator?.MobilePhoneNumber?.join('') ?? ''
@@ -433,6 +443,7 @@ divdiv
                           <b-textfield
                             :ref="errRefs.PhoneNumber"
                             v-model="supplierInfo.PhoneNumber"
+                            :max-length="MaxLength.phoneNumber"
                             place-holder="Điện thoại cố định"
                             :err-msg="
                               errsValidator?.PhoneNumber?.join('') ?? ''
@@ -456,6 +467,7 @@ divdiv
                       class="w-full">
                       <b-textfield
                         v-model="supplierInfo.ContractInfor.LegalRepresentative"
+                        :max-length="MaxLength.default"
                         label="Đại diện theo PL"
                         title-label="Đại diện theo pháp luật"
                         place-holder="Đại diện theo PL" />
@@ -471,6 +483,7 @@ divdiv
                       class="w-full">
                       <b-textfield
                         v-model="supplierInfo.ContractInfor.LegalRepresentative"
+                        :max-length="MaxLength.default"
                         label="Đại diện theo PL"
                         title-label="Đại diện theo pháp luật"
                         place-holder="Đại diện theo PL" />
@@ -488,12 +501,13 @@ divdiv
                           v-model="
                             supplierInfo.ContractInfor.FullnameReceiverBill
                           "
-                          label=""
+                          :max-length="MaxLength.name"
                           place-holder="Họ và tên" />
                       </div>
                       <div class="w-full pb-2">
                         <b-textfield
                           v-model="supplierInfo.ContractInfor.EmailReceiverBill"
+                          :max-length="MaxLength.default"
                           place-holder='Email (Ngăn cách nhiều Email bằng dấu ";"")' />
                       </div>
                       <div class="w-1/2">
@@ -502,6 +516,7 @@ divdiv
                           v-model="
                             supplierInfo.ContractInfor.PhoneNumberReceiverBill
                           "
+                          :max-length="MaxLength.phoneNumber"
                           place-holder="Số điện thoại"
                           :err-msg="
                             errsValidator?.PhoneNumberReceiverBill?.join('') ??
@@ -528,6 +543,7 @@ divdiv
                         <b-textfield
                           :ref="errRefs.IdentityNumber"
                           v-model="supplierInfo.ContractInfor.IdentityNumber"
+                          :max-length="MaxLength.identity"
                           place-holder="Số CMND/Thẻ căn cước"
                           :err-msg="
                             errsValidator?.IdentityNumber?.join('') ?? ''
@@ -554,6 +570,7 @@ divdiv
                       <div class="w-full">
                         <b-textfield
                           v-model="supplierInfo.ContractInfor.IdentityPlace"
+                          :max-length="MaxLength.default"
                           place-holder="Nơi cấp" />
                       </div>
                     </div>
@@ -654,7 +671,7 @@ divdiv
                   </div>
                 </div>
                 <div
-                  v-if="tabContent === tabsContentValue.banksAccount"
+                  v-show="tabContent === tabsContentValue.banksAccount"
                   class="tab-content">
                   <div class="grid-mode-control">
                     <div class="h-full w-full position-relative">
@@ -724,57 +741,50 @@ divdiv
                               @click="indexFocusBankAccount = index">
                               <td class="px-3">
                                 <div class="flex items-center">
-                                  <textarea
-                                    v-if="indexFocusBankAccount === index"
+                                  <b-textfield
+                                    :ref="banksRef[index]"
                                     v-model="bank.BankAccountNumber"
-                                    v-auto-focus
-                                    rows="1"
-                                    class="td-textarea" />
-                                  <div v-else class="flex items-center">
-                                    {{ bank.BankAccountNumber }}
-                                  </div>
+                                    :max-length="MaxLength.phoneNumber"
+                                    :err-msg="
+                                      errsValidator?.BanksAccount?.length > 0 &&
+                                      errsValidator?.BanksAccount?.[index]
+                                        ?.length > 0
+                                        ? errsValidator?.BanksAccount?.[
+                                            index
+                                          ].join('')
+                                        : ''
+                                    "
+                                    @empty-err-msg="
+                                      () => {
+                                        if (
+                                          errsValidator?.BanksAccount?.length >=
+                                          0
+                                        )
+                                          errsValidator.BanksAccount[index] =
+                                            '';
+                                      }
+                                    " />
                                 </div>
                               </td>
                               <td class="px-3">
                                 <div class="flex items-center">
-                                  <textarea
-                                    v-show="indexFocusBankAccount === index"
+                                  <b-textfield
                                     v-model="bank.BankName"
-                                    rows="1"
-                                    class="td-textarea" />
-                                  <div
-                                    v-show="indexFocusBankAccount !== index"
-                                    class="flex items-center">
-                                    {{ bank.BankName }}
-                                  </div>
+                                    :max-length="MaxLength.default" />
                                 </div>
                               </td>
                               <td class="px-3">
                                 <div class="flex items-center">
-                                  <textarea
-                                    v-show="indexFocusBankAccount === index"
+                                  <b-textfield
                                     v-model="bank.BankBranch"
-                                    rows="1"
-                                    class="td-textarea" />
-                                  <div
-                                    v-show="indexFocusBankAccount !== index"
-                                    class="flex items-center">
-                                    {{ bank.BankBranch }}
-                                  </div>
+                                    :max-length="MaxLength.default" />
                                 </div>
                               </td>
                               <td class="px-3">
                                 <div class="flex items-center">
-                                  <textarea
-                                    v-show="indexFocusBankAccount === index"
+                                  <b-textfield
                                     v-model="bank.BankCity"
-                                    rows="1"
-                                    class="td-textarea" />
-                                  <div
-                                    v-show="indexFocusBankAccount !== index"
-                                    class="flex items-center">
-                                    {{ bank.BankCity }}
-                                  </div>
+                                    :max-length="MaxLength.default" />
                                 </div>
                               </td>
                               <td class="px-3" title="Xóa">
@@ -899,6 +909,7 @@ divdiv
                                     <textarea
                                       v-if="indexFocusDeliverAddress === index"
                                       :value="ad"
+                                      :maxlength="MaxLength.default"
                                       rows="1"
                                       class="td-textarea"
                                       @input="
@@ -976,8 +987,8 @@ divdiv
             title="Cất và thêm"
             type="primary"
             size="mini"
-            @keydown.enter="storeSupplier"
-            @click="storeSupplier" />
+            @keydown.enter="storeSupplierAndAdd"
+            @click="storeSupplierAndAdd" />
         </div>
         <div class="popup-footer__left">
           <b-button
@@ -1006,6 +1017,7 @@ import {
   Vocative,
   AccountFeature,
   UserObject,
+  ErrCode,
 } from "@/enums";
 import {
   computed,
@@ -1059,9 +1071,10 @@ const errRefs = toRefs(
     PhoneNumberReceiverBill: null,
   })
 );
+const banksRef = ref([]);
 const btnCancelRef = ref(null);
 const errsValidate = computed(() => store.state.global.errsValidate);
-const errsValidator = reactive(errsValidate.value);
+const errsValidator = ref({});
 
 const tabContent = ref(1);
 const tabsContentValue = {
@@ -1293,38 +1306,37 @@ onBeforeMount(async () => {
 });
 onMounted(() => {});
 onBeforeUnmount(() => {});
-// watchEffect(() => {
-//   maxAccountOfDebt.value = Number(
-//     supplierInfo?.value?.MaxAccountOfDebt ?? 0
-//   ).toLocaleString();
-// });
-
-// watch(maxAccountOfDebt, () => {
-//   supplierInfo.value.MaxAccountOfDebt = parseFloat(
-//     maxAccountOfDebt.value.replace(/\./g, "")
-//   );
-// });
 
 watchEffect(() => {
-  supplierInfo.value = { ...supplierDetail.value };
+  errsValidator.value = structuredClone(errsValidate.value);
+});
+
+watchEffect(() => {
+  supplierInfo.value = { ...structuredClone(supplierDetail.value) };
+});
+watchEffect(() => {
+  if (supplierInfo.value?.BanksAccount?.length) {
+    banksRef.value = supplierInfo.value?.BanksAccount.map(() => ref(null));
+  }
 });
 // bắt sự thay đổi của dialog
 watch(dialog, (newValue, oldValue) => {
   // ???
   // const isEmpty = Object.keys(dialog.value).length === 0;
   if (
-    oldValue.type === DialogType.error &&
-    oldValue.action === DialogAction.confirmValidate
+    (oldValue.type === DialogType.error &&
+      oldValue.action === DialogAction.confirmValidate) ||
+    oldValue.errorCode === ErrCode.badRequest
   ) {
     // Lấy phần tử đầu tiên của danh sách
     // console.log(errsValidate.value);
-    const firstKey = Object.keys(errsValidate.value)[0];
+    const firstKey = Object.keys(errsValidator.value)[0];
     // console.log("firstKey:", firstKey);
     if (firstKey) {
       const firstErr = accessRef(firstKey);
-      if (firstErr?.value) {
+      if (firstErr) {
         nextTick(() => {
-          firstErr.value.focus();
+          firstErr.focus();
         });
       }
     }
@@ -1332,28 +1344,60 @@ watch(dialog, (newValue, oldValue) => {
     newValue.action === DialogAction.confirmCreate &&
     oldValue.action === DialogAction.confirmCreate
   ) {
-    // storeAccount();
+    storeSupplier();
   } else if (
     newValue.action === DialogAction.confirmUpdate &&
     oldValue.action === DialogAction.confirmUpdate
   ) {
-    // storeAccount();
+    storeSupplier();
+  } else if (
+    newValue.action === DialogAction.confirmRemoveAllBankAccounts &&
+    oldValue.action === DialogAction.confirmRemoveAllBankAccounts
+  ) {
+    if (supplierInfo?.value?.BanksAccount?.length >= 0) {
+      supplierInfo.value.BanksAccount = [];
+    }
+  } else if (
+    newValue.action === DialogAction.confirmRemoveAllDelivery &&
+    oldValue.action === DialogAction.confirmRemoveAllDelivery
+  ) {
+    if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
+      supplierInfo.value.DeliverAddress = [];
+    }
   }
+
+  // if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
+  //   supplierInfo.value.DeliverAddress = [];
+  // }
 });
 
 watchEffect(() => {
   if (supplierInfo?.value?.SupplierType === SupplierType.organization) {
     nextTick(() => {
-      console.log(errRefs.TaxCode.value);
       if (errRefs.TaxCode.value) errRefs.TaxCode.value.focus();
     });
   } else {
     nextTick(() => {
-      console.log(errRefs.SupplierCode.value);
       if (errRefs.SupplierCode.value) errRefs.SupplierCode.value.focus();
     });
   }
 });
+watch(
+  () => supplierInfo.value.Address,
+  (newValue, oldValue) => {
+    if (
+      supplierInfo.value.IsSameSupplierAddress &&
+      supplierInfo.value?.DeliverAddress?.length > 0
+    ) {
+      const length = supplierInfo.value.DeliverAddress.length;
+      for (let index = 0; index < length; index++) {
+        if (supplierInfo.value.DeliverAddress[index] === oldValue) {
+          supplierInfo.value.DeliverAddress[index] = newValue;
+        }
+      }
+    }
+  }
+);
 
 //---end lifecycle---
 
@@ -1361,7 +1405,23 @@ watchEffect(() => {
 
 // Truy cập vào ref dựa trên tên chuỗi
 const accessRef = (refName) => {
-  return errRefs[refName] ? errRefs[refName] : null;
+  if (errRefs?.[refName]?.value) {
+    return errRefs[refName].value;
+  } else if (refName === "BanksAccount") {
+    let index = -1;
+    for (let i = 0; i < errsValidator.value?.BanksAccount?.length; i++) {
+      if (errsValidator.value?.BanksAccount?.[i]?.length) {
+        index = i;
+        break;
+      }
+    }
+    if (banksRef.value?.[index]?.value?.[0]) {
+      tabContent.value = tabsContentValue.banksAccount;
+      nextTick(() => {});
+      return banksRef.value?.[index]?.value?.[0];
+    }
+  }
+  return null;
 };
 const handleFocusLastOrganization = (e) => {
   if (e.shiftKey && e.key === "Tab") {
@@ -1616,9 +1676,16 @@ const onClickAddRowDeliverAddress = () => {
   }
 };
 const onClickRemoveAllDeliverAddress = () => {
-  if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
-    supplierInfo.value.DeliverAddress = [];
-  }
+  store.dispatch("getDialog", {
+    isShow: true,
+    type: DialogType.warning,
+    title: DialogTitle.notify,
+    content: [DialogContent.removeAllRow],
+    action: DialogAction.confirmRemoveAllDelivery,
+  });
+  // if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
+  //   supplierInfo.value.DeliverAddress = [];
+  // }
 };
 const onClickTabContent = (index) => {
   tabContent.value = index;
@@ -1630,7 +1697,7 @@ const onClickRemoveBank = (index) => {
   }
 };
 const onClickAddRowBank = () => {
-  if (supplierInfo?.value?.BanksAccount?.length >= 0) {
+  if (supplierInfo?.value?.BanksAccount?.length > 0) {
     const lastEl =
       supplierInfo.value.BanksAccount[
         supplierInfo.value.BanksAccount.length - 1
@@ -1643,9 +1710,16 @@ const onClickAddRowBank = () => {
   } else supplierInfo.value.BanksAccount = [{}];
 };
 const onClickRemoveAllBank = () => {
-  if (supplierInfo?.value?.BanksAccount?.length >= 0) {
-    supplierInfo.value.BanksAccount = [];
-  }
+  store.dispatch("getDialog", {
+    isShow: true,
+    type: DialogType.warning,
+    title: DialogTitle.notify,
+    content: [DialogContent.removeAllRow],
+    action: DialogAction.confirmRemoveAllBankAccounts,
+  });
+  // if (supplierInfo?.value?.BanksAccount?.length >= 0) {
+  //   supplierInfo.value.BanksAccount = [];
+  // }
 };
 
 const onClosePopup = () => {
@@ -1689,16 +1763,16 @@ const onClosePopup = () => {
 const validateSupplier = () => {
   // xóa lỗi trước đó
   // Xóa tất cả các trường của reactive object
-  Object.keys(errsValidator).forEach((key) => {
-    delete errsValidator[key];
+  Object.keys(errsValidator.value).forEach((key) => {
+    delete errsValidator.value[key];
   });
   // store.dispatch("getErrsValidate", {});
 
   // check mã nhà cung cấp trống
   const isSupplierCodeEmpty = !supplierInfo?.value?.SupplierCode?.trim();
   if (isSupplierCodeEmpty) {
-    errsValidator.SupplierCode = [
-      ...(errsValidator?.SupplierCode ?? []),
+    errsValidator.value.SupplierCode = [
+      ...(errsValidator.value?.SupplierCode ?? []),
       ErrValidator.fieldEmplty("Mã nhà cung cấp"),
     ];
   }
@@ -1706,8 +1780,8 @@ const validateSupplier = () => {
   // check tên nhà cung cấp trống
   const isSupplierNameEmpty = !(supplierInfo?.value?.SupplierName ?? "").trim();
   if (isSupplierNameEmpty) {
-    errsValidator.SupplierName = [
-      ...(errsValidator?.SupplierName ?? []),
+    errsValidator.value.SupplierName = [
+      ...(errsValidator.value?.SupplierName ?? []),
       ErrValidator.fieldEmplty("Tên nhà cung cấp"),
     ];
   }
@@ -1719,8 +1793,8 @@ const validateSupplier = () => {
     ).trim();
     if (isPhoneNumberNotEmpty) {
       if (!containsOnlyNumber(supplierInfo.value.PhoneNumber)) {
-        errsValidator.PhoneNumber = [
-          ...(errsValidator?.PhoneNumber ?? []),
+        errsValidator.value.PhoneNumber = [
+          ...(errsValidator.value?.PhoneNumber ?? []),
           ErrValidator.containsOnlyNumber("Số điện thoại cố định"),
         ];
       }
@@ -1731,8 +1805,8 @@ const validateSupplier = () => {
     ).trim();
     if (isEmailNotEmpty) {
       if (!isValidEmail(supplierInfo.value.ContractInfor.Email)) {
-        errsValidator.Email = [
-          ...(errsValidator?.Email ?? []),
+        errsValidator.value.Email = [
+          ...(errsValidator.value?.Email ?? []),
           ErrValidator.email,
         ];
       }
@@ -1744,8 +1818,8 @@ const validateSupplier = () => {
     ).trim();
     if (isMobilePhoneNumberNotEmpty) {
       if (!containsOnlyNumber(supplierInfo.value.ContractInfor.PhoneNumber)) {
-        errsValidator.MobilePhoneNumber = [
-          ...(errsValidator?.MobilePhoneNumber ?? []),
+        errsValidator.value.MobilePhoneNumber = [
+          ...(errsValidator.value?.MobilePhoneNumber ?? []),
           ErrValidator.containsOnlyNumber("Số điện thoại di động"),
         ];
       }
@@ -1763,8 +1837,8 @@ const validateSupplier = () => {
             supplierInfo.value.ContractInfor.PhoneNumberReceiverBill
           )
         ) {
-          errsValidator.PhoneNumberReceiverBill = [
-            ...(errsValidator?.PhoneNumberReceiverBill ?? []),
+          errsValidator.value.PhoneNumberReceiverBill = [
+            ...(errsValidator.value?.PhoneNumberReceiverBill ?? []),
             ErrValidator.containsOnlyNumber("Số điện thoại người nhận hóa đơn"),
           ];
         }
@@ -1777,8 +1851,8 @@ const validateSupplier = () => {
     ).trim();
     if (isEmailNotEmpty) {
       if (!isValidEmail(supplierInfo.value.ContractInfor.Email)) {
-        errsValidator.Email = [
-          ...(errsValidator?.Email ?? []),
+        errsValidator.value.Email = [
+          ...(errsValidator.value?.Email ?? []),
           ErrValidator.email,
         ];
       }
@@ -1790,8 +1864,8 @@ const validateSupplier = () => {
     ).trim();
     if (isPhoneNumberNotEmpty) {
       if (!containsOnlyNumber(supplierInfo.value.PhoneNumber)) {
-        errsValidator.PhoneNumber = [
-          ...(errsValidator?.PhoneNumber ?? []),
+        errsValidator.value.PhoneNumber = [
+          ...(errsValidator.value?.PhoneNumber ?? []),
           ErrValidator.containsOnlyNumber("Số điện thoại cố định"),
         ];
       }
@@ -1803,8 +1877,8 @@ const validateSupplier = () => {
     ).trim();
     if (isMobilePhoneNumberNotEmpty) {
       if (!containsOnlyNumber(supplierInfo.value.ContractInfor.PhoneNumber)) {
-        errsValidator.MobilePhoneNumber = [
-          ...(errsValidator?.MobilePhoneNumber ?? []),
+        errsValidator.value.MobilePhoneNumber = [
+          ...(errsValidator.value?.MobilePhoneNumber ?? []),
           ErrValidator.containsOnlyNumber("Số điện thoại di động"),
         ];
       }
@@ -1818,8 +1892,8 @@ const validateSupplier = () => {
       if (
         !containsOnlyNumber(supplierInfo.value.ContractInfor.IdentityNumber)
       ) {
-        errsValidator.IdentityNumber = [
-          ...(errsValidator?.IdentityNumber ?? []),
+        errsValidator.value.IdentityNumber = [
+          ...(errsValidator.value?.IdentityNumber ?? []),
           ErrValidator.containsOnlyNumber("Số chứng minh nhân dân"),
         ];
       }
@@ -1831,31 +1905,95 @@ const validateSupplier = () => {
     ).trim();
     if (isIdentityDateNotEmpty) {
       if (!isValidDate) {
-        errsValidator.IdentityDate = [
-          ...(errsValidator?.IdentityDate ?? []),
+        errsValidator.value.IdentityDate = [
+          ...(errsValidator.value?.IdentityDate ?? []),
           ErrValidator.malformed("Ngày cấp"),
         ];
       } else {
         let currentDate = new Date().getTime();
         let dof = Date.parse(supplierInfo.value.ContractInfor.IdentityDate);
         if (dof > currentDate) {
-          errsValidator.IdentityDate = [
-            ...(errsValidator?.IdentityDate ?? []),
+          errsValidator.value.IdentityDate = [
+            ...(errsValidator.value?.IdentityDate ?? []),
             ErrValidator.identityDateRelease,
           ];
         }
       }
     }
   }
+  const length = supplierInfo.value?.BanksAccount?.length;
+  if (length > 0) {
+    const seenNumbers = new Set();
+    const duplicateNumbers = [];
+    errsValidator.value.BanksAccount = [];
+    for (let index = 0; index < length; index++) {
+      const element = supplierInfo.value?.BanksAccount?.[index];
+      const isBanhAccountNumberNotEmpty = (
+        element?.BankAccountNumber ?? ""
+      ).trim();
+      if (
+        isBanhAccountNumberNotEmpty &&
+        !containsOnlyNumber(element?.BankAccountNumber)
+      ) {
+        errsValidator.value.BanksAccount[index] = [
+          ...(errsValidator.value?.BanksAccount[index] ?? []),
+          ErrValidator.containsOnlyNumber("Số tài khoản"),
+        ];
+      } else if (
+        isBanhAccountNumberNotEmpty &&
+        containsOnlyNumber(element?.BankAccountNumber)
+      ) {
+        // check trùng số tài khoản
+
+        if (seenNumbers.has(element.BankAccountNumber)) {
+          duplicateNumbers.push(element.BankAccountNumber);
+        } else {
+          seenNumbers.add(element.BankAccountNumber);
+        }
+      }
+    }
+
+    for (
+      let index = 0;
+      index < supplierInfo.value.BanksAccount.length;
+      index++
+    ) {
+      const element = supplierInfo.value.BanksAccount[index] ?? "";
+      if (duplicateNumbers.includes(element.BankAccountNumber)) {
+        errsValidator.value.BanksAccount[index] = [
+          ...(errsValidator.value?.BanksAccount[index] ?? []),
+          ErrValidator.dupBankAccountNumber(element.BankAccountNumber),
+        ];
+      }
+    }
+    if (errsValidator.value.BanksAccount.length === 0) {
+      delete errsValidator.value.BanksAccount;
+    }
+  }
 
   // Kiểm tra xem reactive object có rỗng hay không
-  const isEmpty = Object.keys(errsValidator).length === 0;
+  const isEmpty = Object.keys(errsValidator.value).length === 0;
   if (isEmpty) {
     return true;
   } else {
-    const errMsgArray = Object.values(errsValidator).flat();
+    // Làm phẳng mảng
+    const flatArray = (errsValidator.value.BanksAccount ?? []).flat();
+
+    // Sử dụng Set để loại bỏ phần tử trùng lặp
+    const uniqueFlatArray = [...new Set(flatArray)];
+
+    let tmpErrsMsg = uniqueFlatArray.length
+      ? {
+          ...errsValidator.value,
+          BanksAccount: uniqueFlatArray,
+        }
+      : {
+          ...errsValidator.value,
+        };
+
+    const errMsgArray = Object.values(tmpErrsMsg).flat();
     // console.log(errMsgArray);
-    store.dispatch("getErrsValidate", { ...errsValidator });
+    // store.dispatch("getErrsValidate", { ...errsValidator.value });
     store.dispatch("getDialog", {
       isShow: true,
       type: DialogType.error,
@@ -1868,7 +2006,7 @@ const validateSupplier = () => {
 };
 
 const storeSupplier = () => {
-  console.log("something");
+  // console.log("something");
   let isValid = validateSupplier();
   if (isValid && popupStatus.value.type === PopupType.create) {
     // lưu thông tin nhân viên
@@ -1885,10 +2023,135 @@ const storeSupplier = () => {
   }
   // có lỗi thì không làm gì cả
 };
+
+const storeSupplierAndAdd = () => {
+  let isValid = validateSupplier();
+  if (isValid && popupStatus.value.type === PopupType.create) {
+    // lưu thông tin nhân viên
+    store.dispatch("createSupplier", {
+      supplier: supplierInfo.value,
+      typeStore: TypeStore.storeAndAdd,
+    });
+  } else if (isValid && popupStatus.value.type === PopupType.update) {
+    // sửa thông tin nhân viên
+    store.dispatch("updateSupplier", {
+      supplier: supplierInfo.value,
+      typeStore: TypeStore.storeAndAdd,
+    });
+  }
+};
+
 //---end methods----
 </script>
 <style scoped>
-@import url("./SupplierDetail.css");
+.tabs-li {
+  height: 24px;
+  margin: 0 1px;
+  border: 1px solid #c9ccd2;
+  border-bottom: none;
+  border-radius: 2px 2px 0 0;
+}
+
+.tabs-li.active-item {
+  background: #cce4f9;
+  height: 28px;
+}
+
+.tabs-btn {
+  position: relative;
+  width: 100%;
+  background: 0 0;
+  border: 0;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 0;
+  font-size: 13px;
+  border-radius: unset !important;
+  height: 100%;
+  margin: 0;
+  padding: 0 8px;
+  display: flex;
+  place-items: center;
+}
+
+.tabs-btn:hover {
+  color: #2ca01c;
+}
+
+.content-bottom__body {
+  position: relative;
+  display: block;
+  overflow: visible;
+  border: 1px solid #c9ccd2;
+  margin: 0 1px 1px;
+  z-index: 1;
+  margin-top: -1px;
+  min-height: 216px;
+  max-height: 216px;
+}
+
+.tab-content {
+  margin: 11px 8px;
+}
+
+.grid-mode-control {
+  overflow: auto;
+  max-height: 158px;
+  min-width: 100%;
+}
+
+.td-editor {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 0 6px;
+  border-radius: 2px;
+  /* min-height: var(--input-height); */
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.td-textarea {
+  resize: none;
+  height: 27px;
+  line-height: 20px;
+  font-family: inherit;
+  width: 100%;
+  padding: 3px 10px;
+  border-radius: var(--border-radius);
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+  outline: unset;
+  overflow: hidden;
+}
+
+.td-textarea:focus {
+  border: 1px solid #50b83c;
+  outline: none;
+}
+
+.grid-control-item {
+  padding: 0;
+  width: 100%;
+  position: -webkit-sticky;
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+}
+
+.top-grid {
+  display: flex;
+  place-items: center;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d3d6db;
+  justify-content: flex-start;
+}
+
+.grid-address {
+  max-height: 125px;
+  overflow: auto;
+}
 .description .textarea {
   min-height: 160px;
   margin-top: 0;

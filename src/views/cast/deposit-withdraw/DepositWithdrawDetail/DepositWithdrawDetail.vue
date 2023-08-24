@@ -36,21 +36,21 @@ div
             <div class="icon-wrapper">
               <div class="icon-v1 icon-v1--tour"></div>
             </div>
-            <div class="tour-label">Hướng dẫn</div>
+            <div class="tour-label">{{ FreeText.instruct }}</div>
           </div>
-          <div class="header-detail-btn" title="Tùy chỉnh giao diện">
+          <div class="header-detail-btn" :title="FreeText.customizeInterface">
             <div class="icon wrapper">
               <div class="icon icon--setting"></div>
             </div>
           </div>
-          <div class="header-detail-btn" title="Giúp (F1)">
+          <div class="header-detail-btn" :title="FreeText.helpF1">
             <div class="icon wrapper">
               <div class="icon icon--question"></div>
             </div>
           </div>
           <div
             class="header-detail-btn"
-            title="Đóng (ESC)"
+            :title="FreeText.closeEsc"
             @click="onClosePopup">
             <div class="icon wrapper">
               <div class="icon icon--close"></div>
@@ -71,7 +71,7 @@ div
                         is-reload-scroll
                         is-reload
                         :disabled="disableWritten || disableView"
-                        label="Mã nhà cung cấp"
+                        :label="FreeText.supplierCode"
                         :max-length="MaxLength.default"
                         :fields="fieldsSupplier"
                         :field-select="fieldSelectSupplier"
@@ -113,7 +113,7 @@ div
                         :ref="errRefs.SupplierName"
                         v-model="paymentInfo.SupplierName"
                         :disabled="disableView"
-                        label="Tên nhà cung cấp"
+                        :label="FreeText.supplierName"
                         :max-length="MaxLength.default"
                         :err-msg="errsValidator?.SupplierName?.join('') ?? ''"
                         @empty-err-msg="
@@ -130,7 +130,7 @@ div
                         v-model="paymentInfo.Receiver"
                         :disabled="disableView"
                         :max-length="MaxLength.default"
-                        label="Người nhận"
+                        :label="FreeText.receiver"
                         :err-msg="errsValidator?.Receiver?.join('') ?? ''"
                         @empty-err-msg="
                           () => {
@@ -143,7 +143,7 @@ div
                         v-model="paymentInfo.Address"
                         :max-length="MaxLength.default"
                         :disabled="disableView"
-                        label="Địa chỉ"
+                        :label="FreeText.address"
                         :err-msg="errsValidator?.Address?.join('') ?? ''"
                         @empty-err-msg="
                           () => {
@@ -158,7 +158,7 @@ div
                       v-model="paymentInfo.ReasonSpending"
                       :disabled="disableView"
                       :max-length="MaxLength.default"
-                      label="Lý do chi"
+                      :label="FreeText.reasonSpending"
                       :err-msg="errsValidator?.ReasonSpending?.join('') ?? ''"
                       @empty-err-msg="
                         () => {
@@ -173,7 +173,7 @@ div
                         is-reload-scroll
                         is-reload
                         :disabled="disableView"
-                        label="Nhân viên"
+                        :label="FreeText.employee"
                         :max-length="MaxLength.default"
                         :fields="fieldsEmployee"
                         :field-select="fieldSelectEmployee"
@@ -192,7 +192,9 @@ div
                           (id) => (paymentInfo.EmployeeId = id)
                         "
                         @add-value-selected="
-                          (item) => hanldeSelectEmployee(item)
+                          (item) => {
+                            employeeSelected = { ...item };
+                          }
                         "
                         @not-selected-yet="
                           (state) =>
@@ -218,8 +220,8 @@ div
                           :disabled="disableView"
                           :max-length="5"
                           :max-value="9999"
-                          label="Kèm theo"
-                          place-holder="Số lượng"
+                          :label="FreeText.attach"
+                          :place-holder="FreeText.quantity"
                           class-input="text-right"
                           :err-msg="
                             errsValidator?.AttachOriginalDocuments?.join('') ??
@@ -231,11 +233,11 @@ div
                             }
                           " />
                       </div>
-                      <span class="pl-3">chứng từ gốc</span>
+                      <span class="pl-3">{{ FreeText.originalDocuments }}</span>
                     </div>
                   </div>
                   <div class="w-full flex">
-                    <span class="pr-3">Tham chiếu</span>
+                    <span class="pr-3">{{ FreeText.reference }}</span>
                     <span class="text-blue">...</span>
                   </div>
                 </div>
@@ -245,7 +247,7 @@ div
                       :ref="errRefs.AccountingDate"
                       v-model="paymentInfo.AccountingDate"
                       :disabled="disableWritten || disableView"
-                      label="Ngày hạch toán"
+                      :label="FreeText.accountingDate"
                       input-type="date"
                       :err-msg="errsValidator?.AccountingDate?.join('') ?? ''"
                       @empty-err-msg="
@@ -259,7 +261,7 @@ div
                       :ref="errRefs.PaymentDate"
                       v-model="paymentInfo.PaymentDate"
                       :disabled="disableWritten || disableView"
-                      label="Ngày phiếu toán"
+                      :label="FreeText.paymentDate"
                       input-type="date"
                       :err-msg="errsValidator?.PaymentDate?.join('') ?? ''"
                       @empty-err-msg="
@@ -274,7 +276,7 @@ div
                       v-model="paymentInfo.PaymentCode"
                       :max-length="MaxLength.code - 2"
                       :disabled="disableWritten || disableView"
-                      label="Số phiếu chi"
+                      :label="FreeText.paymentCode"
                       :err-msg="errsValidator?.PaymentCode?.join('') ?? ''"
                       @empty-err-msg="
                         () => {
@@ -285,10 +287,11 @@ div
                 </div>
               </div>
               <div class="w-1/4 sumary-info text-right mt-0">
-                <div class="sumary-info-title">Tổng tiền</div>
+                <div class="sumary-info-title">{{ FreeText.sumMoney }}</div>
                 <div
                   class="sumary-info-number"
-                  :class="{ 'text-red': totalMoney < 0 }">
+                  :class="{ 'text-red': totalMoney < 0 }"
+                  :style="{ 'font-size': resizeFontSizeMoney() + 'px' }">
                   {{ formatDecimal(totalMoney) }}
                 </div>
               </div>
@@ -298,7 +301,7 @@ div
         <div class="w-full bgw flex-1">
           <div class="detail-information">
             <div class="detail-information-title">
-              <span>Hạch toán</span>
+              <span>{{ FreeText.accounting }}</span>
             </div>
             <div class="detail-information-body px-5">
               <div class="h-full w-full position-relative">
@@ -338,7 +341,8 @@ div
                               <textarea
                                 v-model="accounting.AccountingExplain"
                                 rows="1"
-                                class="td-textarea" />
+                                class="td-textarea"
+                                :class="{ 'disable-textarea': disableView }" />
                             </div>
                           </td>
                           <td class="px-3">
@@ -458,6 +462,8 @@ div
                                 }">
                                 <CurrencyInput
                                   v-model.lazy="accounting.Money"
+                                  :disabled="disableWritten || disableView"
+                                  :max-length="15"
                                   :options="options" />
                               </div>
                             </div>
@@ -551,13 +557,13 @@ div
                   :disabled="disableWritten || disableView"
                   size="mini"
                   type="secondary"
-                  title="Thêm dòng"
+                  :title="FreeText.addRow"
                   @click.stop="onClickAddAccountingRow" />
                 <b-button
                   :disabled="disableWritten || disableView"
                   size="mini"
                   type="secondary"
-                  title="Xóa hết dòng"
+                  :title="FreeText.deleteAllRow"
                   @click.stop="onClickDeleteAllAccountingRow" />
               </div>
             </div>
@@ -572,11 +578,11 @@ div
             <button
               class="btn btn--mini button-footer"
               @click="() => onClickButton(TypeClickButton.create)">
-              Cất
+              {{ FreeText.store }}
             </button>
             <b-button
               class="btn--pri"
-              title="Cất và in"
+              :title="FreeText.storePrint"
               type="primary"
               size="mini" />
           </template>
@@ -592,7 +598,7 @@ div
             </button>
             <b-button
               class="btn--pri"
-              title="Ghi sổ"
+              :title="FreeText.write"
               type="primary"
               size="mini"
               @click="() => onClickButton(TypeClickButton.write)" />
@@ -605,11 +611,11 @@ div
             <button
               class="btn btn--mini button-footer"
               @click="() => onClickButton(TypeClickButton.quickEdit)">
-              Sửa nhanh
+              {{ FreeText.quickEdit }}
             </button>
             <b-button
               class="btn--pri"
-              title="Bỏ ghi"
+              :title="FreeText.unWrite"
               type="primary"
               size="mini"
               @click="() => onClickButton(TypeClickButton.unWrite)" />
@@ -622,7 +628,7 @@ div
             </button>
             <b-button
               class="btn--pri"
-              title="Cất và in"
+              :title="FreeText.storePrint"
               type="primary"
               size="mini"
               @click="() => onClickButton(TypeClickButton.update)" />
@@ -675,7 +681,12 @@ import {
 import supplierService from "@/api/services/supplierService";
 import employeeService from "@/api/services/employeeService";
 import accountService from "@/api/services/accountService";
-import { DialogTitle, ErrValidator } from "@/resources";
+import {
+  DialogContent,
+  DialogTitle,
+  ErrValidator,
+  FreeText,
+} from "@/resources";
 
 //========= start state =========
 
@@ -947,7 +958,7 @@ onBeforeMount(async () => {
   if (!paymentDetail.value?.Accountings) {
     paymentInfo.value.Accountings = [];
     paymentInfo.value.Accountings.push({
-      AccountingExplain: "Chi tiền cho ",
+      AccountingExplain: FreeText.spendingFor,
       AccountDebtId: dataAccountsDebt?.value?.[0]?.AccountId,
       AccountDebtCode: dataAccountsDebt?.value?.[0]?.AccountCode,
       AccountBalanceId: dataAccountsBalance?.value?.[0]?.AccountId,
@@ -1010,7 +1021,7 @@ watch(dialog, async (newDialog, oldDialog) => {
     // Lấy phần tử đầu tiên của danh sách
     // console.log(errsValidate.value);
     const firstKey = Object.keys(errsValidator.value)[0];
-    console.log(firstKey);
+    // console.log(firstKey);
     // console.log("firstKey:", firstKey);
     if (firstKey) {
       nextTick(() => {
@@ -1030,6 +1041,13 @@ watch(dialog, async (newDialog, oldDialog) => {
     } else {
       errRefs.PaymentCode.value.focus();
     }
+  } else if (
+    newDialog.action === DialogAction.confirmRemoveAllAccountings &&
+    oldDialog.action === DialogAction.confirmRemoveAllAccountings
+  ) {
+    paymentInfo.value.Accountings = [];
+    accountsDebtSelected.value = [];
+    accountsBalanceSelected.value = [];
   }
 });
 
@@ -1125,6 +1143,21 @@ const accessRef = (refName) => {
 };
 
 /**
+ * Mô tả: chỉnh fontsize tổng tiền
+ * created by : vdtien
+ * created date: 24-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const resizeFontSizeMoney = () => {
+  if (totalMoney.value > 999999999999 || totalMoney.value < -999999999999)
+    return 20;
+  else if (totalMoney.value > 999999999 || totalMoney.value < -999999999)
+    return 28;
+  return 36;
+};
+
+/**
  * Mô tả: chọn loại phiếu bhi
  * created by : vdtien
  * created date: 15-08-2023
@@ -1215,10 +1248,9 @@ const hanldeSelectedSupplier = (item) => {
   const reasonSpendingPrev = paymentInfo?.value?.ReasonSpending ?? "";
   if (
     paymentInfo?.value?.ReasonSpending &&
-    paymentInfo?.value?.ReasonSpending ===
-      `Chi tiền cho ${paymentInfo?.value?.SupplierName ?? ""}`
+    paymentInfo?.value?.ReasonSpending.startsWith(FreeText.spendingFor)
   ) {
-    paymentInfo.value.ReasonSpending = `Chi tiền cho ${
+    paymentInfo.value.ReasonSpending = `${FreeText.spendingFor} ${
       item?.SupplierName ?? ""
     }`;
   }
@@ -1241,6 +1273,8 @@ const hanldeSelectedSupplier = (item) => {
     };
     // cap nhat employeeSelected
   }
+
+  supplierSelected.value = structuredClone(item);
 };
 
 /**
@@ -1295,7 +1329,6 @@ const loadDataEmployeesFilter = async (keySearch) => {
   } finally {
   }
 };
-const hanldeSelectEmployee = () => {};
 
 // accounting
 const hanldeAddValueAccountBalance = (item, index) => {
@@ -1385,6 +1418,13 @@ const onClickAddAccountingRow = () => {
   indexFocusAccouting.value = paymentInfo.value.Accountings.length - 1;
 };
 
+/**
+ * Mô tả: Xóa 1 hạch toán theo chỉ số
+ * created by : vdtien
+ * created date: 24-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickDeleteAccountingRow = (index) => {
   if (
     paymentInfo.value?.Accountings?.length > 0 &&
@@ -1401,9 +1441,13 @@ const onClickDeleteAccountingRow = (index) => {
 };
 
 const onClickDeleteAllAccountingRow = () => {
-  paymentInfo.value.Accountings = [];
-  accountsDebtSelected.value = [];
-  accountsBalanceSelected.value = [];
+  store.dispatch("getDialog", {
+    isShow: true,
+    type: DialogType.warning,
+    title: DialogTitle.notify,
+    content: [DialogContent.removeAllRow],
+    action: DialogAction.confirmRemoveAllAccountings,
+  });
 };
 
 const isValidateData = () => {
@@ -1415,7 +1459,7 @@ const isValidateData = () => {
   if (isPaymentCodeEmpty) {
     errsValidator.value.PaymentCode = [
       ...(errsValidator.value?.PaymentCode ?? []),
-      ErrValidator.fieldNotEmpty("Số phiếu chi"),
+      ErrValidator.fieldNotEmpty(FreeText.PaymentCode),
     ];
   }
 
@@ -1427,14 +1471,14 @@ const isValidateData = () => {
   if (isAccountingDateEmpty) {
     errsValidator.value.AccountingDate = [
       ...(errsValidator.value?.AccountingDate ?? []),
-      ErrValidator.fieldNotEmpty("Ngày hạch toán"),
+      ErrValidator.fieldNotEmpty(FreeText.accountingDate),
     ];
   }
   let isPayemntDateEmpty = isNaN(Date.parse(paymentInfo.value?.PaymentDate));
   if (isPayemntDateEmpty) {
     errsValidator.value.PaymentDate = [
       ...(errsValidator.value?.PaymentDate ?? []),
-      ErrValidator.fieldNotEmpty("Ngày phiếu chi"),
+      ErrValidator.fieldNotEmpty(FreeText.paymentDate),
     ];
   }
   // thời gian phiếu chi <= thời gian hạch toán
@@ -1476,7 +1520,7 @@ const isValidateData = () => {
           errsValidator.value.AccountsDebtId = [];
         errsValidator.value.AccountsDebtId[index] = [
           ...(errsValidator.value?.AccountsDebtId[index] ?? []),
-          ErrValidator.fieldNotEmpty("Tài khoản nợ"),
+          ErrValidator.fieldNotEmpty(FreeText.accountDebt),
         ];
       }
       if (!element?.AccountBalanceId) {
@@ -1484,7 +1528,7 @@ const isValidateData = () => {
           errsValidator.value.AccountsBalanceId = [];
         errsValidator.value.AccountsBalanceId[index] = [
           ...(errsValidator.value?.AccountsBalanceId[index] ?? []),
-          ErrValidator.fieldNotEmpty("Tài khoản có"),
+          ErrValidator.fieldNotEmpty(FreeText.accountBalance),
         ];
       }
     }
@@ -1532,7 +1576,7 @@ function findFirstTruthyElement(arr) {
  * @returns
  */
 const onClickButton = (type) => {
-  console.log("on click button");
+  // console.log("on click button");
   switch (type) {
     case TypeClickButton.create:
       // validate fe
@@ -1686,4 +1730,7 @@ const onClickButton = (type) => {
   bottom: 0;
   background-color: #fff;
 }
+/* <.disable-textarea {
+  background-color: #eff0f2;
+}> */
 </style>

@@ -1,6 +1,6 @@
 import paymentService from "@/api/services/paymentService";
-import { hanldeException } from "../global/actions";
-import { DialogTitle, ToastContent } from "@/resources";
+import { handleException } from "../global/actions";
+import { DialogTitle, FreeText, ToastContent } from "@/resources";
 import {
   DialogType,
   PaymentStatus,
@@ -33,7 +33,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -55,7 +55,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -105,7 +105,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -155,7 +155,7 @@ const actions = {
         });
       }
     } catch (error) {
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -181,10 +181,7 @@ const actions = {
     );
 
     paymentSend.Accountings = [...changeAccountings];
-    // removeEmptyFieldsDeep(paymentSend);
-    // const tmpAccountings = changeAccountings.filter(
-    //   (accounting) => accounting.StatusAction !== StaticRange.noChange
-    // );
+
     try {
       dispatch("toggleLoading");
       let res = await paymentService.updateRecord(
@@ -220,7 +217,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -245,7 +242,7 @@ const actions = {
           isShow: true,
           type: ToastType.success,
           content: ToastContent.deleteRecordSuccess(
-            "Phiếu chi",
+            FreeText.payment,
             state.paymentDetail.PaymentCode
           ),
         });
@@ -263,7 +260,7 @@ const actions = {
         }
       }
     } catch (error) {
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -315,7 +312,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -360,8 +357,7 @@ const actions = {
               dispatch("getAllPaymentFailure", res?.ListRecordFailure ?? []);
               dispatch("getDialogDetail", {
                 show: true,
-                title: "Chứng từ không thực hiện ghi sổ được",
-                type: "ghi so",
+                title: FreeText.documnetCantWrite,
               });
             } else {
               dispatch("getToast", {
@@ -423,15 +419,14 @@ const actions = {
           dispatch("getAllPaymentFailure", res?.ListRecordFailure ?? []);
           dispatch("getDialogDetail", {
             show: true,
-            title: "Kết quả xóa chứng từ",
-            type: "xoa",
+            title: FreeText.resultDeleteDocumnet,
           });
         }
       }
     } catch (error) {
       dispatch("toggleLoading");
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
     }
   },
@@ -468,7 +463,7 @@ const actions = {
       }
     } catch (error) {
       // console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -485,6 +480,14 @@ const actions = {
     commit("SET_ALL_PAYMENT_FAILURE", payload);
   },
 };
+
+/**
+ * Mô tả: thêm StatusAction cho danh sách
+ * created by : vdtien
+ * created date: 24-08-2023
+ * @param {type} param -
+ * @returns
+ */
 function compareArrays(oldArray, newArray, key) {
   const result = [];
 

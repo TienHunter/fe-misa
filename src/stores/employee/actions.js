@@ -9,7 +9,7 @@ import {
 } from "@/enums";
 import { DialogTitle, ToastContent } from "@/resources";
 import { convertToYYYYMMDD } from "@/utils/helper";
-import { hanldeException } from "../global/actions";
+import { handleException } from "../global/actions";
 const actions = {
   /**
    *
@@ -24,7 +24,7 @@ const actions = {
       commit("SET_EMPLOYEE_LIST", data);
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -51,7 +51,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -89,7 +89,7 @@ const actions = {
       }
     } catch (error) {
       // console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -111,7 +111,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -136,7 +136,7 @@ const actions = {
       // }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -186,7 +186,7 @@ const actions = {
     } catch (error) {
       // console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -232,7 +232,7 @@ const actions = {
     } catch (error) {
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -269,7 +269,7 @@ const actions = {
     } catch (error) {
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -299,7 +299,7 @@ const actions = {
     } catch (error) {
       dispatch("toggleLoading");
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
     }
   },

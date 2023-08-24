@@ -197,18 +197,19 @@ export default {
     });
     //kiểm tra sự thay đổi của idSelected
     watchEffect(() => {
-      if (props.idSelected) {
-        const foundItem = props.dataList.find(
-          (obj) => obj?.[props.fieldSelect] === props?.idSelected
-        );
-        const index = props.dataList.findIndex(
-          (obj) => obj?.[props.fieldSelect] === props?.idSelected
-        );
-        if (index !== -1 && foundItem) {
-          itemSelected.value = { ...foundItem };
-          searchValue.value = foundItem[props.fieldShow];
-          selectedIndex.value = index;
-        }
+      const foundItem = props.dataList.find(
+        (obj) => obj?.[props.fieldSelect] === props?.idSelected
+      );
+      const index = props.dataList.findIndex(
+        (obj) => obj?.[props.fieldSelect] === props?.idSelected
+      );
+      if (index !== -1 && foundItem) {
+        itemSelected.value = { ...foundItem };
+        searchValue.value = foundItem[props.fieldShow];
+        selectedIndex.value = index;
+      } else {
+        searchValue.value = "";
+        selectedIndex.value = -1;
       }
     });
 

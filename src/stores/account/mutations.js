@@ -1,30 +1,67 @@
 import { Status, TypeUpdate } from "@/enums";
 
 const mutations = {
+  /**
+   * Mô tả: gán danh sách tài khoản vào state
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   SET_ACCOOUNTS_LIST(state, payload) {
     state.accountsList = [...payload];
   },
+
+  /**
+   * Mô tả: gán danh sách tài khoản con vào dưới tài khoản cha
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   SET_ACCOUNT_LIST_CHILDRENS(state, payload) {
+    const { parentId, childrens } = payload;
     // tim vi tri cha,
-    let parent = state.accountsList.find(
-      (acc) => acc.AccountId === payload.parentId
-    );
+    let parent = state.accountsList.find((acc) => acc.AccountId === parentId);
     let index = state.accountsList.findIndex(
-      (acc) => acc.AccountId === payload.parentId
+      (acc) => acc.AccountId === parentId
     );
-    // console.log(index);
 
     // insert danh sach con vao duoi cha
     if (index !== -1) {
-      let tmpAccoutsList = [...state.accountsList];
+      let indexParentNext = -1;
+      const length = state.accountsList.length;
+      let tmpAccoutsList = structuredClone(state.accountsList);
+      for (let i = index + 1; i < length; i++) {
+        if (tmpAccoutsList[i].Grade === parent.Grade) {
+          indexParentNext = i;
+          break;
+        }
+      }
+      // xóa các phần từ ở giữa từ parent đến node cùng cấp tiếp theo
+      if (indexParentNext !== -1) {
+        // index của node cùng cấp với cha - index của cha - 1 = số phần tử ở giữa
+        tmpAccoutsList.splice(index + 1, indexParentNext - index - 1);
+      } else {
+        tmpAccoutsList.splice(index + 1, length - index - 1);
+      }
+      tmpAccoutsList.splice(index + 1, 0, ...childrens);
+
       parent.IsParent = 1;
       parent.showChild = true;
-      parent.NumberChilds = payload.childrens.length;
+      parent.NumberChilds = childrens.length;
       tmpAccoutsList.splice(index, 1, { ...parent });
-      tmpAccoutsList.splice(index + 1, 0, ...payload.childrens);
       state.accountsList = [...tmpAccoutsList];
     }
   },
+
+  /**
+   * Mô tả: gán danh sách tài khoản con vào  dưới danh sách tài khoản cha
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   SET_LIST_ACCOUNT_CHILDRENS_TO_PARENTS(state, payload) {
     let tmpAccoutsList = [...state.accountsList];
 
@@ -39,9 +76,25 @@ const mutations = {
 
     state.accountsList = [...tmpAccoutsList];
   },
+
+  /**
+   * Mô tả: gán thôn tin 1 tài khoản vào state
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   SET_ACCOUNT_DETAIL(state, payload) {
     state.accountDetail = { ...payload };
   },
+
+  /**
+   * Mô tả: ẩn hiện tài khoản con
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   TOGGLE_SHOW_CHILD(state, payload) {
     // console.log(state);
     let index = state.accountsList.findIndex(
@@ -55,6 +108,14 @@ const mutations = {
       state.accountsList = [...tmpAccoutsList];
     }
   },
+
+  /**
+   * Mô tả: ẩn hiện
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   TOGGLE_SHOW_ALL(state, payload) {
     let tmpAccoutsList = [...state.accountsList];
     tmpAccoutsList = tmpAccoutsList.map((obj) => ({
@@ -197,6 +258,25 @@ const mutations = {
       // console.log(tmpAccountList);
     }
     state.accountsList = [...tmpAccountsList];
+  },
+
+  /**
+   * Mô tả: gán tài khoản vào dưới tài khoản cha
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
+  SET_CHILD_TO_PARENT(state, payload) {
+    const { indexParent, child } = payload;
+    const parent = state.accountsList[indexParent];
+    parent.IsParent = 1;
+    parent.NumberChilds += 1;
+    parent.showChild = true;
+
+    const tmpList = structuredClone(state.accountsList);
+    tmpList.splice(indexParent + 1, 0, child);
+    state.accountsList = tmpList;
   },
 };
 export default mutations;

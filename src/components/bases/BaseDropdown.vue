@@ -118,11 +118,11 @@ export default {
     };
     const dropdowContainerRef = ref(false);
     const isOutsideDropdown = useClickOutside(dropdowContainerRef);
-    onMounted(() => {
-      if (valueInput.value === "") {
-        valueInput.value = props.titleDropdownList;
-      }
-    });
+    // onMounted(() => {
+    //   if (valueInput.value === "") {
+    //     valueInput.value = props.titleDropdownList;
+    //   }
+    // });
     // watchEffect(() => {
     //   console.log(valueInput.value);
     // });

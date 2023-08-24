@@ -75,7 +75,7 @@ const actions = {
     commit("SET_DIALOG_DETAIL", paylaod);
   },
 };
-function hanldeException(dispatch, ex) {
+function handleException(dispatch, ex) {
   console.log(ex);
   let errsMsg = ex?.response?.data?.UserMsg || [ex?.response?.data?.DevMsg];
   if (!Array.isArray(errsMsg) || errsMsg.length === 0) {
@@ -128,6 +128,16 @@ function hanldeException(dispatch, ex) {
         errorCode: ErrCode.duplicationCodeHasFix,
       });
       break;
+
+    case ErrCode.badRequest:
+      dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.error,
+        title: DialogTitle.error,
+        content: [...errsMsg],
+        errorCode: ErrCode.badRequest,
+      });
+      break;
     default:
       dispatch("getDialog", {
         isShow: true,
@@ -139,4 +149,4 @@ function hanldeException(dispatch, ex) {
   }
 }
 export default actions;
-export { hanldeException };
+export { handleException };

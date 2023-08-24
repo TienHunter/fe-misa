@@ -13,6 +13,7 @@ import {
 import {
   DialogAction,
   DialogType,
+  ErrCode,
   MaxLength,
   PopupType,
   TypeStore,
@@ -20,13 +21,9 @@ import {
 import { useStore } from "vuex";
 import BaseComboboxV1 from "@/components/bases/BaseComboboxV1.vue";
 import accountService from "@/api/services/accountService";
-import {
-  ErrValidator,
-  AccountCol,
-  DialogTitle,
-  DialogContent,
-} from "@/resources";
+import { AccountCol, DialogTitle, DialogContent, FreeText } from "@/resources";
 import { removeEmptyFields } from "@/utils/helper";
+import { ErrValidator } from "@/resources";
 /**state */
 const store = useStore();
 const isExpandPopup = ref(false);
@@ -45,7 +42,7 @@ const errRefs = toRefs(
   })
 );
 const btnCancel = ref(null);
-const errValidator = reactive({});
+const errsValidator = ref({});
 const dataAccountFeature = ref([
   {
     id: 1,
@@ -149,6 +146,9 @@ onBeforeUnmount(() => {
   accountDetailRef.value.removeEventListener("keydown", handleKeyDownDocument);
 });
 
+watchEffect(() => {
+  errsValidator.value = structuredClone(errsValidate.value);
+});
 watchEffect(() => [(accountInfo.value = { ...accountDetail.value })]);
 
 // bắt sự thay đổi của dialog
@@ -156,8 +156,9 @@ watch(dialog, (newValue, oldValue) => {
   // ???
   // const isEmpty = Object.keys(dialog.value).length === 0;
   if (
-    oldValue.type === DialogType.error &&
-    oldValue.action === DialogAction.confirmValidate
+    (oldValue.type === DialogType.error &&
+      oldValue.action === DialogAction.confirmValidate) ||
+    oldValue.errorCode === ErrCode.badRequest
   ) {
     // Lấy phần tử đầu tiên của danh sách
     // console.log(errsValidate.value);
@@ -319,8 +320,8 @@ const onClosePopup = () => {
 const validatorAccount = () => {
   // xóa lỗi trước đó
   // Xóa tất cả các trường của reactive object
-  Object.keys(errValidator).forEach((key) => {
-    delete errValidator[key];
+  Object.keys(errsValidator.value).forEach((key) => {
+    delete errsValidator.value[key];
   });
   store.dispatch("getErrsValidate", {});
 
@@ -330,21 +331,21 @@ const validatorAccount = () => {
   let isAccountCodeEmpty = !accountInfo.value?.AccountCode?.trim();
 
   if (isAccountCodeEmpty) {
-    errValidator.AccountCode = [
-      ...(errValidator?.AccountCode ?? []),
+    errsValidator.value.AccountCode = [
+      ...(errsValidator.value?.AccountCode ?? []),
       ErrValidator.fieldEmplty(AccountCol.AccountCode.text),
     ];
   } else {
     if (accountInfo?.value?.AccountCode?.length < 3) {
-      errValidator.AccountCode = [
-        ...(errValidator?.AccountCode ?? []),
-        "Số tài khoản phải có độ dài >= 3 ký tự.",
+      errsValidator.value.AccountCode = [
+        ...(errsValidator.value?.AccountCode ?? []),
+        DialogContent.accountGreaterEqual3Characters,
       ];
-    } else {
+    } else if (accountInfo?.value?.AccountCode?.length > 3) {
       if (!accountInfo.value?.ParentId) {
-        errValidator.ParentId = [
-          ...(errValidator?.ParentId ?? []),
-          "Số tài khoản có độ dài > 3 ký tự thì phải điền tài khoản tổng hợp",
+        errsValidator.value.ParentId = [
+          ...(errsValidator.value?.ParentId ?? []),
+          DialogContent.accountNeedParent,
         ];
       } else {
         if (
@@ -352,8 +353,8 @@ const validatorAccount = () => {
             valueAccountSynthetic.value.AccountCode
           )
         ) {
-          errValidator.AccountCode = [
-            ...(errValidator?.AccountCode ?? []),
+          errsValidator.value.AccountCode = [
+            ...(errsValidator.value?.AccountCode ?? []),
             ErrValidator.accountDetailIsPrefixaccountSynthetic,
           ];
         }
@@ -364,9 +365,9 @@ const validatorAccount = () => {
   let isAccountNameEmpty = !accountInfo.value?.AccountName?.trim();
 
   if (isAccountNameEmpty) {
-    errValidator.AccountName = [
-      ...(errValidator?.AccountName ?? []),
-      ErrValidator.fieldEmplty(AccountCol.AccountName.text),
+    errsValidator.value.AccountName = [
+      ...(errsValidator.value?.AccountName ?? []),
+      ErrValidator.fieldNotEmpty(FreeText.accountName),
     ];
   }
 
@@ -376,21 +377,21 @@ const validatorAccount = () => {
     isNaN(accountInfo.value?.AccountFeature);
 
   if (isAccountFeatureEmpty) {
-    errValidator.AccountFeature = [
-      ...(errValidator?.AccountFeature ?? []),
-      ErrValidator.fieldEmplty(AccountCol.AccountFeature.text),
+    errsValidator.value.AccountFeature = [
+      ...(errsValidator.value?.AccountFeature ?? []),
+      ErrValidator.fieldNotEmpty(FreeText.accountFeature),
     ];
   }
 
   // Kiểm tra xem reactive object có rỗng hay không
-  const isEmpty = Object.keys(errValidator).length === 0;
+  const isEmpty = Object.keys(errsValidator.value).length === 0;
   if (isEmpty) {
     // console.log("isEmpty", isEmpty);
     return true;
   } else {
-    const errMsgArray = Object.values(errValidator).flat();
+    const errMsgArray = Object.values(errsValidator.value).flat();
     // console.log(errMsgArray);
-    store.dispatch("getErrsValidate", { ...errValidator });
+    store.dispatch("getErrsValidate", { ...errsValidator.value });
     store.dispatch("getDialog", {
       isShow: true,
       type: DialogType.error,
@@ -451,9 +452,24 @@ const storeAndAddAccount = () => {
   // có lỗi thì không làm gì cả
 };
 
+/**
+ * Mô tả: chọn thông tin kèm theo của tài khoản
+ * created by : vdtien
+ * created date: 24-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickSelectAttrDetailTracking = (fieldName, item) => {
   accountInfo.value[fieldName] = item[fieldSelectUserObject];
 };
+
+/**
+ * Mô tả: toggle disable drop chọn thông tin kèm theo
+ * created by : vdtien
+ * created date: 24-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
   toggleAttrDetailTracking.value[fieldName] =
     !toggleAttrDetailTracking.value[fieldName];
@@ -476,8 +492,8 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
         <div class="popup-header__title">
           {{
             popupStatus?.type === PopupType.create
-              ? "Thêm tài khoản"
-              : "Sửa tài khoản"
+              ? FreeText.addAccount
+              : FreeText.editAccount
           }}
         </div>
         <div class="popup-header__actions flex items-center ml-auto">
@@ -489,10 +505,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
           <div
             ref="btnClose"
             class="popup-header-actions__close"
-            title="Đóng - ESC"
+            :title="FreeText.editAccount"
             @keydown.enter="onClosePopup"
             @click="onClosePopup"
-            @keydown="hanldeFocusFirst"
             @keydown.tab.stop="">
             <div class="icon-wrapper">
               <div class="icon icon--close"></div>
@@ -509,13 +524,13 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                 v-model="accountInfo.AccountCode"
                 :tab-index="1"
                 required
-                label="Số tài khoản"
+                :label="FreeText.accountCode"
                 :max-length="MaxLength.code"
                 class-label="w-1/4"
-                :err-msg="errsValidate?.AccountCode?.join('') ?? ''"
+                :err-msg="errsValidator?.AccountCode?.join('') ?? ''"
                 @empty-err-msg="
                   () => {
-                    delete errsValidate.AccountCode;
+                    delete errsValidator.AccountCode;
                   }
                 "
                 @keydown.shift.tab.stop.prevent="() => btnCancel.focus()" />
@@ -526,19 +541,19 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                 v-model="accountInfo.AccountName"
                 :tab-index="2"
                 required
-                label="Tên tài khoản"
+                :label="FreeText.accountName"
                 :max-length="MaxLength.name"
                 class-label="w-1/2"
-                :err-msg="errsValidate?.AccountName?.join('') ?? ''"
+                :err-msg="errsValidator?.AccountName?.join('') ?? ''"
                 @empty-err-msg="
                   () => {
-                    delete errsValidate.AccountName;
+                    delete errsValidator.AccountName;
                   }
                 " />
               <b-textfield
                 v-model="accountInfo.AccountNameEnglish"
                 :tab-index="3"
-                label="Tên tiếng anh"
+                :label="FreeText.nameEnglish"
                 :max-length="MaxLength.name"
                 class-label="w-1/2"
                 @keydown.tab.stop="" />
@@ -549,7 +564,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   :ref="errRefs.ParentId"
                   class="w-1/2"
                   tree
-                  label="Tài khoản tổng hợp"
+                  :label="FreeText.accountSynthetic"
                   :tab-index="4"
                   :max-length="MaxLength.default"
                   is-reload-scroll
@@ -560,7 +575,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   :data-list="dataAccountSynthetic"
                   :id-selected="accountInfo.ParentId"
                   :value-selected="valueAccountSynthetic"
-                  :err-msg="errsValidate?.ParentId?.join('') ?? ''"
+                  :err-msg="errsValidator?.ParentId?.join('') ?? ''"
                   @load-data-lazy="
                     (searchAccountSynthetic) =>
                       loadDataAccountSyntheticLazy(searchAccountSynthetic)
@@ -573,7 +588,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   @add-value-selected="(item) => (valueAccountSynthetic = item)"
                   @empty-err-msg="
                     () => {
-                      delete errsValidate.ParentId;
+                      delete errsValidator.ParentId;
                     }
                   "
                   @keydown.tab.stop="" />
@@ -583,20 +598,20 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   is-required
                   class="w-1/2"
                   class-list="mh-fit"
-                  label="Tính chất"
+                  :label="FreeText.accountSynthetic"
                   :max-length="MaxLength.default"
-                  place-holder="-- Chọn tính chất --"
+                  :place-holder="FreeText.selectFeature"
                   :data-list="dataAccountFeature"
                   field-select="id"
                   field-show="value"
                   :id-selected="accountInfo.AccountFeature"
-                  :err-msg="errsValidate?.AccountFeature?.join('') ?? ''"
+                  :err-msg="errsValidator?.AccountFeature?.join('') ?? ''"
                   @on-click-id-selected="
                     (id) => (accountInfo.AccountFeature = id)
                   "
                   @empty-err-msg="
                     () => {
-                      delete errsValidate.AccountFeature;
+                      delete errsValidator.AccountFeature;
                     }
                   "
                   @keydown.tab.stop="" />
@@ -609,6 +624,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                   v-model="accountInfo.Explain"
                   tabindex="6"
                   class="textarea"
+                  maxlength="500"
                   rows="2"
                   @keydown.tab.stop=""></textarea>
               </label>
@@ -637,7 +653,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                       'animatation-showMoreDetail': !isExpandDetailTracking,
                     }"></div>
                 </div>
-                <span class="title-showMoreDetail">Theo dõi chi tiết theo</span>
+                <span class="title-showMoreDetail">{{
+                  FreeText.detailTracking
+                }}</span>
               </div>
             </div>
             <div
@@ -658,7 +676,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                           () => onClickToggleArrDetailTracking('UserObject', 2)
                         "
                         @keydown.tab.stop="" />
-                      <span class="font-regular"> Đối tượng </span>
+                      <span class="font-regular"> {{ FreeText.object }} </span>
                     </label>
                     <BDropdown
                       class="w-1/2"
@@ -668,7 +686,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                       :fields="fieldsUserObject"
                       :field-select="fieldSelectUserObject"
                       :field-show="fieldShowUserObject"
-                      :id-selected="`${accountInfo?.UserObject ?? -1}`"
+                      :id-selected="accountInfo?.UserObject ?? 0"
                       @on-click-id-select="
                         (id) => (accountInfo.UserObject = id)
                       "
@@ -680,7 +698,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <label
                       class="checkbox-wrapper w-1/2 flex flex-row items-center pointer m-0 gap-0-8">
                       <input class="input-checkbox m-0 mr-1" type="checkbox" />
-                      <span class="font-regular"> Tài khoản ngân hàng </span>
+                      <span class="font-regular">
+                        {{ FreeText.bankAccount }}</span
+                      >
                     </label>
                   </div>
                 </div>
@@ -692,7 +712,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
                     <label
                       class="checkbox-wrapper w-1/2 flex flex-row items-center pointer m-0 gap-0-8">
                       <input class="input-checkbox m-0 mr-1" type="checkbox" />
-                      <span class="font-regular"> Đối tượng THCP </span>
+                      <span class="font-regular">
+                        {{ FreeText.objectTHCP }}
+                      </span>
                     </label>
                     <BDropdown
                       class="w-1/2"
@@ -836,7 +858,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
             :tabindex="12"
             type="secondary"
             size="mini"
-            title="Hủy"
+            :title="FreeText.cancel"
             :tab-index="20"
             @keydown.enter="onClosePopup"
             @keydown="handleFocusFirst"
@@ -848,7 +870,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
             :tabindex="10"
             type="secondary"
             size="mini"
-            title="Cất"
+            :title="FreeText.store"
             :tab-index="18"
             @keydown.enter="storeAccount"
             @click="storeAccount" />
@@ -857,7 +879,7 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
             :tabindex="11"
             type="primary"
             size="mini"
-            title="Cất và thêm"
+            :title="FreeText.storeAdd"
             :tab-index="19"
             @keydown.enter="storeAndAddAccount"
             @click="storeAndAddAccount" />

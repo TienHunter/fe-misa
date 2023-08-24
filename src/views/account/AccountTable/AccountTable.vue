@@ -5,14 +5,14 @@
         <thead>
           <tr>
             <th
-              v-for="(col, key, index) in AccountCol"
+              v-for="(col, index) in accountCols"
               :key="index"
               :class="{
-                'th-anchor th-anchor--end': key === 'action',
+                'th-anchor th-anchor--end': col?.name === 'action',
+                [col?.class]: true,
               }"
-              :style="{ minWidth: '160px' }"
               :title="col?.title">
-              <span>{{ col?.text }}</span>
+              <span>{{ col?.label }}</span>
             </th>
           </tr>
         </thead>
@@ -21,22 +21,25 @@
             <template v-for="item in accountsList" :key="item.AccountId">
               <tr v-if="isshowTr(item.ParentId)" class="pointer">
                 <td
-                  v-for="(col, key, indexCol) in AccountCol"
+                  v-for="(col, indexCol) in accountCols"
                   :key="indexCol"
                   :class="{
-                    'td-anchor td-anchor--end td-action': key === 'action',
-                    'before-last':
-                      indexCol === Object.keys(AccountCol).length - 2,
+                    'td-anchor td-anchor--end td-action':
+                      col?.name === 'action',
+                    'before-last': indexCol === accountCols?.length - 2,
                     'font-bold': item?.IsParent,
+                    [col?.class]: true,
                   }"
                   :style="{
                     'z-index':
-                      rowSelected === item?.AccountId && key === 'action'
+                      rowSelected === item?.AccountId && col?.name === 'action'
                         ? 1
                         : 0,
-                  }">
+                  }"
+                  :title="item?.[col?.name]"
+                  @dblclick="() => onOpenPopupUpdate(item)">
                   <span
-                    v-if="key == 'AccountCode'"
+                    v-if="col?.name == 'AccountCode'"
                     class="flex items-center gap-0-8"
                     :style="{ 'padding-left': `${24 * item?.Grade ?? 0}px` }">
                     <div class="w-4 h-4 flex items-center justify-center">
@@ -47,20 +50,21 @@
                           'icon--plus-square': !item?.showChild,
                           'icon--minus-square': item?.showChild,
                         }"
-                        @click="() => onClickToggleShowChild(item)"></div>
+                        @dblclick.stop=""
+                        @click.stop="() => onClickToggleShowChild(item)"></div>
                       <div v-show="!item?.IsParent" class="icon"></div>
                     </div>
-                    <span>{{ item[key] }}</span>
+                    <span>{{ item[col?.name] }}</span>
                   </span>
-                  <span v-else-if="key === 'AccountFeature'">
-                    {{ converAccountFeature(item[key]) }}</span
+                  <span v-else-if="col?.name === 'AccountFeature'">
+                    {{ converAccountFeature(item[col?.name]) }}</span
                   >
-                  <span v-else-if="key === 'Status'">
-                    {{ converStatusField(item[key]) }}
+                  <span v-else-if="col?.name === 'Status'">
+                    {{ converStatusField(item[col?.name]) }}
                   </span>
 
                   <div
-                    v-else-if="key === 'action'"
+                    v-else-if="col?.name === 'action'"
                     class="flex items-center justify-center h-full"
                     @dblclick.stop=""
                     @click.stop="">
@@ -74,10 +78,7 @@
                     <div
                       class="td-action__icon flex items-center"
                       :style="{
-                        'z-index':
-                          rowSelected === item.AccountId && key === 'action'
-                            ? 2
-                            : 0,
+                        'z-index': rowSelected === item.AccountId ? 2 : 0,
                       }">
                       <div
                         class="icon-wrapper w-4 h-4"
@@ -108,7 +109,9 @@
                           v-show="item?.Status === 0 || item?.Status === 1"
                           class="dropdown-item td-action-item"
                           @click="() => onClickChangeStatus(item)">
-                          {{ item?.Status === 0 ? "Sử dụng" : "Ngưng sử dụng" }}
+                          {{
+                            item?.Status === 0 ? FreeText.use : FreeText.notUse
+                          }}
                         </div>
                       </div>
                     </div>
@@ -117,14 +120,14 @@
                       class="overlay"
                       @click="() => toggleTableAction()" />
                   </div>
-                  <span v-else> {{ item[key] }}</span>
+                  <span v-else> {{ item[col?.name] }}</span>
                 </td>
               </tr>
             </template>
           </template>
           <template v-else>
             <tr>
-              <td :colspan="Object.keys(AccountCol).length" class="font-italic">
+              <td :colspan="accountCols?.length ?? 0" class="font-italic">
                 {{ FreeText.notFoundRecord }}
               </td>
             </tr>
@@ -136,13 +139,7 @@
 </template>
 <script setup>
 import TrTree from "./TrTree.vue";
-import {
-  AccountCol,
-  FreeText,
-  ButtonTitle,
-  DialogTitle,
-  DialogContent,
-} from "@/resources";
+import { FreeText, ButtonTitle, DialogTitle, DialogContent } from "@/resources";
 import { useStore } from "vuex";
 import { computed, onBeforeMount, onMounted, ref, watchEffect } from "vue";
 import {
@@ -164,6 +161,43 @@ const rowSelected = ref("");
 const tableAccountRef = ref(null);
 const positionTableBottom = ref(0);
 const btnTableDirectUp = ref(false);
+const accountCols = [
+  {
+    name: "AccountCode",
+    label: "Số tài khoản",
+    class: "mw-130 w-130 Mw-130 text-left",
+  },
+  {
+    name: "AccountName",
+    label: "Tên tài khoản",
+    class: "mw-250 w-250 Mw-250 text-left",
+  },
+  {
+    name: "AccountFeature",
+    label: "Tính chất",
+    class: "mw-130 w-130 Mw-130 text-left",
+  },
+  {
+    name: "AccountNameEnglish",
+    label: "Tên tiếng anh",
+    class: "mw-250 w-250 Mw-250 text-left",
+  },
+  {
+    name: "Explain",
+    label: "Diễn giải",
+    class: "mw-150 w-150 Mw-150 text-left",
+  },
+  {
+    name: "Status",
+    label: "Trạng thái",
+    class: "mw-120 w-120 Mw-120 text-left",
+  },
+  {
+    name: "action",
+    label: "Chức năng",
+    class: "mw-100 w-100 Mw-100 text-center",
+  },
+];
 onBeforeMount(() => {
   // store.dispatch("getAccountsListTree");
 });
@@ -323,9 +357,7 @@ const onClickChangeStatus = (item) => {
           isShow: true,
           type: DialogType.warning,
           title: DialogTitle.notify,
-          content: [
-            'Bạn có muốn thiết lập trạng thái "Sử dụng" cho tất cả Tài khoản con không?',
-          ],
+          content: [DialogContent.useAllAccountChild],
           action: DialogAction.confirmUpdateStatus,
         });
       } else {
@@ -340,9 +372,7 @@ const onClickChangeStatus = (item) => {
         isShow: true,
         type: DialogType.error,
         title: DialogTitle.notify,
-        content: [
-          'Tài khoản cha đang ở trạng thái "Ngừng sử dụng". Bạn không thể thiết lập trạng thái "Sử dụng" cho Tài khoản con."',
-        ],
+        content: [DialogContent.notUseAccountChild],
       });
     }
   } else if (item?.Status == Status.using) {

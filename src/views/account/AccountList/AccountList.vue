@@ -8,7 +8,7 @@
             :to="{ name: 'Directory', params: {} }"
             class="text-blue flex items-center gap-0-4">
             <div class="icon icon--chevron-left-blue"></div>
-            <span>Tất cả danh mục</span>
+            <span>{{ FreeText.allDirectory }}</span>
           </router-link>
         </div>
       </div>
@@ -26,23 +26,23 @@
         <div
           class="content-body-tools__right ml-auto flex items-center gap-0-12">
           <div class="text-blue pointer" @click="toggleExpand">
-            {{ !isExpand ? "Mở rộng" : "Thu gọn" }}
+            {{ !isExpand ? FreeText.expand : FreeText.shrink }}
           </div>
           <div
             class="icon-wrapper content-body-tools__refresh"
-            title="Tải lại"
+            :title="FreeText.reload"
             @click="onClickRefreshPage">
             <div class="icon icon--refresh"></div>
           </div>
           <div
             class="icon-wrapper content-body-tools__export-excel"
-            title="Xuất file"
+            :title="FreeText.exportExcel"
             @click="exportExcelAccountList">
             <div class="icon icon--excel"></div>
           </div>
           <b-button
             :type="ButtonType.combo"
-            :title="'Thêm'"
+            :title="FreeText.add"
             round
             size="mini"
             :on-click="onOpenPopupCreate">
@@ -115,6 +115,10 @@ watch(debounceSearch, () => {
 
   store.dispatch("getAccountsListTree");
 });
+watch(filterAndPaging, () => {
+  isExpand.value = false;
+  isLoadedAll.value = false;
+});
 
 //--end lifecycle-----
 //-----------------start method------------------------
@@ -168,6 +172,11 @@ const exportExcelAccountList = () => {
 
 const onClickRefreshPage = () => {
   searchValue.value = "";
+  store.dispatch("getFilterAndPaging", {
+    pageSize: 10,
+    pageNumber: 1,
+    keySearch: "",
+  });
   store.dispatch("getAccountsListTree");
 };
 //---------------end method------------------

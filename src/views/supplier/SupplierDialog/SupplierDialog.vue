@@ -54,6 +54,17 @@ const onAccept = () => {
     case DialogAction.confirmDeleteMulti:
       store.dispatch("getDialog", {});
       store.dispatch("deleteMultiSupplier");
+      break;
+    case DialogAction.confirmRemoveAllBankAccounts:
+      store.dispatch("getDialog", {
+        action: DialogAction.confirmRemoveAllBankAccounts,
+      });
+      break;
+    case DialogAction.confirmRemoveAllDelivery:
+      store.dispatch("getDialog", {
+        action: DialogAction.confirmRemoveAllDelivery,
+      });
+      break;
     default:
       store.dispatch("getDialog", {});
       break;

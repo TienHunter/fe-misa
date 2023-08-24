@@ -58,6 +58,11 @@ const onAccept = async () => {
         action: DialogAction.confirmChangeCode,
       });
       break;
+    case DialogAction.confirmRemoveAllAccountings:
+      store.dispatch("getDialog", {
+        action: DialogAction.confirmRemoveAllAccountings,
+      });
+      break;
     default:
       store.dispatch("getDialog", {});
       break;

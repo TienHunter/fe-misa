@@ -10,11 +10,7 @@
               :class="{
                 'th-anchor': col?.key === 'checkbox',
                 'th-anchor th-anchor--end': col?.key === 'action',
-                [`text-${col?.text ?? 'left'}`]: true,
-              }"
-              :style="{
-                minWidth: `${col?.minWidth ?? 160}px`,
-                maxWidth: `${col?.maxWidth ?? 160}px`,
+                [col?.class]: true,
               }"
               :title="col?.title">
               <div
@@ -47,7 +43,7 @@
                 :class="{
                   'td-anchor td-anchor--start': col?.key === 'checkbox',
                   'td-anchor td-anchor--end td-action': col?.key === 'action',
-                  [`text-${col?.text ?? 'left'}`]: true,
+                  [col?.class]: true,
                   'before-last': indexCol === paymentCols.length - 2,
                 }"
                 :style="{
@@ -175,7 +171,7 @@
               :key="index"
               class="th-foot"
               :class="{
-                [`text-${col?.text ?? 'left'}`]: true,
+                [col?.class]: true,
               }">
               <span
                 v-if="col.type === TypeCol.money"
@@ -248,68 +244,52 @@ const paymentCols = [
   {
     key: "checkbox",
     label: "",
-    minWidth: 40,
-    maxWidth: 40,
-    text: "center",
+
+    class: "mw-40 w-40 Mw-40 text-center",
   },
   {
     key: "AccountingDate",
     label: "Ngày hạch toán",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "center",
     type: TypeCol.date,
+    class: "mw-160 w-160 Mw-160 text-center",
   },
   {
     key: "PaymentDate",
     label: "Ngày phiếu chi",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "center",
     type: TypeCol.date,
+    class: "mw-160 w-160 Mw-160 text-center",
   },
   {
     key: "PaymentCode",
     label: "Số chứng từ",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "left",
+    class: "mw-160 w-160 Mw-160 text-left",
   },
   {
     key: "ReasonSpending",
     label: "Diễn giải",
-    minWidth: 160,
-    maxWidth: 200,
-    text: "left",
+    class: "mw-160 w-160 Mw-160 text-left",
   },
   {
     key: "TotalMoney",
     label: "Số tiền",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "right",
+    class: "mw-160 w-160 Mw-160 text-right",
+
     type: TypeCol.money,
   },
   {
     key: "SupplierName",
     label: "Đối tượng",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "left",
+    class: "mw-160 w-160 Mw-160 text-left",
   },
   {
     key: "Address",
     label: "Địa chỉ",
-    minWidth: 160,
-    maxWidth: 160,
-    text: "left",
+    class: "mw-160 w-160 Mw-160 text-left",
   },
   {
     key: "action",
     label: "Chức năng",
-    minWidth: 120,
-    maxWidth: 120,
-    text: "center",
+    class: "mw-120 w-120 Mw-120 text-center",
   },
 ];
 //========= start methods =========

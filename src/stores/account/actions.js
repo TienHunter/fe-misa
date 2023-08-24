@@ -2,6 +2,7 @@ import AccountService from "@/api/services/accountService";
 import {
   DialogAction,
   DialogType,
+  PopupType,
   Status,
   ToastType,
   TypeStore,
@@ -10,7 +11,7 @@ import {
 import { DialogTitle, ToastContent } from "@/resources";
 import { nestTreeData } from "@/utils/helper";
 import { ref } from "vue";
-import { hanldeException } from "../global/actions";
+import { handleException } from "../global/actions";
 const actions = {
   /**
    * Mô tả: lay danh sach tai khoan
@@ -35,29 +36,6 @@ const actions = {
         // console.log(res);
         dispatch("getTotalRecords", res.TotalRecord);
         dispatch("getTotalRoots", res.TotalRoot);
-        //   let resNew = [];
-        //   if (rootState.global?.filterAndPaging?.keySearch)
-        //     resNew = res.Data.map((item) => ({ ...item, showChild: true }));
-        //   else resNew = res.Data.map((item) => ({ ...item, showChild: false }));
-        //   commit("SET_ACCOOUNTS_LIST", resNew);
-        // }
-        // if (rootState.global?.filterAndPaging?.keySearch) {
-        //   while (res.Data?.length > 0) {
-        //     let listParentId = res.Data.map((acc) => acc.AccountId);
-        //     res = await AccountService.getListTreeAccount(
-        //       {
-        //         ...rootState.global.filterAndPaging,
-        //         isRoot: false,
-        //         grade: 0,
-        //       },
-        //       listParentId
-        //     );
-        //     if (res?.Data?.length > 0) {
-        //       let childs = res.Data.map((obj) => ({ ...obj, showChild: true }));
-        //       // sap xep cay
-        //       await dispatch("getListAccountChildrenByParents", childs);
-        //     }
-        //   }
         let resNew = [];
         if (rootState?.global?.filterAndPaging?.keySearch) {
           resNew = res.Data.map((item) => ({ ...item, showChild: true }));
@@ -68,7 +46,7 @@ const actions = {
       }
     } catch (error) {
       console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -103,6 +81,13 @@ const actions = {
 
   // },
 
+  /**
+   * Mô tả: Lấy ra tất cả các nút theo danh sách nút cha
+   * created by : vdtien
+   * created date: 24-08-2023
+   * @param {type} param -
+   * @returns
+   */
   async getAllAcountByListParentIds({ state, commit, dispatch }, listParentId) {
     try {
       dispatch("toggleLoading");
@@ -196,9 +181,15 @@ const actions = {
             (acc) => acc.AccountId === res.ParentId
           );
           // lay cac tai khoan con co parentId = res.ParentId
-          if (parentIndex) {
+          if (parentIndex != -1) {
             dispatch("toggleLoading");
-            await dispatch("getAccountsListByParentId", res.ParentId);
+
+            // await dispatch("getAccountsListByParentId", res.ParentId);
+
+            dispatch("getChildToParent", {
+              indexParent: parentIndex,
+              child: structuredClone(res),
+            });
             dispatch("toggleLoading");
           }
         }
@@ -210,18 +201,12 @@ const actions = {
         dispatch("getAccountDetail");
         // commit("SET_TOTAL_RECORDS", state.totalRecords + 1);
         dispatch("getPopupStatus");
-        // // laod lai du lieu
-        // dispatch("getFilterAndPaging", {
-        //   pageSize: rootState.global.filterAndPaging.pageSize,
-        //   keySearch: "",
-        //   pageNumber: 1,
-        // });
-        // dispatch("toggleLoading");
-        // await dispatch("getAccountsListTree");
-        // dispatch("toggleLoading");
-
         if (typeStore === TypeStore.store) {
         } else if (typeStore === TypeStore.storeAndAdd) {
+          dispatch("getPopupStatus", {
+            isShowPopup: false,
+            type: PopupType.create,
+          });
           dispatch("getPopupStatus", {
             isShowPopup: true,
             type: PopupType.create,
@@ -233,7 +218,7 @@ const actions = {
     } catch (error) {
       // console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -258,8 +243,10 @@ const actions = {
 
       //cập nhật thành công
       if (res) {
-        res.showChild = false;
-        commit("UPDATE_ACCOUNT", res);
+        dispatch("toggleLoading");
+        await dispatch("getAccountsListTree");
+        // res.showChild = false;
+        // commit("UPDATE_ACCOUNT", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
@@ -270,6 +257,9 @@ const actions = {
         if (typeStore === TypeStore.store) {
         } else if (typeStore === TypeStore.storeAndAdd) {
           dispatch("getPopupStatus", {
+            isShowPopup: false,
+          });
+          dispatch("getPopupStatus", {
             isShowPopup: true,
             type: PopupType.create,
           });
@@ -277,11 +267,11 @@ const actions = {
       }
       // lỗi
     } catch (error) {
+      dispatch("toggleLoading");
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
-      dispatch("toggleLoading");
     }
   },
 
@@ -316,7 +306,7 @@ const actions = {
     } catch (error) {
       console.log(error);
       // add error vào dialog
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -354,7 +344,7 @@ const actions = {
       }
     } catch (error) {
       // console.log(error);
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -374,7 +364,7 @@ const actions = {
         }
       }
     } catch (error) {
-      hanldeException(dispatch, error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -411,6 +401,10 @@ const actions = {
    */
   toggleShowAll({ commit }, payload) {
     commit("TOGGLE_SHOW_ALL", payload);
+  },
+
+  getChildToParent({ commit }, payload) {
+    commit("SET_CHILD_TO_PARENT", payload);
   },
 };
 

@@ -28,6 +28,9 @@ export const DialogAction = {
   confirmDeleteMulti: "CONFIRM_DELETE_MULTI",
   confirmUpdateStatus: "CONFIRM_UPDATE_STATUS",
   confirmChangeCode: "CONFIRM_CHANGE_CODE",
+  confirmRemoveAllBankAccounts: "CONFIRM_REMOVE_ALL_BANK_ACCOOUNTS",
+  confirmRemoveAllDelivery: "CONFIRM_REMOVE_ALL_DELIVERY",
+  confirmRemoveAllAccountings: "CONFIRM_REMOVE_ALL_ACCOUNTINGS",
 };
 export const TypeStore = {
   store: "STORE",
@@ -140,4 +143,5 @@ export const ErrCode = {
   notFound: 4,
   internalException: 5,
   duplicationCodeHasFix: 6,
+  badRequest: 7,
 };

@@ -56,6 +56,10 @@ export const ErrValidator = {
   malformed: (fieldName) => {
     return `${fieldName} không đúng định dạng.`;
   },
+
+  dupBankAccountNumber: (bankNumber) => {
+    return `Số tài khoản ${bankNumber} đã tồn tại.`;
+  },
 };
 
 export const DialogTitle = {
@@ -97,6 +101,15 @@ export const DialogContent = {
   confirmDeletePayment: (paymentCode) => {
     return `Bạn có chắc chắn muốn xóa ${paymentCode} này không?`;
   },
+  // remove all row
+  removeAllRow: "Bạn có chắc chắn muốn xóa tất cả dòng đã nhập.",
+  accountGreaterEqual3Characters: "Số tài khoản phải có độ dài >= 3 ký tự.",
+  accountNeedParent:
+    "Số tài khoản có độ dài > 3 ký tự thì phải điền tài khoản tổng hợp",
+  useAllAccountChild:
+    'Bạn có muốn thiết lập trạng thái "Sử dụng" cho tất cả Tài khoản con không?',
+  notUseAccountChild:
+    'Tài khoản cha đang ở trạng thái "Ngừng sử dụng". Bạn không thể thiết lập trạng thái "Sử dụng" cho Tài khoản con."',
 };
 
 export const ToastContent = {
@@ -136,29 +149,7 @@ export const ToastContent = {
   writtenPaymentSuccess: "Ghi sổ thành công.",
   unWrittenPaymentSuccess: "Bỏ ghi sổ thành công.",
 };
-export const AccountCol = {
-  AccountCode: {
-    text: "Mã tài khoản",
-  },
-  AccountName: {
-    text: "Tên tài khoản",
-  },
-  AccountFeature: {
-    text: "Tính chất",
-  },
-  AccountNameEnglish: {
-    text: "Tên tiếng anh",
-  },
-  Explain: {
-    text: "Diễn giải",
-  },
-  Status: {
-    text: "Trạng thái sử dụng",
-  },
-  action: {
-    text: "Chức năng",
-  },
-};
+
 // employee
 export const EmployeeCol = {
   checkbox: {
@@ -382,6 +373,72 @@ export const FreeText = {
   directory: "Danh mục",
   supplierList: "Danh sách nhà cung cấp",
   directoryAll: "Tất cả danh mục",
+  payment: "Phiếu chi",
+  documnetCantWrite: "Chứng từ không thực hiện ghi sổ được",
+  resultDeleteDocumnet: "Kết quả xóa chứng từ",
+  supplier: "Nhà cung cấp",
+  resultDeleteSupplier: "Kết quả xóa nhà cung cấp",
+
+  closeEsc: "Đóng (ESC)",
+
+  // account
+  accountName: "Tên tài khoản",
+  accountFeature: "Tính chất",
+  addAccount: "Thêm tài khoản",
+  editAccount: "Sửa tài khoản",
+  accountCode: "Số tài khoản",
+  nameEnglish: "Tên tiếng anh",
+  accountSynthetic: "Tài khoản tổng hợp",
+  feature: "Tính chất",
+  selectFeature: "-- Chọn tính chất --",
+  detailTracking: "Theo dõi chi tiết",
+  object: "Đối tượng",
+  bankAccount: "Tài khoản ngân hàng",
+  objectTHCP: "Đối tượng THCP",
+  cancel: "Hủy",
+  store: "Cất",
+  storeAdd: "Cất và thêm",
+  allDirectory: "Tất cả danh mục",
+  expand: "Mở rộng",
+  shrink: "thu gọn",
+  reload: "Tải lại",
+  exportExcel: "Xuất file",
+  add: "Thêm",
+  use: "Sử dụng",
+  notUse: "Ngưng sử dụng",
+  instruct: "Hướng dẫn",
+  customizeInterface: "Tùy chỉnh giao diện",
+  helpF1: "Giúp (F1)",
+  supplierCode: "Mã nhà cung cấp",
+  supplierName: "Tên nhà cung cấp",
+  receiver: "Người nhận",
+  address: "Địa chỉ",
+  reasonSpending: "Lý do chi",
+  attach: "Kèm theo",
+  quantity: "Số lượng",
+  originalDocuments: "chứng từ gốc",
+  reference: "Tham chiếu",
+  accountingDate: "Ngày hạch toán",
+  paymentDate: "ngày phiếu chi",
+  paymentCode: "Số phiếu chi",
+  sumMoney: "Tổng tiền",
+  accounting: "Hạch toán",
+  addRow: "Thêm dòng",
+  deleteAllRow: "Xóa hết dòng",
+  storePrint: "Cất và in",
+  write: "Ghi sổ",
+  edit: "Sửa",
+  quickEdit: "Sửa nhanh",
+  unWrite: "Bỏ ghi",
+  spendingFor: "Chi tiền cho",
+  accountDebt: "Tài khoản nợ",
+  accountBalance: "Tài khoản có",
+  search: "Tìm kiếm",
+  spneding: "Chi tiền",
+  numberOfProcessingDocuments: "Số chứng từ xử lý",
+  numberOfDocumentsProcessedSuccessfully: "Số chứng từ xử lý thành công",
+  numberOfDocumentsProcessedFailed: "Số chứng từ xử lý không thành công",
+  close: "Đóng",
 };
 export const InputPlaceholder = {
   findEmployee: "Tìm kiếm nhân viên...",

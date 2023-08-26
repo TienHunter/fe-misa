@@ -27,6 +27,7 @@ import { ErrValidator } from "@/resources";
 /**state */
 const store = useStore();
 const isExpandPopup = ref(false);
+const isFullSizePopup = ref(false);
 const accountDetailRef = ref(null);
 const popupStatus = computed(() => store.state.global.popupStatus);
 const accountDetail = computed(() => store.state.account.accountDetail);
@@ -70,14 +71,12 @@ const fields = ref([
   {
     name: "AccountCode",
     label: "Mã tài khoản",
-    minWidth: 120,
-    maxWidth: 160,
+    class: "mw-130 w-130 Mw-130 text-left",
   },
   {
     name: "AccountName",
     label: "Tên tài khoản",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-250 w-250 Mw-250 text-left",
   },
 ]);
 const fieldSelect = ref("AccountId");
@@ -121,7 +120,7 @@ onBeforeMount(async () => {
   if (accountDetail.value?.ParentId) {
     try {
       let res = await accountService.getById(accountDetail.value.ParentId);
-      console.log(res);
+      // console.log(res);
       if (res && Object.keys(res).length > 0) {
         // searchAccountSynthetic.value = res.AccountCode;
         valueAccountSynthetic.value = { ...res };
@@ -149,7 +148,9 @@ onBeforeUnmount(() => {
 watchEffect(() => {
   errsValidator.value = structuredClone(errsValidate.value);
 });
-watchEffect(() => [(accountInfo.value = { ...accountDetail.value })]);
+watchEffect(() => {
+  accountInfo.value = structuredClone(accountDetail.value);
+});
 
 // bắt sự thay đổi của dialog
 watch(dialog, (newValue, oldValue) => {
@@ -277,7 +278,7 @@ const handleKeyDownDocument = () => {
  * @returns
  */
 const onClosePopup = () => {
-  accountInfo.value = removeEmptyFields(accountInfo.value);
+  // accountInfo.value = removeEmptyFields(accountInfo.value);
   if (
     JSON.stringify(accountInfo.value) !== JSON.stringify(accountDetail.value)
   ) {
@@ -487,7 +488,9 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
     class="popup-wrapper outline-none"
     :tabindex="0"
     @keydown.stop="">
-    <div class="popup-container flex flex-col">
+    <div
+      class="popup-container flex flex-col"
+      :class="{ 'fullsize-popup': isFullSizePopup }">
       <div class="popup__header flex items-center">
         <div class="popup-header__title">
           {{
@@ -885,6 +888,14 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
             @click="storeAndAddAccount" />
         </div>
       </div>
+
+      <div
+        class="resize-popup pointer"
+        @click="isFullSizePopup = !isFullSizePopup">
+        <div
+          class="icon-v1 icon-v1-resize-popup"
+          :class="{ 'route-icon-180': isFullSizePopup }"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -895,15 +906,29 @@ const onClickToggleArrDetailTracking = (fieldName, defalutValue) => {
   bottom: 0;
   right: 0;
   left: auto;
-  width: auto;
-  min-width: 900px;
+  /* width: 50%; */
+  min-width: 50%;
   max-height: 100%;
   border-radius: var(--border-radius);
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
-  transition: all 0.2s;
+  transition: all linear 0.2s;
 }
-
+.fullsize-popup {
+  max-width: calc(100vw - 6px);
+  width: calc(100vw - 6px) !important;
+  height: 100%;
+  transition: all linear 0.2s;
+}
+.resize-popup {
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+}
+.route-icon-180 {
+  rotate: 180deg;
+}
 .textarea {
   resize: none;
   border-radius: 3px;

@@ -21,6 +21,7 @@
     padding: 24px;
     background-color: #fff;
     position: relative;
+
 }
 
 .dialog__header {
@@ -35,6 +36,12 @@
 
 .dialog__content {
     flex: 1;
+
+}
+
+.dialog-content__text {
+    max-height: 240px;
+    overflow: auto;
 }
 
 .dialog__bottom {

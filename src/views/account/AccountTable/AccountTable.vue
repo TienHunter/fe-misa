@@ -36,7 +36,7 @@
                         ? 1
                         : 0,
                   }"
-                  :title="item?.[col?.name]"
+                  :title="converTitleTd(item?.[col?.name], col?.name)"
                   @dblclick="() => onOpenPopupUpdate(item)">
                   <span
                     v-if="col?.name == 'AccountCode'"
@@ -204,7 +204,7 @@ onBeforeMount(() => {
 onMounted(() => {
   positionTableBottom.value =
     tableAccountRef.value.getBoundingClientRect().bottom;
-  console.log(positionTableBottom.value);
+  // console.log(positionTableBottom.value);
 });
 
 /**
@@ -308,8 +308,8 @@ const onClickDeleteAccount = (item) => {
  * Author:vdtien (28/5/2023)
  */
 const onOpenPopupUpdate = (item) => {
-  const itemRemoveNull = removeEmptyFields(item);
-  store.dispatch("getAccountDetail", itemRemoveNull);
+  // const itemRemoveNull = removeEmptyFields(item);
+  store.dispatch("getAccountDetail", structuredClone(item));
   store.dispatch("getPopupStatus", {
     isShowPopup: true,
     type: PopupType.update,
@@ -325,9 +325,9 @@ const onOpenPopupUpdate = (item) => {
 const onClickCloneRecord = async (item) => {
   // console.log(item);
   toggleTableAction(item);
-  const itemRemoveNull = removeEmptyFields({ ...item });
+  const itemRemoveNull = structuredClone(item);
   delete itemRemoveNull.AccountId;
-  delete itemRemoveNull.ParentId;
+  // delete itemRemoveNull.ParentId;
   store.dispatch("getAccountDetail", itemRemoveNull);
   store.dispatch("getPopupStatus", {
     isShowPopup: true,
@@ -381,6 +381,19 @@ const onClickChangeStatus = (item) => {
       status: Status.stopUsing,
       type: TypeUpdate.all,
     });
+  }
+};
+
+const converTitleTd = (label, name) => {
+  switch (name) {
+    case "AccountFeature":
+      return converAccountFeature(label);
+      break;
+    case "Status":
+      return converStatusField(label);
+    default:
+      return label;
+      break;
   }
 };
 </script>

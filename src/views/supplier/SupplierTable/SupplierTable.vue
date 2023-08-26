@@ -209,7 +209,7 @@ export default {
       {
         name: "Address",
         label: "Địa chỉ",
-        class: "mw-200 w-200 Mw-200 text-left",
+        class: "mw-200 text-left",
       },
       {
         name: "MaxAccountOfDebt",

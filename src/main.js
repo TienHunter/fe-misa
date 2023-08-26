@@ -12,6 +12,7 @@ import BaseToastMessage from "@/components/bases/BaseToastMessage.vue";
 import BaseDialog from "@/components/bases/BaseDialog.vue";
 import BasePaging from "@/components/bases/BasePaging.vue";
 import AutoFocus from "@/components/directives/AutoFocus";
+import vKeydown from "./components/directives/vKeyDown";
 import "@/utils/globalExtensions";
 const app = createApp(App);
 app.component("BButton", BaseButton);
@@ -23,6 +24,7 @@ app.component("BToastMessage", BaseToastMessage);
 app.component("BDialog", BaseDialog);
 app.component("BPaging", BasePaging);
 app.directive("auto-focus", AutoFocus);
+app.directive("keydown", vKeydown);
 registerGlobalComponents(app);
 router.beforeEach((to, from, next) => {
   // Thay đổi title dựa trên route hiện tại

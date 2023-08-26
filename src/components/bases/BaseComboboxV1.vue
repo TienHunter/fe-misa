@@ -42,7 +42,7 @@
         v-show="isShowCombobox"
         ref="listDataWrapperRef"
         class="combobox-list-wrapper"
-        style="z-index: 100"
+        style="z-index: 11"
         :style="{
           top: showBottom ? positionList.top + 'px' : 'unset',
           left: showLeft ? positionList.left + 'px' : 'unset',
@@ -62,11 +62,7 @@
                 <th
                   v-for="(field, indexField) in fields"
                   :key="indexField"
-                  :style="{
-                    minWidth: `${field?.minWidth}px`,
-                    maxWidth: `${field?.maxWidth}px`,
-                  }"
-                  :class="field?.class ?? ''"
+                  :class="field?.class"
                   :title="field?.title">
                   <span>{{ field?.label }}</span>
                 </th>
@@ -90,10 +86,6 @@
                   <td
                     v-for="(field, indexField) in fields"
                     :key="indexField"
-                    :style="{
-                      minWidth: `${field?.minWidth}px`,
-                      maxWidth: `${field?.maxWidth}px`,
-                    }"
                     :class="{
                       'font-bold': item?.IsParent && tree,
                       [field?.class]: true,
@@ -397,12 +389,15 @@ export default {
       // Khi người dùng cuộn đến cuối trang, tải thêm dữ liệu
       if (
         maxScroll - scrollTop < 48 &&
-        clientHeight !== scrollHeight &&
-        !isLoading.value
+        clientHeight !== scrollHeight
+        // &&
+        // !isLoading.value
       ) {
         isLoading.value = true;
         emit("loadDataLazy", debounceSearch.value);
       }
+
+      console.log("scroll");
     };
 
     const focus = () => {

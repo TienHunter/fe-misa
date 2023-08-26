@@ -33,7 +33,7 @@
     <div
       v-show="isShowCombobox"
       class="combobox-list-wrapper"
-      style="z-index: 100; min-width: 100%"
+      style="z-index: 11; min-width: 100%"
       @scroll.stop="">
       <ul
         ref="listDataWrapperRef"
@@ -113,8 +113,8 @@ export default {
       default: false,
     },
     idSelected: {
-      type: String,
-      default: "",
+      type: [String, Number],
+      default: null,
     },
     errMsg: {
       type: String,

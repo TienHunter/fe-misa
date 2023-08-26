@@ -1,10 +1,10 @@
-div
+divdivdiv
 <template lang="">
   <div
     ref="depositWithdrawDetail"
     class="popup-wrapper outline-none"
     :tabindex="0"
-    @keydown.stop="">
+    @keydown.stop="handleKeydownWrapper">
     <div class="flex flex-col w-full h-full">
       <div class="popup__header flex items-center payment__header">
         <div class="flex items-center">
@@ -25,6 +25,7 @@ div
               :readonly="disableWritten || disableView"
               class="w-input"
               :data="dataReasonList"
+              :fields="[]"
               field-select="id"
               field-show="value"
               :id-selected="paymentInfo?.ReasonTypeId ?? 1"
@@ -106,7 +107,10 @@ div
                             flagChangeNotSelectedCombobox = false;
                           }
                         "
-                        @keydown.tab.stop="" />
+                        @keydown.tab.stop=""
+                        @keydown.shift.tab.stop.prevent="
+                          () => btnCancel.focus()
+                        " />
                     </div>
                     <div class="w-4/7">
                       <b-textfield
@@ -484,52 +488,6 @@ div
                             </div>
                           </td>
                         </tr>
-                        <!-- <tr v-else @click="() => onClickAccountingRow(index)">
-                          <td class="px-3 text-center">
-                            <span>{{ index + 1 }}</span>
-                          </td>
-                          <td class="px-3">
-                            <div class="flex items-center">
-                              <div class="flex items-center">
-                                {{ accounting?.AccountingExplain ?? "" }}
-                              </div>
-                            </div>
-                          </td>
-                          <td class="px-3">
-                            <div class="flex items-center">
-                              <div class="flex items-center">
-                                {{ accounting?.AccountDebtCode ?? "" }}
-                              </div>
-                            </div>
-                          </td>
-                          <td class="px-3">
-                            <div class="flex items-center">
-                              <div class="flex items-center">
-                                {{ accounting?.AccountBalanceCode ?? "" }}
-                              </div>
-                            </div>
-                          </td>
-                          <td class="px-3">
-                            <div>
-                    
-                              <div class="flex items-center">
-                                <div
-                                  class="flex items-center justify-end w-full"
-                                  :class="{
-                                    'text-red': accounting?.Money < 0,
-                                  }">
-                                  {{ formatDecimal(accounting?.Money ?? 0) }}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td class="px-3">
-                            <div
-                              class="flex items-center justify-center no-pointer">
-                              <div class="icon-v1 icon-v1--bin"></div>
-                            </div>
-                          </td>
-                        </tr> -->
                       </template>
                     </tbody>
                     <tfoot>
@@ -635,7 +593,12 @@ div
           </template>
         </div>
         <div class="left-group-button">
-          <button class="btn btn--mini button-footer">Hủy</button>
+          <button
+            ref="btnCancel"
+            class="btn btn--mini button-footer"
+            @keydown="handleFocusFirst">
+            Hủy
+          </button>
         </div>
       </div>
     </div>
@@ -721,6 +684,7 @@ const errRefs = toRefs(
     PaymentCode: null,
   })
 );
+const btnCancel = ref(null);
 const accountsDebtRef = ref([]);
 const accountsBalanceRef = ref([]);
 const errsValidator = ref({
@@ -915,7 +879,6 @@ watchEffect(() => {
   }
 });
 onBeforeMount(async () => {
-  // console.log(" before muonte");
   // lấy tất cả danh sách tài khoản nợ
   try {
     let res = await accountService.getAllAccountQuery(
@@ -979,6 +942,8 @@ onBeforeMount(async () => {
       AccountCode: element.AccountBalanceCode,
     });
   });
+
+  store.dispatch("getPaymentDetail", structuredClone(paymentInfo.value));
 });
 
 onMounted(() => {
@@ -987,9 +952,9 @@ onMounted(() => {
     errRefs.SupplierId.value.focus();
   });
 });
-watchEffect(() => {
-  nextTick(() => console.log(errRefs.Accountings));
-});
+// watchEffect(() => {
+//   nextTick(() => console.log(errRefs.Accountings));
+// });
 
 // watchEffect(() => {
 //   err;
@@ -1048,6 +1013,18 @@ watch(dialog, async (newDialog, oldDialog) => {
     paymentInfo.value.Accountings = [];
     accountsDebtSelected.value = [];
     accountsBalanceSelected.value = [];
+  } else if (
+    newDialog.action === DialogAction.confirmCreate &&
+    oldDialog.action === DialogAction.confirmCreate
+  ) {
+    onClickButton(TypeClickButton.create);
+  } else if (
+    newDialog.action === DialogAction.confirmUpdate &&
+    oldDialog.action === DialogAction.confirmUpdate
+  ) {
+    onClickButton(TypeClickButton.update);
+  } else {
+    errRefs.SupplierId.value.focus();
   }
 });
 
@@ -1112,6 +1089,28 @@ watchEffect(() => {
 
 //========= start methods =========
 
+const handleFocusFirst = (e) => {
+  if (!e.shiftKey && e.which === 9) {
+    e.preventDefault();
+    errRefs.SupplierId.value.focus();
+  }
+};
+
+const handleKeydownWrapper = (e) => {
+  if (e.which === 27) {
+    // esc
+
+    onClosePopup();
+  } else if (e.ctrlKey && (e.which === 83 || e.which === 115)) {
+    e.preventDefault();
+    if (popupStatus.value.type === PopupType.create) {
+      onClickButton(TypeClickButton.create);
+    } else if (popupStatus.value.type === PopupType.update) {
+      onClickButton(TypeClickButton.update);
+    }
+  }
+};
+
 // Truy cập vào ref dựa trên tên chuỗi
 const accessRef = (refName) => {
   if (errRefs?.[refName]?.value) {
@@ -1175,11 +1174,40 @@ const onClickReason = (item) => {
  * @returns
  */
 const onClosePopup = () => {
-  store.dispatch("getPopupStatus", {
-    isShowPopup: false,
-    type: "",
-  });
-  store.dispatch("getEmployeeDetail");
+  paymentInfo.value = removeEmptyFields(paymentInfo.value);
+  if (
+    JSON.stringify(paymentInfo.value) !== JSON.stringify(paymentDetail.value)
+  ) {
+    if (popupStatus.value.type === PopupType.create) {
+      store.dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.info,
+        title: DialogTitle.store,
+        content: [DialogContent.confirmStore],
+        action: DialogAction.confirmCreate,
+      });
+    } else if (popupStatus.value.type === PopupType.update) {
+      store.dispatch("getDialog", {
+        isShow: true,
+        type: DialogType.info,
+        title: DialogTitle.store,
+        content: [DialogContent.confirmStore],
+        action: DialogAction.confirmUpdate,
+      });
+    } else {
+      store.dispatch("getPopupStatus", {
+        isShowPopup: false,
+        type: "",
+      });
+      store.dispatch("getPaymentDetail");
+    }
+  } else {
+    store.dispatch("getPopupStatus", {
+      isShowPopup: false,
+      type: "",
+    });
+    store.dispatch("getPaymentDetail");
+  }
 };
 
 /**

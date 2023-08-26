@@ -123,7 +123,7 @@ const { inputRef, numberValue, formattedValue } = useCurrencyInput(
   false
 );
 const isFocus = ref(false);
-watchEffect(() => console.log(isFocus.value));
+// watchEffect(() => console.log(isFocus.value));
 const focus = () => {
   // console.log("h1");
   inputRef.value.focus();

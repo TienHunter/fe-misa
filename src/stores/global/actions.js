@@ -133,7 +133,7 @@ function handleException(dispatch, ex) {
       dispatch("getDialog", {
         isShow: true,
         type: DialogType.error,
-        title: DialogTitle.error,
+        title: DialogTitle.notify,
         content: [...errsMsg],
         errorCode: ErrCode.badRequest,
       });

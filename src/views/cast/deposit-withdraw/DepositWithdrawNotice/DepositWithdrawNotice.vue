@@ -49,6 +49,7 @@
         <div class="toolbars pb-3">
           <div class="w-250">
             <b-textfield
+              v-model="searchValue"
               class-input="m-0"
               :place-holder="FreeText.search"
               class-icon="icon icon--search-small" />
@@ -72,9 +73,9 @@
               </thead>
               <tbody>
                 <!-- length danh sach lớn hơn 0 -->
-                <template v-if="paymentListFailure?.length > 0">
+                <template v-if="listTmp?.length > 0">
                   <tr
-                    v-for="(item, index) in paymentListFailure"
+                    v-for="(item, index) in listTmp"
                     :key="item.PaymentId"
                     class="pointer">
                     <td
@@ -144,10 +145,17 @@
 </template>
 <script setup>
 import { PopupType, TypeCol } from "@/enums";
+import { useDebounce } from "@/hooks";
 import { FreeText } from "@/resources";
-import { convertToDDMMYYYY, converTitle } from "@/utils/helper";
-import { computed, ref } from "vue";
+import {
+  convertToDDMMYYYY,
+  converTitle,
+  removeDiacritics,
+} from "@/utils/helper";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { useStore } from "vuex";
+
+//========= start state =========
 
 const dataCols = [
   {
@@ -187,6 +195,34 @@ const paymentListFailure = computed(
   () => store.state.payment.paymentListFailure
 );
 const dialogDetail = computed(() => store.state.global.dialogDetail);
+const searchValue = ref("");
+const listTmp = ref([]);
+const debounceSearch = useDebounce(searchValue, 600);
+
+//========= end state =========
+
+//========= start lifecycle =========
+
+onBeforeMount(() => {
+  listTmp.value = structuredClone(paymentListFailure.value);
+});
+
+//========= end lifecycle =========
+
+//========= start watch =========
+
+watch(debounceSearch, () => {
+  console.log("1");
+  listTmp.value = paymentListFailure.value.filter((e) =>
+    removeDiacritics(e?.PaymentCode ?? "")
+      .toLowerCase()
+      .includes(removeDiacritics(debounceSearch.value).toLowerCase())
+  );
+});
+
+//========= end watch =========
+
+//========= start methods =========
 
 /**
  * Mô tả: đóng form thông báo
@@ -219,6 +255,8 @@ const onOpenPopupView = async (type, id) => {
     });
   }
 };
+
+//========= end methods =========
 </script>
 <style scoped>
 .col-key {

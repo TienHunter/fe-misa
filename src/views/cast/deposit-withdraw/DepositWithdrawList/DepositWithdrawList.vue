@@ -144,7 +144,7 @@
                 </div>
                 <b-button
                   :type="ButtonType.combo"
-                  :title="FreeText.spneding"
+                  :title="FreeText.pay"
                   round
                   size="mini"
                   :on-click="onOpenPopupCreate">
@@ -163,9 +163,10 @@
       </div>
     </div>
   </div>
-  <DepositWithdrawDialog v-if="dialog.isShow" />
+
   <DepositWithdrawNotice v-if="dialogDetail?.show" />
   <DepositWithdrawDetail v-if="popupStatus?.isShowPopup" />
+  <DepositWithdrawDialog v-if="dialog.isShow" />
   <b-toast-message v-if="toast?.isShow" />
   <b-loading v-if="isLoading" />
 </template>

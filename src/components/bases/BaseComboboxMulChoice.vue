@@ -302,28 +302,6 @@ watchEffect(() => {
   isLoading.value = false;
 });
 
-// watch(isShowCombobox, () => {
-//   if (isShowCombobox.value === false) {
-//     if (itemSelected.value && Object.keys(itemSelected.value).length > 0) {
-//       selectedIndex.value = dataListFilter.value.findIndex(
-//         (obj) =>
-//           obj[props.fieldSelect] === itemSelected.value[props.fieldSelect]
-//       );
-//       if (selectedIndex.value > -1 && itemRefs.value[selectedIndex.value]) {
-//         // itemRefs.value[selectedIndex.value].value[0].scrollIntoView();
-//         // console.log(selectedIndex.value);
-//         listDataWrapperRef.value.scrollTop = selectedIndex.value * 47.5;
-//         // console.log(listDataWrapperRef.value.scrollTop);
-//         handleScrollList();
-//       }
-//     } else {
-//       listDataWrapperRef.value.scrollTop = 0;
-//     }
-//   }
-// });
-// watchEffect(() => {
-//   itemRefs.value = dataListFilter.value.map(() => ref(null));
-// });
 watchEffect(() => {
   if (selectedIndex.value !== -1)
     if (itemRefs?.value[selectedIndex.value]?.value?.[0])
@@ -384,6 +362,7 @@ const onClickComboboxItem = (item) => {
 // bắt sự kiện khi change input
 const handleChangeInput = (e) => {
   // if(e.key === "ArrowUp" ||e.key === "ArrowDown" )
+
   isShowCombobox.value = true;
   searchValue.value = e.target.value;
   // console.log(searchValue.value);
@@ -438,6 +417,14 @@ const handleKeyDown = (e) => {
     searchValue.value = "";
     isShowCombobox.value = false;
     selectedIndex.value = -1;
+  } else if (e.key === "Backspace") {
+    if (searchValue.value === "") {
+      // console.log("run here");
+      itemsSelected.value.splice(itemsSelected.value.length - 1, 1);
+      let listId = itemsSelected.value.map((el) => el[props.fieldSelect]);
+      emit("onClickIdsSelected", listId);
+      emit("emptyErrMsg");
+    }
   }
 };
 

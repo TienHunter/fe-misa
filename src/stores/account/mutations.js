@@ -30,6 +30,7 @@ const mutations = {
     // insert danh sach con vao duoi cha
     if (index !== -1) {
       let indexParentNext = -1;
+      let indexNodeGreater = -1;
       const length = state.accountsList.length;
       let tmpAccoutsList = structuredClone(state.accountsList);
       for (let i = index + 1; i < length; i++) {
@@ -37,11 +38,20 @@ const mutations = {
           indexParentNext = i;
           break;
         }
+        if (tmpAccoutsList[i].Grade === parent.Grade - 1) {
+          indexNodeGreater = i;
+          break;
+        }
       }
       // xóa các phần từ ở giữa từ parent đến node cùng cấp tiếp theo
       if (indexParentNext !== -1) {
         // index của node cùng cấp với cha - index của cha - 1 = số phần tử ở giữa
         tmpAccoutsList.splice(index + 1, indexParentNext - index - 1);
+      } else if (indexNodeGreater !== -1) {
+        tmpAccoutsList.splice(
+          indexNodeGreater + 1,
+          indexNodeGreater - index - 1
+        );
       } else {
         tmpAccoutsList.splice(index + 1, length - index - 1);
       }
@@ -145,53 +155,61 @@ const mutations = {
    */
   UPDATE_ACCOUNT(state, payload) {
     let account = { ...payload };
-    let tmpAccountsList = [...state.accountsList];
+    let tmpAccountsList = structuredClone(state.accountsList);
     // tim tai khoan cu
-    let accountPrev = state.accountsList.find(
+    let accountPrev = tmpAccountsList.find(
       (acc) => acc.AccountId === account.AccountId
     );
-    let index = state.accountsList.findIndex(
+    let index = tmpAccountsList.findIndex(
       (acc) => acc.AccountId === account.AccountId
     );
-    // thay đổi nhánh
-    if (accountPrev && accountPrev.ParentId != account.ParentId) {
-      // parent old khac null
-      if (accountPrev.ParentId) {
-        let parentOld = tmpAccountsList.find(
-          (acc) => acc.AccountId === accountPrev.ParentId
-        );
-        let indexParentOld = tmpAccountsList.find(
-          (acc) => acc.AccountId === accountPrev.ParentId
-        );
 
-        if (indexParentOld !== -1) {
+    // tim thay tai khoan trong danh sach
+    if (index !== -1) {
+      account.showChild = accountPrev?.showChild ?? 0;
+
+      // khong thay doi nhanh
+      if (account?.ParentId === accountPrev?.ParentId) {
+        tmpAccountsList.splice(index, 1, account);
+      } else {
+        // thay doi nhanh
+        // tim cha cu
+        let parentOld = tmpAccountsList.find(
+          (a) => a?.AccountId === accountPrev?.ParentId
+        );
+        if (parentOld) {
           parentOld.NumberChilds -= 1;
           parentOld.IsParent = parentOld.NumberChilds > 0 ? 1 : 0;
-          tmpAccountsList.splice(indexParentOld, 1, { ...parentOld });
+        }
+        // xóa con cũ ra khỏi danh sách
+        tmpAccountsList.splice(index, 1);
+        // tìm cha mới
+        let parentNew = tmpAccountsList.find(
+          (a) => a.AccountId === account.ParentId
+        );
+        let parentNewIndex = tmpAccountsList.findIndex(
+          (a) => a.AccountId === account.ParentId
+        );
+        if (parentNew) {
+          parentNew.IsParent = 1;
+          parentNew.NumberChilds++;
+          parentNew.showChild = true;
+
+          // gán con vào dưới cha
+          tmpAccountsList.splice(parentNewIndex + 1, 0, account);
+
+          let parentId = parentNew.ParentId;
+          while (parentId) {
+            let parentP = tmpAccountsList.find((a) => a.AccountId === parentId);
+            if (parentP) {
+              parentP.showChild = true;
+            }
+            parentId = parentP?.ParentId;
+          }
         }
       }
     }
-    // xoa node cu di
-    if (index != -1) {
-      tmpAccountsList.splice(index, 1);
-    }
-    let parenNode = tmpAccountsList.find(
-      (acc) => acc.AccountId === account.ParentId
-    );
-    let indexParent = tmpAccountsList.findIndex(
-      (acc) => acc.AccountId === account.ParentId
-    );
-
-    if (indexParent !== -1) {
-      parenNode.NumberChilds += 1;
-      parenNode.IsParent = 1;
-      tmpAccountsList.splice(indexParent, 1, { ...parenNode });
-      if (parenNode.showChild) {
-        tmpAccountsList.splice(indexParent + 1, 0, account);
-      }
-    }
-
-    state.accountsList = [...tmpAccountsList];
+    state.accountsList = structuredClone(tmpAccountsList);
   },
 
   UPDATE_ACCOUNT_STATUS(state, payload) {
@@ -269,14 +287,21 @@ const mutations = {
    */
   SET_CHILD_TO_PARENT(state, payload) {
     const { indexParent, child } = payload;
-    const parent = state.accountsList[indexParent];
+    const tmpList = structuredClone(state.accountsList);
+    const parent = tmpList[indexParent];
     parent.IsParent = 1;
     parent.NumberChilds += 1;
     parent.showChild = true;
-
-    const tmpList = structuredClone(state.accountsList);
     tmpList.splice(indexParent + 1, 0, child);
-    state.accountsList = tmpList;
+    let parentId = parent.ParentId;
+    while (parentId) {
+      let parentP = tmpList.find((a) => a.AccountId === parentId);
+      if (parentP) {
+        parentP.showChild = true;
+      }
+      parentId = parentP?.ParentId;
+    }
+    state.accountsList = structuredClone(tmpList);
   },
 };
 export default mutations;

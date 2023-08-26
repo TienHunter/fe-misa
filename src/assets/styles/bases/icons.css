@@ -109,6 +109,12 @@
     height: 20px;
 }
 
+.icon-v1-resize-popup {
+    background-position: -522px -544px;
+    width: 12px;
+    height: 49px;
+}
+
 .icon+.icon {
     margin-left: 8px;
 }

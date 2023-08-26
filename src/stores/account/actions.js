@@ -72,7 +72,8 @@ const actions = {
         });
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      handleException(dispatch, error);
     } finally {
       dispatch("toggleLoading");
     }
@@ -243,10 +244,10 @@ const actions = {
 
       //cập nhật thành công
       if (res) {
-        dispatch("toggleLoading");
-        await dispatch("getAccountsListTree");
-        // res.showChild = false;
-        // commit("UPDATE_ACCOUNT", res);
+        // dispatch("toggleLoading");
+        // await dispatch("getAccountsListTree");
+        res.showChild = false;
+        commit("UPDATE_ACCOUNT", res);
         dispatch("getToast", {
           isShow: true,
           type: ToastType.success,
@@ -267,11 +268,11 @@ const actions = {
       }
       // lỗi
     } catch (error) {
-      dispatch("toggleLoading");
       console.log(error);
       // add error vào dialog
       handleException(dispatch, error);
     } finally {
+      dispatch("toggleLoading");
     }
   },
 

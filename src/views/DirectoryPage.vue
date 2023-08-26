@@ -84,7 +84,7 @@ const directoryList = ref([
     ],
   },
   {
-    title: "Account",
+    title: "Tài khoản",
     list: [
       {
         title: "Hệ thống tài khoản",
@@ -100,6 +100,100 @@ const directoryList = ref([
         title: "Tài khoản ngầm định",
         subTitle: "Tài khoản ngầm định",
         // name: "DIDefaultAccount",
+      },
+    ],
+  },
+  {
+    title: "Chi phí",
+    list: [
+      {
+        title: "Đối tượng tập hợp chi phí",
+        subTitle: "Đối tượng tập hợp chi phí",
+      },
+      {
+        title: "Khoản mục chi phí",
+        subTitle: "Khoản mục chi phí",
+      },
+      {
+        title: "Công trình",
+        subTitle: "Công trình",
+      },
+      {
+        title: "Loại công trình",
+        subTitle: "Loại công trình",
+      },
+    ],
+  },
+  {
+    title: "Ngân hàng",
+    list: [
+      {
+        title: "Ngân hàng",
+        subTitle: "Ngân hàng",
+      },
+      {
+        title: "Tài khoản ngân hàng",
+        subTitle: "Tài khoản ngân hàng",
+      },
+    ],
+  },
+  {
+    title: "Chi nhánh, phòng ban",
+    list: [
+      {
+        title: "Cơ cấu tổ chức",
+        subTitle: "Cơ cấu tổ chức",
+      },
+    ],
+  },
+  {
+    title: "Tài sản",
+    list: [
+      {
+        title: "Loại công cụ dụng cụ",
+        subTitle: "Loại công cụ dụng cụ",
+      },
+      {
+        title: "Loại tài sản cố định",
+        subTitle: "Loại tài sản cố định",
+      },
+    ],
+  },
+  {
+    title: "Thuế",
+    list: [
+      {
+        title: "Biểu thuế tiêu thụ đặc biệt",
+        subTitle: "Biểu thuế tiêu thụ đặc biệt",
+      },
+      {
+        title: "Biểu thuế tài nguyên",
+        subTitle: "Biểu thuế tài nguyên",
+      },
+    ],
+  },
+  {
+    title: "Khác",
+    list: [
+      {
+        title: "Điều khoản thanh toán",
+        subTitle: "Điều khoản thanh toán",
+      },
+      {
+        title: "Mục thu/chi",
+        subTitle: "Mục thu/chi",
+      },
+      {
+        title: "Mã thống kê",
+        subTitle: "Mã thống kê",
+      },
+      {
+        title: "Loại tiền",
+        subTitle: "Loại tiền",
+      },
+      {
+        title: "Loại chứng từ",
+        subTitle: "Loại chứng từ",
       },
     ],
   },

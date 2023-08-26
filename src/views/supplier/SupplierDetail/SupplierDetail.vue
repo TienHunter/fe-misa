@@ -1,17 +1,16 @@
-divdiv
 <template>
   <div
     ref="supplierDetailRef"
     class="popup-wrapper outline-none"
     :tabindex="0"
-    @keydown.stop="">
+    @keydown.stop="handleKeydownWrapper">
     <div class="popup-container flex flex-col">
       <div class="popup__header flex items-center">
         <div class="popup-header__title">
           {{
             popupStatus?.type === PopupType.create
-              ? "Thêm nhà cung cấp"
-              : "Sửa nhà cung cấp"
+              ? FreeText.addSupplier
+              : FreeText.editSupplier
           }}
         </div>
         <div class="popup-header__options flex items-center">
@@ -47,19 +46,19 @@ divdiv
                   ? (supplierInfo.IsCustomer = 0)
                   : (supplierInfo.IsCustomer = 1)
               " />
-            <span> Là khách hàng </span>
+            <span> {{ FreeText.isCustomer }} </span>
           </label>
         </div>
         <div class="popup-header__actions flex items-center ml-auto">
           <div class="popup-header-actions__question mr-2">
-            <div class="icon-wrapper" title="HELP">
+            <div class="icon-wrapper" :title="FreeText.helpF1">
               <div class="icon icon--question"></div>
             </div>
           </div>
           <div
             ref="btnClose"
             class="popup-header-actions__close"
-            title="Đóng - ESC"
+            :title="FreeText.closeEsc"
             @keydown.enter="onClosePopup"
             @click="onClosePopup"
             @keydown="hanldeFocusFirst"
@@ -83,7 +82,7 @@ divdiv
                     <b-textfield
                       :ref="errRefs.TaxCode"
                       v-model="supplierInfo.TaxCode"
-                      label="Mã số thuế"
+                      :label="FreeText.taxCode"
                       :max-length="MaxLength.code"
                       :err-msg="errsValidator?.TaxCode?.join('') ?? ''"
                       @empty-err-msg="
@@ -98,7 +97,7 @@ divdiv
                       :ref="errRefs.SupplierCode"
                       v-model="supplierInfo.SupplierCode"
                       required
-                      label="Mã nhà cung cấp"
+                      :label="FreeText.supplierCode"
                       :max-length="MaxLength.code - 2"
                       :err-msg="errsValidator?.SupplierCode?.join('') ?? ''"
                       @empty-err-msg="
@@ -114,7 +113,7 @@ divdiv
                       :ref="errRefs.SupplierCode"
                       v-model="supplierInfo.SupplierCode"
                       required
-                      label="Mã nhà cung cấp"
+                      :label="FreeText.supplierCode"
                       :max-length="MaxLength.code - 2"
                       :err-msg="errsValidator?.SupplierCode?.join('') ?? ''"
                       @empty-err-msg="
@@ -128,7 +127,7 @@ divdiv
                     <b-textfield
                       :ref="errRefs.TaxCode"
                       v-model="supplierInfo.TaxCode"
-                      label="Mã số thuế"
+                      :label="FreeText.taxCode"
                       :max-length="MaxLength.code"
                       :err-msg="errsValidator?.TaxCode?.join('') ?? ''"
                       @empty-err-msg="
@@ -145,7 +144,7 @@ divdiv
                   :ref="errRefs.SupplierName"
                   v-model="supplierInfo.SupplierName"
                   required
-                  label="Tên nhà cung cấp"
+                  :label="FreeText.supplierName"
                   :max-length="MaxLength.name"
                   :err-msg="errsValidator?.SupplierName?.join('') ?? ''"
                   @empty-err-msg="
@@ -155,10 +154,11 @@ divdiv
                   " />
 
                 <label
-                  v-if="supplierInfo?.SupplierType === 2"
+                  v-if="supplierInfo?.SupplierType === SupplierType.individual"
                   class="flex flex-col justify-center">
                   <span class="pb-2"
-                    >Tên nhà cung cấp <span class="text-red">(*)</span></span
+                    >{{ FreeText.supplierName }}
+                    <span class="text-red">(*)</span></span
                   >
                   <div class="flex items-center justify-start w-full">
                     <div class="w-2/5 pr-2">
@@ -166,7 +166,7 @@ divdiv
                         :data-list="vocatives"
                         field-select="id"
                         field-show="value"
-                        place-holder="Xưng hộ"
+                        :place-holder="FreeText.vocative"
                         :max-length="MaxLength.default"
                         :id-selected="supplierInfo.ContractInfor.Vocative"
                         @on-click-id-selected="
@@ -191,7 +191,7 @@ divdiv
               </div>
               <div class="w-full">
                 <label class="w-full" @keydown.tab.stop="">
-                  Địa chỉ
+                  {{ FreeText.address }}
                   <textarea
                     :ref="errRefs.Address"
                     v-model="supplierInfo.Address"
@@ -217,7 +217,7 @@ divdiv
                     :ref="errRefs.PhoneNumber"
                     v-model="supplierInfo.PhoneNumber"
                     :max-length="MaxLength.phoneNumber"
-                    label="Điện thoại"
+                    :label="FreeText.phone"
                     :err-msg="errsValidator?.PhoneNumber?.join('') ?? ''"
                     @empty-err-msg="
                       () => {
@@ -231,13 +231,13 @@ divdiv
                     :ref="errRefs.Website"
                     v-model="supplierInfo.Website"
                     :max-length="MaxLength.default"
-                    label="Website" />
+                    :label="FreeText.website" />
                 </div>
               </div>
               <div class="w-full pb-2">
                 <BaseComboboxMulChoice
                   add
-                  label="Nhóm nhà cung cấp"
+                  :label="FreeText.groupSupplier"
                   :fields="fieldsGroupSuppliers"
                   :field-select="fieldSelectGroupSuppliers"
                   :field-show="fieldShowGroupSuppliers"
@@ -252,7 +252,7 @@ divdiv
               </div>
               <div class="w-full">
                 <BaseComboboxV1
-                  label="Nhân viên mua hàng"
+                  :label="FreeText.employeeBuy"
                   add
                   :max-length="MaxLength.name"
                   is-reload-scroll
@@ -288,7 +288,9 @@ divdiv
                     () => onClickTabContent(tabsContentValue.contractInfo)
                   ">
                   <div class="tabs-btn">
-                    <div class="text-center no-wrap">Thông tin liên hệ</div>
+                    <div class="text-center no-wrap">
+                      {{ FreeText.contractInfo }}
+                    </div>
                   </div>
                 </li>
                 <li
@@ -300,7 +302,9 @@ divdiv
                     () => onClickTabContent(tabsContentValue.termPayment)
                   ">
                   <div class="tabs-btn">
-                    <div class="text-center no-wrap">Điều khoản thanh toán</div>
+                    <div class="text-center no-wrap">
+                      {{ FreeText.termPayment }}
+                    </div>
                   </div>
                 </li>
                 <li
@@ -312,7 +316,9 @@ divdiv
                     () => onClickTabContent(tabsContentValue.banksAccount)
                   ">
                   <div class="tabs-btn">
-                    <div class="text-center no-wrap">Tài khoản ngân hàng</div>
+                    <div class="text-center no-wrap">
+                      {{ FreeText.bankAccount }}
+                    </div>
                   </div>
                 </li>
                 <li
@@ -324,7 +330,9 @@ divdiv
                     () => onClickTabContent(tabsContentValue.otherAddress)
                   ">
                   <div class="tabs-btn">
-                    <div class="text-center no-wrap">Địa chỉ khác</div>
+                    <div class="text-center no-wrap">
+                      {{ FreeText.addressOther }}
+                    </div>
                   </div>
                 </li>
                 <li
@@ -334,7 +342,7 @@ divdiv
                   }"
                   @click="() => onClickTabContent(tabsContentValue.note)">
                   <div class="tabs-btn">
-                    <div class="text-center no-wrap">Ghi chú</div>
+                    <div class="text-center no-wrap">{{ FreeText.note }}</div>
                   </div>
                 </li>
               </ul>
@@ -350,7 +358,7 @@ divdiv
                         supplierInfo.SupplierType === SupplierType.organization
                       "
                       class="w-full pb-2 flex flex-col justify-center">
-                      <label class="pb-2">Người liên hệ</label>
+                      <label class="pb-2">{{ FreeText.contract }}</label>
                       <div class="flex items-center justify-center pb-2">
                         <div class="w-2/5 pr-2">
                           <b-combobox
@@ -358,7 +366,7 @@ divdiv
                             :data-list="vocatives"
                             field-select="id"
                             field-show="value"
-                            place-holder="Xưng hộ"
+                            :place-holder="FreeText.vocative"
                             :id-selected="supplierInfo.ContractInfor.Vocative"
                             @on-click-id-selected="
                               (id) => (supplierInfo.ContractInfor.Vocative = id)
@@ -369,7 +377,7 @@ divdiv
                           <b-textfield
                             v-model="supplierInfo.ContractInfor.Fullname"
                             :max-length="MaxLength.name"
-                            place-holder="Họ và tên" />
+                            :place-holder="FreeText.fullname" />
                         </div>
                       </div>
                       <div class="w-full pb-2">
@@ -377,7 +385,7 @@ divdiv
                           :ref="errRefs.Email"
                           v-model="supplierInfo.ContractInfor.Email"
                           :max-length="MaxLength.email"
-                          place-holder="Email"
+                          :place-holder="FreeText.email"
                           :err-msg="errsValidator?.Email?.join('') ?? ''"
                           @empty-err-msg="
                             () => {
@@ -390,7 +398,7 @@ divdiv
                           :ref="errRefs.MobilePhoneNumber"
                           v-model="supplierInfo.ContractInfor.PhoneNumber"
                           :max-length="MaxLength.phoneNumber"
-                          place-holder="Số điện thoại"
+                          :place-holder="FreeText.phone"
                           :err-msg="
                             errsValidator?.MobilePhoneNumber?.join('') ?? ''
                           "
@@ -406,14 +414,14 @@ divdiv
                         supplierInfo.SupplierType === SupplierType.individual
                       "
                       class="w-full pb-2 flex flex-col justify-center">
-                      <label class="pb-2">Thông tin liên hệ</label>
+                      <label class="pb-2">{{ FreeText.contractInfo }}</label>
 
                       <div class="w-full pb-2">
                         <b-textfield
                           :ref="errRefs.Email"
                           v-model="supplierInfo.ContractInfor.Email"
                           :max-length="MaxLength.email"
-                          place-holder="Email"
+                          :place-holder="FreeText.email"
                           :err-msg="errsValidator?.Email?.join('') ?? ''"
                           @empty-err-msg="
                             () => {
@@ -427,7 +435,7 @@ divdiv
                             :ref="errRefs.MobilePhoneNumber"
                             v-model="supplierInfo.ContractInfor.PhoneNumber"
                             :max-length="MaxLength.phoneNumber"
-                            place-holder="Điện thoại di động"
+                            :place-holder="FreeText.mobilePhone"
                             :err-msg="
                               errsValidator?.MobilePhoneNumber?.join('') ?? ''
                             "
@@ -444,7 +452,7 @@ divdiv
                             :ref="errRefs.PhoneNumber"
                             v-model="supplierInfo.PhoneNumber"
                             :max-length="MaxLength.phoneNumber"
-                            place-holder="Điện thoại cố định"
+                            :place-holder="FreeText.landlinePhone"
                             :err-msg="
                               errsValidator?.PhoneNumber?.join('') ?? ''
                             "
@@ -686,9 +694,9 @@ divdiv
                                   top: 0px;
                                 ">
                                 <div class="flex items-center text-left">
-                                  <span class="flex-1 pr-5 pl-3"
-                                    >Số tài khoản</span
-                                  >
+                                  <span class="flex-1 pr-5 pl-3">{{
+                                    FreeText.bankAccountNumber
+                                  }}</span>
                                 </div>
                               </th>
                               <th
@@ -698,9 +706,9 @@ divdiv
                                   top: 0px;
                                 ">
                                 <div class="flex items-center text-left">
-                                  <span class="flex-1 pr-5 pl-3"
-                                    >Tên tài khoản</span
-                                  >
+                                  <span class="flex-1 pr-5 pl-3">{{
+                                    FreeText.bankAccountName
+                                  }}</span>
                                 </div>
                               </th>
                               <th
@@ -710,16 +718,16 @@ divdiv
                                   top: 0px;
                                 ">
                                 <div class="flex items-center text-left">
-                                  <span class="flex-1 pr-5 pl-3"
-                                    >Chi nhánh</span
-                                  >
+                                  <span class="flex-1 pr-5 pl-3">{{
+                                    FreeText.branch
+                                  }}</span>
                                 </div>
                               </th>
                               <th style="min-width: 200px; top: 0px">
                                 <div class="flex items-center text-left">
-                                  <span class="flex-1 pr-5 pl-3"
-                                    >Tỉnh/TP của ngân hàng</span
-                                  >
+                                  <span class="flex-1 pr-5 pl-3">{{
+                                    FreeText.cityBank
+                                  }}</span>
                                 </div>
                               </th>
                               <th
@@ -805,12 +813,12 @@ divdiv
                       <b-button
                         size="mini"
                         type="secondary"
-                        title="Thêm dòng"
+                        :title="FreeText.addRow"
                         @click="onClickAddRowBank" />
                       <b-button
                         size="mini"
                         type="secondary"
-                        title="Xóa hết dòng"
+                        :title="FreeText.deleteAllRow"
                         @click="onClickRemoveAllBank" />
                     </div>
                   </div>
@@ -1039,7 +1047,12 @@ import groupSupplierService from "@/api/services/groupSupplierService";
 import employeeService from "@/api/services/employeeService";
 import NumberInput from "@/components/bases/NumberInput.vue";
 
-import { DialogContent, DialogTitle, ErrValidator } from "@/resources";
+import {
+  DialogContent,
+  DialogTitle,
+  ErrValidator,
+  FreeText,
+} from "@/resources";
 import supplier from "@/stores/supplier";
 import {
   containsOnlyNumber,
@@ -1056,6 +1069,7 @@ const popupStatus = computed(() => store.state.global.popupStatus);
 const supplierDetail = computed(() => store.state.supplier.supplierDetail);
 const dialog = computed(() => store.state.global.dialog);
 const supplierInfo = ref({});
+const supplierDetailRef = ref(null);
 // const dueTime = ref("");
 const maxAccountOfDebt = ref("");
 const errRefs = toRefs(
@@ -1089,15 +1103,15 @@ const fieldsGroupSuppliers = [
   {
     name: "GroupSupplierCode",
     label: "Mã nhóm KH, NCC",
-    minWidth: 120,
-    maxWidth: 160,
+    class: "mw-120 w-160 Mw-160",
+
     title: "Mã nhóm khách hàng, nhà cung cấp",
   },
   {
     name: "GroupSupplierName",
     label: "Tên nhóm KH, NCC",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-240 w-240 Mw-240",
+
     title: "Tên nhóm khách hàng, nhà cung cấp",
   },
 ];
@@ -1109,14 +1123,13 @@ const fieldsEmployee = [
   {
     name: "EmployeeCode",
     label: "Mã nhân viên",
-    minWidth: 120,
-    maxWidth: 160,
+
+    class: "mw-160 w-160 Mw-160",
   },
   {
     name: "FullName",
     label: "Tên nhân viên",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-200 w-200 Mw-200",
   },
 ];
 const fieldSelectEmployee = "EmployeeId";
@@ -1129,14 +1142,12 @@ const filedsTermPayment = [
   {
     name: "TermPaymentCode",
     label: "Mã điều khoản thanh toán",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-200 w-200 Mw-200",
   },
   {
     name: "TermPaymentName",
     label: "Tên điều khoản thanh toán",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-200 w-200 Mw-200",
   },
 ];
 const fieldSelectTermPayment = "TermPaymentId";
@@ -1148,14 +1159,12 @@ const fieldsAccount = [
   {
     name: "AccountCode",
     label: "Số tài khoản",
-    minWidth: 140,
-    maxWidth: 160,
+    class: "mw-130 w-130 Mw-130",
   },
   {
     name: "AccountName",
     label: "Tên tài khoản",
-    minWidth: 200,
-    maxWidth: 240,
+    class: "mw-200 w-200 Mw-200",
   },
 ];
 const fieldSelectAccount = "AccountId";
@@ -1363,6 +1372,13 @@ watch(dialog, (newValue, oldValue) => {
   ) {
     if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
       supplierInfo.value.DeliverAddress = [];
+      supplierInfor.value.IsSameSupplierAddress = 0;
+    }
+  } else {
+    if (supplierInfo.value.SupplierType === SupplierType.organization) {
+      errRefs.TaxCode.value.focus();
+    } else {
+      errRefs.SupplierCode.value.focus();
     }
   }
 
@@ -1403,6 +1419,23 @@ watch(
 
 //--start methods----
 
+/**
+ * Mô tả: bắt sự kiện keydowm của popup wrapper
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
+const handleKeydownWrapper = (e) => {
+  // console.log(e.which);
+  if (e.which === 27) {
+    onClosePopup();
+  } else if (e.ctrlKey && (e.which === 115 || e.which === 83)) {
+    e.preventDefault();
+    storeSupplier();
+  }
+};
+
 // Truy cập vào ref dựa trên tên chuỗi
 const accessRef = (refName) => {
   if (errRefs?.[refName]?.value) {
@@ -1423,6 +1456,14 @@ const accessRef = (refName) => {
   }
   return null;
 };
+
+/**
+ * Mô tả: tab index khi là tổ chức
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleFocusLastOrganization = (e) => {
   if (e.shiftKey && e.key === "Tab") {
     e.preventDefault();
@@ -1430,6 +1471,14 @@ const handleFocusLastOrganization = (e) => {
     btnCancelRef.value.focus();
   }
 };
+
+/**
+ * Mô tả: tab index khi là cá nhân
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleFocusLastIndivial = (e) => {
   if (e.shiftKey && e.key === "Tab") {
     e.preventDefault();
@@ -1437,6 +1486,14 @@ const handleFocusLastIndivial = (e) => {
     btnCancelRef.value.focus();
   }
 };
+
+/**
+ * Mô tả: tabindex từ cuối lên đầu
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleFocusFirst = (e) => {
   if (!e.shiftKey && e.key === "Tab") {
     e.preventDefault();
@@ -1474,6 +1531,13 @@ const loadDataEmployeeLazy = async (searchEmployee) => {
   }
 };
 
+/**
+ * Mô tả: lấy danh sách nhân viên theo từ khóa
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const loadDataEmployeeFilter = async (searchEmployee) => {
   try {
     // tang offset
@@ -1521,6 +1585,13 @@ const loadDataTermPaymentLazy = async (termPaymentSearch) => {
   }
 };
 
+/**
+ * Mô tả: load điều khoản thanh toán
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const loadDataTermPaymentFilter = async (termPaymentSearch) => {
   try {
     // tang offset
@@ -1540,6 +1611,14 @@ const loadDataTermPaymentFilter = async (termPaymentSearch) => {
   } finally {
   }
 };
+
+/**
+ * Mô tả: khi chọn điều khoản thanh toán
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const hanldeAddTermPaymentId = (termPayment) => {
   termPaymentSelected.value = { ...termPayment };
   // bind vao truong due time
@@ -1548,6 +1627,13 @@ const hanldeAddTermPaymentId = (termPayment) => {
   }
 };
 
+/**
+ * Mô tả: tài khoản nợ
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const loadDataAccountPayable = async () => {
   try {
     let res = await accountService.getAllAccountQuery(
@@ -1563,6 +1649,13 @@ const loadDataAccountPayable = async () => {
   }
 };
 
+/**
+ * Mô tả: tài khoản có
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const loadDataAccountReceivable = async () => {
   try {
     let res = await accountService.getAllAccountQuery(
@@ -1578,6 +1671,13 @@ const loadDataAccountReceivable = async () => {
   }
 };
 
+/**
+ * Mô tả: xử lý khi chọn đất nước
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleChangeCountry = async (id) => {
   supplierInfo.value.CountryId = id;
   if (supplierInfo.value.CountryId) {
@@ -1601,6 +1701,14 @@ const handleChangeCountry = async (id) => {
     }
   }
 };
+
+/**
+ * Mô tả: xử lý khi chọn tỉnh/ thành phố
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleChangeCity = async (id) => {
   supplierInfo.value.CityId = id;
   if (supplierInfo.value.CityId) {
@@ -1622,6 +1730,14 @@ const handleChangeCity = async (id) => {
     }
   }
 };
+
+/**
+ * Mô tả: xử lý khi chọn quận huyện
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleChangeDistrict = async (id) => {
   supplierInfo.value.DistrictId = id;
   if (supplierInfo.value.DistrictId) {
@@ -1642,11 +1758,26 @@ const handleChangeDistrict = async (id) => {
   }
 };
 
+/**
+ * Mô tả:
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const updateAddress = (index, value) => {
   if (supplierInfo?.value?.DeliverAddress?.length >= index) {
     supplierInfo.value.DeliverAddress[index] = value;
   }
 };
+
+/**
+ * Mô tả: giống địa chỉ giao hàng
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const handleToggleSameSupplierAddress = () => {
   if (supplierInfo?.value?.IsSameSupplierAddress) {
     supplierInfo.value.IsSameSupplierAddress = 0;
@@ -1661,13 +1792,31 @@ const handleToggleSameSupplierAddress = () => {
     supplierInfo.value.DeliverAddress.push(supplierInfo.value?.Address ?? "");
   }
 };
+
+/**
+ * Mô tả: xóa 1 địa chỉ giao hàng
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickRemoveDeliverAddress = (index) => {
   if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
     supplierInfo.value.DeliverAddress.splice(index, 1);
     indexFocusDeliverAddress.value =
       supplierInfo.value.DeliverAddress.length - 1;
+
+    if (index == 0) supplierInfo.value.IsSameSupplierAddress = 0;
   }
 };
+
+/**
+ * Mô tả: thêm địa chỉ giao hàng
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickAddRowDeliverAddress = () => {
   if (supplierInfo?.value?.DeliverAddress?.length >= 0) {
     supplierInfo.value.DeliverAddress.push("");
@@ -1675,6 +1824,14 @@ const onClickAddRowDeliverAddress = () => {
       supplierInfo.value.DeliverAddress.length - 1;
   }
 };
+
+/**
+ * Mô tả: xóa tất cả địa chỉ giao hàng
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const onClickRemoveAllDeliverAddress = () => {
   store.dispatch("getDialog", {
     isShow: true,
@@ -1760,6 +1917,13 @@ const onClosePopup = () => {
   }
 };
 
+/**
+ * Mô tả: validate input nhà cung cấp
+ * created by : vdtien
+ * created date: 25-08-2023
+ * @param {type} param -
+ * @returns
+ */
 const validateSupplier = () => {
   // xóa lỗi trước đó
   // Xóa tất cả các trường của reactive object
@@ -1773,7 +1937,7 @@ const validateSupplier = () => {
   if (isSupplierCodeEmpty) {
     errsValidator.value.SupplierCode = [
       ...(errsValidator.value?.SupplierCode ?? []),
-      ErrValidator.fieldEmplty("Mã nhà cung cấp"),
+      ErrValidator.fieldEmplty(FreeText.supplierCode),
     ];
   }
 
@@ -1782,7 +1946,7 @@ const validateSupplier = () => {
   if (isSupplierNameEmpty) {
     errsValidator.value.SupplierName = [
       ...(errsValidator.value?.SupplierName ?? []),
-      ErrValidator.fieldEmplty("Tên nhà cung cấp"),
+      ErrValidator.fieldEmplty(FreeText.supplierName),
     ];
   }
 
@@ -1795,7 +1959,7 @@ const validateSupplier = () => {
       if (!containsOnlyNumber(supplierInfo.value.PhoneNumber)) {
         errsValidator.value.PhoneNumber = [
           ...(errsValidator.value?.PhoneNumber ?? []),
-          ErrValidator.containsOnlyNumber("Số điện thoại cố định"),
+          ErrValidator.containsOnlyNumber(FreeText.landlinePhone),
         ];
       }
     }
@@ -1820,7 +1984,7 @@ const validateSupplier = () => {
       if (!containsOnlyNumber(supplierInfo.value.ContractInfor.PhoneNumber)) {
         errsValidator.value.MobilePhoneNumber = [
           ...(errsValidator.value?.MobilePhoneNumber ?? []),
-          ErrValidator.containsOnlyNumber("Số điện thoại di động"),
+          ErrValidator.containsOnlyNumber(FreeText.mobilePhone),
         ];
       }
     }
@@ -1839,7 +2003,7 @@ const validateSupplier = () => {
         ) {
           errsValidator.value.PhoneNumberReceiverBill = [
             ...(errsValidator.value?.PhoneNumberReceiverBill ?? []),
-            ErrValidator.containsOnlyNumber("Số điện thoại người nhận hóa đơn"),
+            ErrValidator.containsOnlyNumber(FreeText.phoneReceiverBill),
           ];
         }
       }
@@ -1866,7 +2030,7 @@ const validateSupplier = () => {
       if (!containsOnlyNumber(supplierInfo.value.PhoneNumber)) {
         errsValidator.value.PhoneNumber = [
           ...(errsValidator.value?.PhoneNumber ?? []),
-          ErrValidator.containsOnlyNumber("Số điện thoại cố định"),
+          ErrValidator.containsOnlyNumber(FreeText.landlinePhone),
         ];
       }
     }
@@ -1879,7 +2043,7 @@ const validateSupplier = () => {
       if (!containsOnlyNumber(supplierInfo.value.ContractInfor.PhoneNumber)) {
         errsValidator.value.MobilePhoneNumber = [
           ...(errsValidator.value?.MobilePhoneNumber ?? []),
-          ErrValidator.containsOnlyNumber("Số điện thoại di động"),
+          ErrValidator.containsOnlyNumber(FreeText.mobilePhone),
         ];
       }
     }
@@ -1894,7 +2058,7 @@ const validateSupplier = () => {
       ) {
         errsValidator.value.IdentityNumber = [
           ...(errsValidator.value?.IdentityNumber ?? []),
-          ErrValidator.containsOnlyNumber("Số chứng minh nhân dân"),
+          ErrValidator.containsOnlyNumber(FreeText.identityNumber),
         ];
       }
     }
@@ -1907,7 +2071,7 @@ const validateSupplier = () => {
       if (!isValidDate) {
         errsValidator.value.IdentityDate = [
           ...(errsValidator.value?.IdentityDate ?? []),
-          ErrValidator.malformed("Ngày cấp"),
+          ErrValidator.malformed(FreeText.identityDate),
         ];
       } else {
         let currentDate = new Date().getTime();
@@ -1937,7 +2101,7 @@ const validateSupplier = () => {
       ) {
         errsValidator.value.BanksAccount[index] = [
           ...(errsValidator.value?.BanksAccount[index] ?? []),
-          ErrValidator.containsOnlyNumber("Số tài khoản"),
+          ErrValidator.containsOnlyNumber(FreeText.bankAccountNumber),
         ];
       } else if (
         isBanhAccountNumberNotEmpty &&

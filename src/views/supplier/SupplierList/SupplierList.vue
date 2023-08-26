@@ -134,24 +134,24 @@
               <b-textfield
                 v-model="supplierSearch"
                 class-input="m-0"
-                place-holder="Tìm kiến"
+                :place-holder="FreeText.search"
                 class-icon="icon icon--search-small" />
             </div>
             <div
               class="icon-wrapper content-body-tools__refresh"
-              title="Tải lại"
+              :title="FreeText.reload"
               @click="onClickRefreshPage">
               <div class="icon icon--refresh"></div>
             </div>
             <div
               class="icon-wrapper content-body-tools__export-excel"
-              title="Xuất file"
+              :title="FreeText.exportExcel"
               @click="exportExcelSupplierList">
               <div class="icon icon--excel"></div>
             </div>
             <b-button
               :type="ButtonType.combo"
-              :title="'Thêm'"
+              :title="FreeText.add"
               round
               size="mini"
               :on-click="onOpenPopupCreate">

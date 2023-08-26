@@ -1101,6 +1101,10 @@ a {
   width: 200px;
 }
 
+.w-240 {
+  width: 240px;
+}
+
 .w-250 {
   width: 250px;
 }
@@ -1179,6 +1183,14 @@ a {
 
 .Mw-200 {
   max-width: 200px;
+}
+
+.mw-240 {
+  min-width: 240px;
+}
+
+.Mw-240 {
+  max-width: 240px;
 }
 
 .mw-250 {

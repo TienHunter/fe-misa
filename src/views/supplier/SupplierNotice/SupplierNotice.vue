@@ -50,8 +50,9 @@
         <div class="toolbars pb-3">
           <div class="w-250">
             <b-textfield
+              v-model="searchValue"
               class-input="m-0"
-              place-holder="Nhập từ khóa tìm kiếm"
+              :place-holder="FreeText.searchValue"
               class-icon="icon icon--search-small" />
           </div>
         </div>
@@ -73,9 +74,9 @@
               </thead>
               <tbody>
                 <!-- length danh sach lớn hơn 0 -->
-                <template v-if="listSupplierExecuteFailure?.length > 0">
+                <template v-if="listTmp?.length > 0">
                   <tr
-                    v-for="(item, index) in listSupplierExecuteFailure"
+                    v-for="(item, index) in listTmp"
                     :key="item.PaymentId"
                     class="pointer">
                     <td
@@ -131,10 +132,17 @@
 </template>
 <script setup>
 import { TypeCol } from "@/enums";
+import { useDebounce } from "@/hooks";
 import { FreeText } from "@/resources";
-import { convertToDDMMYYYY, converTitle } from "@/utils/helper";
-import { computed, ref } from "vue";
+import {
+  convertToDDMMYYYY,
+  converTitle,
+  removeDiacritics,
+} from "@/utils/helper";
+import { computed, onBeforeMount, ref, watch } from "vue";
 import { useStore } from "vuex";
+
+//========= start state =========
 
 const dataCols = [
   {
@@ -167,11 +175,45 @@ const listSupplierExecuteFailure = computed(
   () => store.state.supplier.listSupplierExecuteFailure
 );
 const dialogDetail = computed(() => store.state.global.dialogDetail);
+const listTmp = ref([]);
+const searchValue = ref("");
+const debounceSearch = useDebounce(searchValue, 600);
+
+//========= end state =========
+
+//========= start lifecycle =========
+onBeforeMount(() => {
+  listTmp.value = structuredClone(listSupplierExecuteFailure.value);
+});
+//========= end lifecycle =========
+
+//========= start watch =========
+watch(debounceSearch, () => {
+  listTmp.value = listSupplierExecuteFailure.value.filter(
+    (e) =>
+      removeDiacritics(e?.SupplierName ?? "")
+        .toLowerCase()
+        .includes(removeDiacritics(debounceSearch.value).toLowerCase()) ||
+      (e?.SupplierCode ?? "")
+        .toLowerCase()
+        .includes(removeDiacritics(debounceSearch.value).toLowerCase())
+  );
+});
+
+//========= end watch =========
+
+//========= start methods =========
 
 const onClosePopup = () => {
   store.dispatch("getDialogDetail", {
     show: false,
   });
 };
+
+//========= end methods =========
 </script>
-<style lang=""></style>
+<style scoped>
+ul {
+  list-style: none;
+}
+</style>

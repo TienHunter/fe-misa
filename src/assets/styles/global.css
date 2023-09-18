@@ -10,6 +10,7 @@
 @import url("./bases/grid.css");
 @import url("./bases/popup.css");
 @import url("./bases/comboboxv1.css");
+@import url("./login.css");
 
 @font-face {
   font-family: "notosans";

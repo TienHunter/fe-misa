@@ -4,6 +4,7 @@ import global from "./global";
 import account from "./account";
 import supplier from "./supplier";
 import payment from "./payment";
+import user from "./user";
 const store = createStore({
   modules: {
     global,
@@ -11,6 +12,7 @@ const store = createStore({
     account,
     supplier,
     payment,
+    user,
   },
 });
 export default store;

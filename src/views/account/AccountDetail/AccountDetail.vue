@@ -21,7 +21,7 @@ import {
 import { useStore } from "vuex";
 import BaseComboboxV1 from "@/components/bases/BaseComboboxV1.vue";
 import accountService from "@/api/services/accountService";
-import { AccountCol, DialogTitle, DialogContent, FreeText } from "@/resources";
+import { DialogTitle, DialogContent, FreeText } from "@/resources";
 import { removeEmptyFields } from "@/utils/helper";
 import { ErrValidator } from "@/resources";
 /**state */
@@ -334,7 +334,7 @@ const validatorAccount = () => {
   if (isAccountCodeEmpty) {
     errsValidator.value.AccountCode = [
       ...(errsValidator.value?.AccountCode ?? []),
-      ErrValidator.fieldEmplty(AccountCol.AccountCode.text),
+      ErrValidator.fieldEmplty(FreeText.accountCode),
     ];
   } else {
     if (accountInfo?.value?.AccountCode?.length < 3) {

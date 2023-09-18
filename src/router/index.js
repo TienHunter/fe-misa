@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-
+import VueCookies from "vue-cookies";
 // 2. Define some routes
 // Each route should map to a component.
 // We'll talk about nested routes later.
@@ -10,6 +10,7 @@ const routes = [
     meta: {
       layout: "default",
       title: "Danh mục | Kế toán",
+      requiresAuth: true,
     },
     component: () =>
       import(/* webpackChunkName: "home" */ "@/views/DirectoryPage.vue"),
@@ -59,6 +60,7 @@ const routes = [
     meta: {
       layout: "default",
       title: "Tiền mặt | Kế toán",
+      requiresAuth: true,
     },
     redirect: "/CA/CAProcess",
     component: () => import("@/views/cast/CastContainer.vue"),
@@ -85,9 +87,28 @@ const routes = [
     ],
   },
   {
+    path: "/login",
+    name: "Login",
+    meta: {
+      layout: "login",
+      title: "Login - AMIS Platform",
+    },
+    component: () => import("@/views/auth/LoginPage.vue"),
+    beforeEnter: (to, from, next) => {
+      // kiểm tra token có hay không
+      const token = VueCookies.get("token");
+      if (token) {
+        next({ name: "Directory" });
+      } else {
+        next();
+      }
+    },
+  },
+  {
     path: "/CA",
     redirect: "/CA/CAProcess",
   },
+
   {
     path: "/components",
     name: "Components",
@@ -113,6 +134,26 @@ const router = createRouter({
   // 4. Provide the history implementation to use. We are using the hash history for simplicity here.
   history: createWebHistory(),
   routes, // short for `routes: routes`
+});
+
+router.beforeEach((to, from, next) => {
+  // Thay đổi title dựa trên route hiện tại
+  document.title = to.meta.title || "Kế toán";
+
+  if (to.matched.some((route) => route.meta.requiresAuth)) {
+    // Kiểm tra xem người dùng đã đăng nhập hay chưa
+    const token = VueCookies.get("token");
+    if (token) {
+      // Người dùng đã đăng nhập, cho phép truy cập
+      next();
+    } else {
+      // Người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+      next({ name: "Login" });
+    }
+  } else {
+    // Tuyến công khai, cho phép truy cập
+    next();
+  }
 });
 
 export default router;

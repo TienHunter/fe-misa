@@ -1,5 +1,8 @@
 <template lang="">
-  <label :class="[{ disabled: disabled }, classLabel]" @keydown.tab.stop="">
+  <label
+    :class="[{ disabled: disabled }, classLabel]"
+    :title="titleLabel"
+    @keydown.tab.stop="">
     {{ label }}
     <span v-show="required" class="text-red">(*)</span>
     <input

@@ -19,7 +19,7 @@ import { computed, ref, watchEffect } from "vue";
 
 const store = useStore();
 const filterAndPaging = computed(() => store.state.global.filterAndPaging);
-watchEffect(() => console.log(filterAndPaging.value));
+// watchEffect(() => console.log(filterAndPaging.value));
 const totalRecords = computed(() => store.state.global.totalRecords);
 // console.log(filterAndPaging.value);
 const totalPages = computed(() => {

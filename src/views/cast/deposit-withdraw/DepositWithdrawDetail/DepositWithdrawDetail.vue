@@ -294,9 +294,9 @@ divdivdiv
                 <div class="sumary-info-title">{{ FreeText.sumMoney }}</div>
                 <div
                   class="sumary-info-number"
-                  :class="{ 'text-red': totalMoney < 0 }"
+                  :class="{ 'text-red': paymentInfo?.TotalMoney < 0 }"
                   :style="{ 'font-size': resizeFontSizeMoney() + 'px' }">
-                  {{ formatDecimal(totalMoney) }}
+                  {{ formatDecimal(paymentInfo?.TotalMoney) }}
                 </div>
               </div>
             </div>
@@ -499,8 +499,8 @@ divdivdiv
                           <span
                             v-if="col.type === TypeCol.money"
                             class="text-right"
-                            :class="{ 'text-red': totalMoney < 0 }"
-                            >{{ formatDecimal(totalMoney) }}</span
+                            :class="{ 'text-red': paymentInfo?.TotalMoney < 0 }"
+                            >{{ formatDecimal(paymentInfo?.TotalMoney) }}</span
                           >
                         </th>
                       </tr>
@@ -882,7 +882,8 @@ onBeforeMount(async () => {
   // lấy tất cả danh sách tài khoản nợ
   try {
     let res = await accountService.getAllAccountQuery(
-      [AccountFeature.debt, AccountFeature.combine],
+      // [AccountFeature.debt, AccountFeature.combine],
+      null,
       [UserObject.all, UserObject.supplier]
     );
 
@@ -897,7 +898,8 @@ onBeforeMount(async () => {
   // lấy tất cả danh sách tài khoản dư
   try {
     let res = await accountService.getAllAccountQuery(
-      [AccountFeature.redundant, AccountFeature.combine],
+      // [AccountFeature.redundant, AccountFeature.combine],
+      null,
       [UserObject.all, UserObject.supplier]
     );
 
@@ -971,9 +973,9 @@ watchEffect(() => {
  */
 watchEffect(() => {
   if (paymentInfo.value?.Accountings?.length >= 0) {
-    totalMoney.value = 0;
+    paymentInfo.value.TotalMoney = 0;
     paymentInfo.value.Accountings.forEach(
-      (el) => (totalMoney.value += el?.Money ?? 0)
+      (el) => ( paymentInfo.value.TotalMoney += el?.Money ?? 0)
     );
   }
 });
@@ -1149,9 +1151,9 @@ const accessRef = (refName) => {
  * @returns
  */
 const resizeFontSizeMoney = () => {
-  if (totalMoney.value > 999999999999 || totalMoney.value < -999999999999)
+  if (paymentInfo.value.TotalMoney > 999999999999 || paymentInfo.value.TotalMoney < -999999999999)
     return 20;
-  else if (totalMoney.value > 999999999 || totalMoney.value < -999999999)
+  else if (paymentInfo.value.TotalMoney > 999999999 || paymentInfo.value.TotalMoney < -999999999)
     return 28;
   return 36;
 };
@@ -1174,7 +1176,7 @@ const onClickReason = (item) => {
  * @returns
  */
 const onClosePopup = () => {
-  paymentInfo.value = removeEmptyFields(paymentInfo.value);
+  // paymentInfo.value = removeEmptyFields(paymentInfo.value);
   if (
     JSON.stringify(paymentInfo.value) !== JSON.stringify(paymentDetail.value)
   ) {
@@ -1487,7 +1489,7 @@ const isValidateData = () => {
   if (isPaymentCodeEmpty) {
     errsValidator.value.PaymentCode = [
       ...(errsValidator.value?.PaymentCode ?? []),
-      ErrValidator.fieldNotEmpty(FreeText.PaymentCode),
+      ErrValidator.fieldNotEmpty(FreeText.paymentCode),
     ];
   }
 
@@ -1619,7 +1621,7 @@ const onClickButton = (type) => {
     case TypeClickButton.createAndAdd:
       // validate fe
       if (isValidateData()) {
-        console.log("create and add");
+        // console.log("create and add");
       }
       break;
     case TypeClickButton.update:

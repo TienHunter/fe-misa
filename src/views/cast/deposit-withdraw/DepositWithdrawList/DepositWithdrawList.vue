@@ -255,6 +255,7 @@ const onOpenPopupCreate = async () => {
     PaymentDate: convertToYYYYMMDD(new Date().toLocaleDateString("en-US")),
     AccountingDate: convertToYYYYMMDD(new Date().toLocaleDateString("en-US")),
     ReasonSpending: FreeText.spendingFor,
+    ReasonTypeId: 1,
   });
 
   // sinh mã phiếu chi mới

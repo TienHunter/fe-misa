@@ -92,7 +92,6 @@ export const TypeUpdate = {
 };
 export const TypeBulkUpdate = {
   delete: -1,
-  noChange: 0,
   create: 1,
   edit: 2,
 };

@@ -25,7 +25,13 @@
         </div>
         <div
           class="content-body-tools__right ml-auto flex items-center gap-0-12">
-          <div class="text-blue pointer" @click="toggleExpand">
+          <div
+            class="text-blue pointer"
+            :class="{ 'no-pointer': searchValue }"
+            :style="{
+              opacity: searchValue ? 0.5 : 1,
+            }"
+            @click="toggleExpand">
             {{ !isExpand ? FreeText.expand : FreeText.shrink }}
           </div>
           <div

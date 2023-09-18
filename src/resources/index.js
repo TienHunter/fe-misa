@@ -477,6 +477,9 @@ export const FreeText = {
   phoneReceiverBill: "Số điện thoại người nhận hóa đơn",
   identityNumber: "Số chứng minh nhân dân",
   identityDate: "Ngày cấp",
+  shortLegalRepresentative: "Đại diện cho PL",
+  legalRepresentative: "Đại diên theo pháp luật",
+  eInvoiceRecipient: "Người nhận hóa đơn điện tử",
 };
 export const InputPlaceholder = {
   findEmployee: "Tìm kiếm nhân viên...",

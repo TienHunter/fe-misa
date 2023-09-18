@@ -476,25 +476,24 @@
                       <b-textfield
                         v-model="supplierInfo.ContractInfor.LegalRepresentative"
                         :max-length="MaxLength.default"
-                        label="Đại diện theo PL"
-                        title-label="Đại diện theo pháp luật"
-                        place-holder="Đại diện theo PL" />
+                        :label="FreeText.shortLegalRepresentative"
+                        :title-label="FreeText.legalRepresentative"
+                        :place-holder="FreeText.shortLegalRepresentative" />
                     </div>
                   </div>
                   <div class="w-1/2">
                     <div
                       v-if="
                         supplierInfo?.SupplierType ===
-                          SupplierType.organization &&
-                        supplierInfo?.IsCustomer === 0
+                          SupplierType.organization && !supplierInfo?.IsCustomer
                       "
                       class="w-full">
                       <b-textfield
                         v-model="supplierInfo.ContractInfor.LegalRepresentative"
                         :max-length="MaxLength.default"
-                        label="Đại diện theo PL"
-                        title-label="Đại diện theo pháp luật"
-                        place-holder="Đại diện theo PL" />
+                        :label="FreeText.shortLegalRepresentative"
+                        :title-label="FreeText.legalRepresentative"
+                        :place-holder="FreeText.shortLegalRepresentative" />
                     </div>
                     <div
                       v-if="
@@ -504,13 +503,15 @@
                       "
                       class="w-full">
                       <div class="w-full pb-2">
-                        <label class="pb-2">Người nhận hóa đơn điện tử</label>
+                        <label class="pb-2">{{
+                          FreeText.eInvoiceRecipient
+                        }}</label>
                         <b-textfield
                           v-model="
                             supplierInfo.ContractInfor.FullnameReceiverBill
                           "
                           :max-length="MaxLength.name"
-                          place-holder="Họ và tên" />
+                          :place-holder="FreeText.fullname" />
                       </div>
                       <div class="w-full pb-2">
                         <b-textfield
@@ -1636,10 +1637,11 @@ const hanldeAddTermPaymentId = (termPayment) => {
  */
 const loadDataAccountPayable = async () => {
   try {
-    let res = await accountService.getAllAccountQuery(
-      [AccountFeature.debt, AccountFeature.combine],
-      [UserObject.all, UserObject.supplier]
-    );
+    // [AccountFeature.debt, AccountFeature.combine],
+    let res = await accountService.getAllAccountQuery(null, [
+      UserObject.all,
+      UserObject.supplier,
+    ]);
 
     if (res?.length >= 0) {
       dataAccountPayable.value = [...res];
@@ -1658,10 +1660,11 @@ const loadDataAccountPayable = async () => {
  */
 const loadDataAccountReceivable = async () => {
   try {
-    let res = await accountService.getAllAccountQuery(
-      [AccountFeature.redundant, AccountFeature.combine],
-      [UserObject.all, UserObject.supplier]
-    );
+    // [AccountFeature.redundant, AccountFeature.combine],
+    let res = await accountService.getAllAccountQuery(null, [
+      UserObject.all,
+      UserObject.supplier,
+    ]);
 
     if (res?.length >= 0) {
       dataAccountReceivable.value = [...res];

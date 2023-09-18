@@ -173,6 +173,10 @@ const mutations = {
         tmpAccountsList.splice(index, 1, account);
       } else {
         // thay doi nhanh
+
+        // xóa con cũ ra khỏi danh sách
+        tmpAccountsList.splice(index, 1);
+
         // tim cha cu
         let parentOld = tmpAccountsList.find(
           (a) => a?.AccountId === accountPrev?.ParentId
@@ -181,30 +185,36 @@ const mutations = {
           parentOld.NumberChilds -= 1;
           parentOld.IsParent = parentOld.NumberChilds > 0 ? 1 : 0;
         }
-        // xóa con cũ ra khỏi danh sách
-        tmpAccountsList.splice(index, 1);
-        // tìm cha mới
-        let parentNew = tmpAccountsList.find(
-          (a) => a.AccountId === account.ParentId
-        );
-        let parentNewIndex = tmpAccountsList.findIndex(
-          (a) => a.AccountId === account.ParentId
-        );
-        if (parentNew) {
-          parentNew.IsParent = 1;
-          parentNew.NumberChilds++;
-          parentNew.showChild = true;
 
-          // gán con vào dưới cha
-          tmpAccountsList.splice(parentNewIndex + 1, 0, account);
+        // tai khoan thanh nut goc
+        if (account.ParentId === null) {
+          tmpAccountsList.unshift(account);
+        } else {
+          // tìm cha mới
+          let parentNew = tmpAccountsList.find(
+            (a) => a.AccountId === account.ParentId
+          );
+          let parentNewIndex = tmpAccountsList.findIndex(
+            (a) => a.AccountId === account.ParentId
+          );
+          if (parentNew) {
+            parentNew.IsParent = 1;
+            parentNew.NumberChilds++;
+            parentNew.showChild = true;
 
-          let parentId = parentNew.ParentId;
-          while (parentId) {
-            let parentP = tmpAccountsList.find((a) => a.AccountId === parentId);
-            if (parentP) {
-              parentP.showChild = true;
+            // gán con vào dưới cha
+            tmpAccountsList.splice(parentNewIndex + 1, 0, account);
+
+            let parentId = parentNew.ParentId;
+            while (parentId) {
+              let parentP = tmpAccountsList.find(
+                (a) => a.AccountId === parentId
+              );
+              if (parentP) {
+                parentP.showChild = true;
+              }
+              parentId = parentP?.ParentId;
             }
-            parentId = parentP?.ParentId;
           }
         }
       }

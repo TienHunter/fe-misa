@@ -591,7 +591,7 @@ export default {
                 <label class="w-3/5 m-0 block">
                   Giới tính
                   <div
-                    class="flex flex-row gap-0-24 mt-2 py-1"
+                    class="flex flex-row gap-0-24 mt-2"
                     style="position: relative">
                     <label
                       class="flex flex-row items-center gap-0-8 m-0 w-auto font-regular">

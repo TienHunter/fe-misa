@@ -1,6 +1,7 @@
 import { createApp } from "vue";
-import App from "./App.vue";
 import router from "./router";
+import VueCookies from "vue-cookies";
+import App from "./App.vue";
 import store from "./stores";
 import { registerGlobalComponents } from "@/utils/import";
 import BaseButton from "@/components/bases/BaseButton.vue";
@@ -26,11 +27,7 @@ app.component("BPaging", BasePaging);
 app.directive("auto-focus", AutoFocus);
 app.directive("keydown", vKeydown);
 registerGlobalComponents(app);
-router.beforeEach((to, from, next) => {
-  // Thay đổi title dựa trên route hiện tại
-  document.title = to.meta.title || "Kế toán";
-  next();
-});
+app.use(VueCookies);
 app.use(router);
 app.use(store);
 app.mount("#app");

@@ -78,17 +78,20 @@ class AccountService extends BaseService {
 
   async getAllAccountQuery(listAccountFeature, listUserObject) {
     let query = "";
-    if (listAccountFeature?.length >= 0) {
+    if (listAccountFeature?.length > 0) {
       // Chuyển các giá trị trong danh sách thành chuỗi và URL encode
       const encodedAccountFeatures = listAccountFeature.map((feature) =>
         encodeURIComponent(feature)
       );
-      const encodeUserObject = listUserObject.map((userObj) =>
-        encodeURIComponent(userObj)
-      );
+
       encodedAccountFeatures.forEach((element) => {
         query += `accountFeatures=${element}&`;
       });
+    }
+    if (listUserObject?.length > 0) {
+      const encodeUserObject = listUserObject.map((userObj) =>
+        encodeURIComponent(userObj)
+      );
       encodeUserObject.forEach((element) => {
         query += `userObjects=${element}&`;
       });

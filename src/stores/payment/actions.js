@@ -148,6 +148,9 @@ const actions = {
             content: ToastContent.writtenPaymentSuccess,
           });
         }
+        dispatch("getPopupStatus", {
+          isShowPopup: false,
+        });
         // chuyển trạng thái form sang xem
         dispatch("getPopupStatus", {
           isShowPopup: true,
@@ -209,6 +212,9 @@ const actions = {
             content: ToastContent.writtenPaymentSuccess,
           });
         }
+        dispatch("getPopupStatus", {
+          isShowPopup: false,
+        });
         // chuyển trạng thái form sang xem
         dispatch("getPopupStatus", {
           isShowPopup: true,

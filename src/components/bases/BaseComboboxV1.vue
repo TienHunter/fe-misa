@@ -397,7 +397,7 @@ export default {
         emit("loadDataLazy", debounceSearch.value);
       }
 
-      console.log("scroll");
+      // console.log("scroll");
     };
 
     const focus = () => {
@@ -464,7 +464,7 @@ export default {
             listDataRef.value.scrollHeight - listDataRef.value.clientHeight;
         }
       } else if (e.key === "ArrowDown") {
-        console.log(e);
+        // console.log(e);
         e.preventDefault();
         isShowCombobox.value = true;
         if (selectedIndex.value < dataListFilter.value.length - 1) {

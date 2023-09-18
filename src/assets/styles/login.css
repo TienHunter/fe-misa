@@ -1,0 +1,77 @@
+.container-login[bg='3'] {
+  background-image: url(../images/bg3.jpg);
+}
+
+.container-login {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  position: relative;
+  z-index: 1;
+}
+
+.container-login::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(rgba(0, 30, 61, .6) 0, rgba(0, 0, 0, .1) 41.42%, rgba(0, 0, 0, .3) 100%);
+}
+
+.wrap-login {
+  width: 400px;
+  border-radius: 8px;
+  padding: 48px 48px 40px 48px;
+  min-height: 400px;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 12px 20px rgba(0, 0, 0, .12);
+}
+
+.login-form {
+  width: 100%;
+}
+
+.login-form-logo {
+  font-size: 60px;
+  background: url(../images/icon-amis-platform2.svg) center no-repeat;
+  background-size: contain;
+  display: block;
+  display: -moz-box;
+  display: -ms-flexbox;
+  width: 196px;
+  height: 36px;
+  margin: 0 auto;
+  margin-bottom: 40px;
+}
+
+.wrap-input {
+  width: 100%;
+  position: relative;
+}
+
+.btn-show-pass {
+  display: block;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: url(../images/icon-hide-pass.svg) center no-repeat;
+}
+
+.btn-show-pass.active {
+  background: url(../images/icon-show-pass.svg) center no-repeat;
+}
